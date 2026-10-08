@@ -7,3 +7,5 @@
 !/storage/leads/.gitkeep
 /storage/logs/*
 !/storage/logs/.gitkeep
+/storage/auth/*
+!/storage/auth/.gitkeep

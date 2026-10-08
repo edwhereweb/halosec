@@ -26,6 +26,26 @@ over HTTP (`public/` is the only web root; `storage/.htaccess` denies access as 
 Storage sits behind `HaloSec\Services\LeadStorageInterface`, so a PDO implementation can replace
 `FileLeadStorage` in `public/index.php` without touching controllers.
 
+## Admin
+
+A single admin account is configured through environment variables (no credentials in the repo):
+
+```
+php -r "echo password_hash('your-password', PASSWORD_DEFAULT), PHP_EOL;"   # generate the hash
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD_HASH=<hash from above>
+```
+
+If either is unset, admin login is disabled. Quote the hash if your shell/env file treats `$` specially.
+
+- `/admin/login` — sign in (CSRF-protected, generic error messages, session ID regenerated on success,
+  5 failed attempts per IP in 15 minutes locks login for the rest of the window; state kept in `storage/auth/`).
+- `/admin` — dashboard: lead counts per type and the most recent leads.
+- `/admin/leads` — all leads, filterable by type, paginated; `/admin/leads/<type>/<n>` shows one lead.
+- `POST /admin/logout` (CSRF-protected) destroys the session and cookie. Sessions expire after 30 minutes idle.
+
+Every admin route re-checks authentication and responds with `Cache-Control: no-store`. Admin pages are read-only.
+
 ## Layout
 
 `public/` web root · `src/Controllers|Services|Models|Security` · `views/` · `config/` · `storage/` · `tests/`
