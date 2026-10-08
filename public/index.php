@@ -17,11 +17,14 @@ if (is_file($autoload)) {
     });
 }
 
+use HaloSec\Controllers\AdminController;
 use HaloSec\Controllers\FormController;
 use HaloSec\Controllers\PageController;
 use HaloSec\Models\Lead;
 use HaloSec\Router;
+use HaloSec\Security\AdminAuth;
 use HaloSec\Security\CsrfManager;
+use HaloSec\Security\LoginThrottle;
 use HaloSec\Security\SessionManager;
 use HaloSec\Services\FileLeadStorage;
 use HaloSec\Services\FormValidator;
@@ -57,10 +60,19 @@ $validator = new FormValidator(
     $audit['options'],
 );
 // Swap FileLeadStorage for a PDO-backed LeadStorageInterface implementation to move to a database.
-$leadService = new LeadService($validator, new FileLeadStorage($config['storage_path']));
+$leadStorage = new FileLeadStorage($config['storage_path']);
+$leadService = new LeadService($validator, $leadStorage);
 
 $pages = new PageController($view);
 $forms = new FormController($view, $leadService, $csrf, $services, $_SESSION);
+$admin = new AdminController(
+    $view,
+    new AdminAuth($_SESSION, $config['admin_username'], $config['admin_password_hash']),
+    $csrf,
+    new LoginThrottle($config['auth_path']),
+    $leadStorage,
+    (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+);
 
 $post = $_POST;
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -88,6 +100,14 @@ foreach (['GET', 'POST'] as $m) {
         $slug,
     ));
 }
+
+foreach (['GET', 'POST'] as $m) {
+    $router->add($m, '/admin/login', static fn () => $admin->login($method, $post));
+}
+$router->add('GET', '/admin', [$admin, 'dashboard']);
+$router->add('GET', '/admin/leads', static fn () => $admin->leads($_GET));
+$router->add('GET', '/admin/leads/{type}/{number}', [$admin, 'lead']);
+$router->add('POST', '/admin/logout', static fn () => $admin->logout($post));
 
 $result = $router->dispatch($method, $path);
 

@@ -30,6 +30,11 @@ final class CsrfManager
         return $token;
     }
 
+    public function rotate(): void
+    {
+        unset($this->session[self::KEY]);
+    }
+
     public function isValid(mixed $submitted): bool
     {
         $token = $this->session[self::KEY] ?? null;

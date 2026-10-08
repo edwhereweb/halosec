@@ -8,6 +8,9 @@ return [
     'emergency_phone' => getenv('EMERGENCY_PHONE') ?: '+917356543520',
     'contact_email' => getenv('CONTACT_EMAIL') ?: 'hello@halosec.example',
     'storage_path' => dirname(__DIR__) . '/storage/leads',
+    'auth_path' => dirname(__DIR__) . '/storage/auth',
+    'admin_username' => (string) getenv('ADMIN_USERNAME'),
+    'admin_password_hash' => (string) getenv('ADMIN_PASSWORD_HASH'),
     'employee_scales' => ['1 to 5', '5 to 15', '1 to 50', '50 to 100', '100 to 500', '500+'],
     'attack_types' => [
         'Ransomware',

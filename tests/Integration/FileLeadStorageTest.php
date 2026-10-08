@@ -51,4 +51,21 @@ final class FileLeadStorageTest extends TestCase
     {
         $this->assertFalse((new FileLeadStorage('/proc/halosec_nope'))->save(new Lead('contact', [], 'now')));
     }
+
+    public function testReaderCountsFiltersAndFindsLeads(): void
+    {
+        $storage = new FileLeadStorage($this->dir);
+        $storage->save(new Lead(Lead::TYPE_CONTACT, ['name' => 'A'], '2024-01-01T00:00:00+00:00'));
+        $storage->save(new Lead(Lead::TYPE_CONTACT, ['name' => 'B'], '2024-02-01T00:00:00+00:00'));
+        $storage->save(new Lead(Lead::TYPE_AUDIT, ['name' => 'C'], '2024-03-01T00:00:00+00:00'));
+
+        $this->assertSame(2, $storage->counts()[Lead::TYPE_CONTACT]);
+        $this->assertSame(0, $storage->counts()[Lead::TYPE_EMERGENCY]);
+        $this->assertSame('C', $storage->all()[0]['data']['name']);
+        $this->assertCount(2, $storage->all(Lead::TYPE_CONTACT));
+        $this->assertSame([], $storage->all('../etc/passwd'));
+        $this->assertSame('B', $storage->find(Lead::TYPE_CONTACT, 2)['data']['name'] ?? null);
+        $this->assertNull($storage->find(Lead::TYPE_CONTACT, 3));
+        $this->assertNull($storage->find('../x', 1));
+    }
 }
