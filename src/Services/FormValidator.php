@@ -149,6 +149,9 @@ final class FormValidator
      */
     private function answers(mixed $raw, array &$errors): array
     {
+        if ($this->auditQuestions === [] || $raw === null || $raw === []) {
+            return [];
+        }
         $raw = is_array($raw) ? $raw : [];
         $answers = [];
         foreach (array_keys($this->auditQuestions) as $id) {
@@ -173,7 +176,8 @@ final class FormValidator
         }
         $pattern = $multiline ? '/[^\P{C}\n]+/u' : '/\p{C}+/u';
         $value = preg_replace($pattern, '', str_replace("\r\n", "\n", $value)) ?? '';
+        $trimmed = trim($value);
 
-        return mb_substr(trim($value), 0, $max, 'UTF-8');
+        return function_exists('mb_substr') ? mb_substr($trimmed, 0, $max, 'UTF-8') : substr($trimmed, 0, $max);
     }
 }
