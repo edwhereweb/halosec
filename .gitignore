@@ -1,0 +1,9 @@
+/vendor/
+/coverage/
+.env
+.php-cs-fixer.cache
+.phpunit.result.cache
+/storage/leads/*
+!/storage/leads/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
