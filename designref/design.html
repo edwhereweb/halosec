@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Halosec | Elite Cybersecurity &amp; Sophos Silver Partner</title>
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              blue: '#0369a1',
+              sky: '#0ea5e9',
+              dark: '#090e17',
+              lime: '#d9f99d',
+              neon: '#ccff00',
+              accent: '#84cc16'
+            }
+          },
+          boxShadow: {
+            'card-glass': '0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(255, 255, 255, 0.8)',
+            'floating-sky': '0 25px 50px -12px rgba(14, 116, 144, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Visual Stylesheets -->
+<style data-purpose="sky-background">
+    /* Realistic daytime sky gradient with soft layered cloud formations */
+    .sky-hero-backdrop {
+      background: linear-gradient(180deg, #1884e8 0%, #3ca0fc 45%, #76bdff 70%, #d8edff 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cloud-layer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 380px;
+      pointer-events: none;
+      background: radial-gradient(ellipse 65% 55% at 50% 100%, rgba(255,255,255,0.98) 30%, rgba(255,255,255,0.85) 60%, rgba(255,255,255,0) 100%);
+    }
+
+    .cloud-puff-left {
+      position: absolute;
+      bottom: 40px;
+      left: -100px;
+      width: 600px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
+      filter: blur(20px);
+    }
+
+    .cloud-puff-right {
+      position: absolute;
+      bottom: 60px;
+      right: -80px;
+      width: 750px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%);
+      filter: blur(25px);
+    }
+  </style>
+<style data-purpose="3d-perspective-arc">
+    /* 3D Arc and angled perspective cards */
+    .perspective-container {
+      perspective: 1200px;
+    }
+    .tilt-left-far {
+      transform: rotateY(20deg) rotateZ(-3deg) scale(0.9);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tilt-left {
+      transform: rotateY(12deg) rotateZ(-1.5deg) scale(0.96);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tilt-center {
+      transform: translateY(-8px) scale(1.03);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tilt-right {
+      transform: rotateY(-12deg) rotateZ(1.5deg) scale(0.96);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tilt-right-far {
+      transform: rotateY(-20deg) rotateZ(3deg) scale(0.9);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tilt-card:hover {
+      transform: translateY(-14px) scale(1.05) rotateY(0deg) rotateZ(0deg) !important;
+      z-index: 30;
+    }
+  </style>
+<style data-purpose="smooth-animations">
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 0.95; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+    .status-pulse {
+      animation: pulseSoft 3s ease-in-out infinite;
+    }
+  </style>
+<!-- END: Custom Visual Stylesheets -->
+</head>
+<body class="bg-[#fcfdfd] text-slate-800 antialiased selection:bg-[#ccff00] selection:text-slate-900 font-sans">
+<!-- BEGIN: MainHeader -->
+<header class="absolute top-0 left-0 right-0 z-50 pt-5 px-4 md:px-8">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<!-- Logo Container -->
+<a class="flex items-center gap-3 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-full shadow-sm border border-white/60 hover:bg-white transition-all duration-200" href="#">
+<img alt="Halosec Cybersecurity Partner" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XIxH7Sjhz4h8CqnvSNBxlwYVHzZ5C6rknKhKSNPMqR-JWo_Ag_egPdtzPZaQY4mPfmlf_7IY0_DcCNS6E-KQiaXI3YKpB-7D4pPqAvRQ67M7114qJltDsNiJvPmPUy5Q9Erjie7h86qPOu0LQbYgcd4SaEg2ZTpbP3ecwvMY5NzXHHIVe722ywrLcqmsiTkejSCE_Xh7gVZzsDrVKBsji0UsJzubUx8duQL6i-tmTvHDBCl7u4Q3bNPksv"/>
+<span class="hidden sm:inline-block text-[11px] font-bold uppercase tracking-wider bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full">
+          Silver Partner
+        </span>
+</a>
+<!-- Central Navigation Pill -->
+<nav class="hidden md:flex items-center gap-8 bg-black/15 backdrop-blur-md px-7 py-2.5 rounded-full border border-white/20 text-white text-[13px] font-semibold tracking-wide shadow-sm">
+<a class="hover:text-lime-300 transition-colors" href="#services">SERVICES</a>
+<a class="hover:text-lime-300 transition-colors" href="#sophos-mdr">SOPHOS MDR</a>
+<a class="hover:text-lime-300 transition-colors" href="#prisk-score">P-RISK SCORE™</a>
+<a class="hover:text-lime-300 transition-colors" href="#bespoke-it">BESPOKE IT</a>
+<a class="hover:text-lime-300 transition-colors" href="#about">ABOUT US</a>
+</nav>
+<!-- Action Button CTA -->
+<div class="flex items-center gap-3">
+<a class="bg-[#e4fc68] hover:bg-[#d4f844] text-slate-900 font-bold text-xs uppercase px-5 py-2.5 rounded-full transition-transform hover:scale-105 shadow-md flex items-center gap-1.5" href="#prisk-score">
+<span>GET P-RISK™</span>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
+<line x1="7" x2="17" y1="17" y2="7"></line>
+<polyline points="7 7 17 7 17 17"></polyline>
+</svg>
+</a>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: HeroSection -->
+<section class="sky-hero-backdrop pt-32 pb-44 md:pt-40 md:pb-52 rounded-b-[48px] relative shadow-2xl">
+<!-- Atmospheric Cloud Formations -->
+<div class="cloud-layer"></div>
+<div class="cloud-puff-left"></div>
+<div class="cloud-puff-right"></div>
+<div class="max-w-6xl mx-auto px-4 text-center relative z-10">
+<!-- Partner Status Pill -->
+<div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/40 px-3.5 py-1.5 rounded-full mb-6 text-white text-xs font-medium">
+<span class="w-2 h-2 rounded-full bg-emerald-300 animate-ping"></span>
+<span class="w-2 h-2 rounded-full bg-emerald-400 -ml-3.5"></span>
+<span>Sophos Silver Partner &amp; 24/7 Managed SOC Hotline</span>
+</div>
+<!-- Hero Headline mimicking Reference Typography -->
+<h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.08] max-w-4xl mx-auto drop-shadow-sm font-sans">
+        Building the future with <br class="hidden sm:inline"/>
+        cyber defense &amp; strategy
+      </h1>
+<!-- Hero Subtitle -->
+<p class="mt-6 text-base md:text-lg text-sky-50 font-normal max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
+        We help sovereign enterprises, fintechs, and high-growth organizations neutralize threats through predictive P-Risk™ diagnostics, managed MDR isolation, and hardened custom code.
+      </p>
+<!-- Dual Call to Action Buttons -->
+<div class="mt-9 flex flex-wrap items-center justify-center gap-3.5">
+<a class="bg-black/25 hover:bg-black/35 backdrop-blur-md text-white border border-white/30 text-xs font-semibold px-6 py-3.5 rounded-full transition-all uppercase tracking-wider" href="#sophos-mdr">
+          EXPLORE MDR DEMO
+        </a>
+<a class="bg-[#e4fc68] hover:bg-[#c9ef30] text-slate-900 font-bold text-xs uppercase px-7 py-3.5 rounded-full transition-all hover:shadow-lg hover:shadow-lime-300/30 flex items-center gap-2" href="tel:+917356543520">
+<span>EMERGENCY SOC HOTLINE</span>
+<span class="bg-black text-white text-[10px] px-1.5 py-0.5 rounded-full">↗</span>
+</a>
+</div>
+<!-- Hero 3D Card Arc / Capabilities Floating Carousel -->
+<div class="mt-16 perspective-container max-w-5xl mx-auto hidden md:grid grid-cols-5 gap-3.5 items-center">
+<!-- Card 1: Sophos MDR -->
+<div class="tilt-card tilt-left-far bg-white/95 backdrop-blur-xl p-4 rounded-2xl shadow-floating-sky text-left border border-white">
+<div class="w-7 h-7 rounded-xl bg-sky-100 flex items-center justify-center text-sky-600 mb-3 text-xs font-bold">
+            01
+          </div>
+<p class="text-[10px] font-bold text-sky-600 uppercase tracking-wider">Sophos MDR</p>
+<h2 class="text-xs font-extrabold text-slate-900 mt-1 leading-snug">Silver Partner Telemetry</h2>
+<div class="mt-3 text-[11px] font-semibold text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">
+            Active Isolation SLA <span class="text-emerald-600 font-bold">&lt;8 mins</span>
+</div>
+</div>
+<!-- Card 2: P-Risk Score Gauge -->
+<div class="tilt-card tilt-left bg-white/95 backdrop-blur-xl p-4 rounded-2xl shadow-floating-sky text-left border border-white">
+<div class="flex items-center justify-between mb-3">
+<span class="text-[10px] font-extrabold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full uppercase">P-Risk™</span>
+<span class="text-xs font-black text-emerald-600">92/100</span>
+</div>
+<h2 class="text-xs font-extrabold text-slate-900 leading-snug">Continuous Surface Telemetry</h2>
+<div class="mt-3 flex items-center gap-1.5">
+<span class="h-1.5 flex-1 bg-emerald-500 rounded-full"></span>
+<span class="h-1.5 flex-1 bg-emerald-500 rounded-full"></span>
+<span class="h-1.5 w-3 bg-slate-200 rounded-full"></span>
+</div>
+<p class="text-[10px] text-slate-500 mt-2">Zero unpatched criticals</p>
+</div>
+<!-- Card 3: Pentesting Hero Spotlight (Center) -->
+<div class="tilt-card tilt-center bg-slate-900 text-white p-5 rounded-2xl shadow-2xl border border-slate-700 text-left">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-mono text-lime-400 uppercase tracking-widest">● Offensive Sec</span>
+<span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">API &amp; Web</span>
+</div>
+<h2 class="text-sm font-bold text-white mt-1">Zero-Day Playbooks &amp; Hardened PHP</h2>
+<p class="text-[11px] text-slate-300 mt-2 leading-relaxed">
+            Targeted blackbox attack simulations with surgical exploit remediation.
+          </p>
+<div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
+<span class="text-slate-400">Threat Deflection</span>
+<span class="text-lime-300 font-bold font-mono">100% Validated</span>
+</div>
+</div>
+<!-- Card 4: Data Governance & DLP -->
+<div class="tilt-card tilt-right bg-white/95 backdrop-blur-xl p-4 rounded-2xl shadow-floating-sky text-left border border-white">
+<div class="w-7 h-7 rounded-xl bg-purple-100 flex items-center justify-center text-purple-700 mb-3 text-xs font-bold">
+            DLP
+          </div>
+<p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">Data Loss Guard</p>
+<h2 class="text-xs font-extrabold text-slate-900 mt-1 leading-snug">Enterprise Governance</h2>
+<p class="text-[10px] text-slate-500 mt-2">Policy enforcement for regulated healthcare &amp; banking.</p>
+</div>
+<!-- Card 5: SOC Dispatch -->
+<div class="tilt-card tilt-right-far bg-white/95 backdrop-blur-xl p-4 rounded-2xl shadow-floating-sky text-left border border-white">
+<div class="w-7 h-7 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 mb-3 text-xs font-bold">
+            24/7
+          </div>
+<p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">SOC Incident Team</p>
+<h2 class="text-xs font-extrabold text-slate-900 mt-1 leading-snug">Rapid Isolation</h2>
+<p class="text-[10px] text-slate-500 mt-2">On-call triage &amp; immediate containment dispatch.</p>
+</div>
+</div>
+<!-- Trust Rating matching Reference -->
+<div class="mt-10 flex flex-col items-center justify-center">
+<p class="text-white/95 text-xs font-medium tracking-wide">
+          Securing 240+ enterprise environments with accredited Sophos MDR
+        </p>
+<div class="flex items-center gap-1 mt-1 text-amber-300 text-sm">
+<span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+<span class="text-xs text-white ml-1.5 font-semibold">4.9/5 satisfaction index</span>
+</div>
+</div>
+</div>
+</section>
+<!-- END: HeroSection -->
+<!-- BEGIN: PartnerLogosTicker -->
+<section class="border-b border-slate-100 py-10 bg-white">
+<div class="max-w-7xl mx-auto px-4">
+<p class="text-center text-[11px] font-bold tracking-widest text-slate-400 uppercase mb-8">
+        Validated Ecosystem Partners &amp; Enterprise Certifications
+      </p>
+<!-- Logos row with monochrome aesthetic -->
+<div class="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-items-center opacity-70 grayscale hover:grayscale-0 transition-all duration-300">
+<div class="flex items-center gap-2 text-slate-700 font-bold tracking-tighter text-lg">
+<svg class="w-6 h-6 text-sky-600" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+</svg>
+<span>SOPHOS <span class="text-xs font-light text-slate-500">Silver Partner</span></span>
+</div>
+<div class="flex items-center gap-2 text-slate-700 font-bold tracking-tight text-lg">
+<svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path>
+</svg>
+<span>AP-CERT.soc</span>
+</div>
+<div class="flex items-center gap-2 text-slate-700 font-bold tracking-tight text-lg">
+<svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<rect height="18" rx="4" width="18" x="3" y="3"></rect><path d="M9 12h6"></path><path d="M12 9v6"></path>
+</svg>
+<span>ISO 27001:2022</span>
+</div>
+<div class="flex items-center gap-2 text-slate-700 font-bold tracking-tight text-lg">
+<svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+</svg>
+<span>FIN-SECURE Labs</span>
+</div>
+<div class="flex items-center gap-2 text-slate-700 font-bold tracking-tight text-lg col-span-2 md:col-span-1">
+<svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+</svg>
+<span>KERALA IT MISSION</span>
+</div>
+</div>
+</div>
+</section>
+<!-- END: PartnerLogosTicker -->
+<!-- BEGIN: StrategicPartnerSection -->
+<section class="py-24 bg-white relative" id="about">
+<div class="max-w-6xl mx-auto px-4">
+<!-- Subtitle badge matching reference -->
+<div class="text-center mb-4">
+<span class="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-slate-700 uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+          ABOUT HALOSEC
+        </span>
+</div>
+<!-- Headline matching reference typography style with accent badges -->
+<h2 class="text-3xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 text-center tracking-tight max-w-4xl mx-auto leading-tight font-sans">
+        An elite cybersecurity partner dedicated to building
+        <span class="inline-flex items-center align-middle mx-1">
+<span class="w-7 h-7 md:w-9 md:h-9 rounded-full bg-[#0ea5e9] flex items-center justify-center text-white text-xs md:text-base shadow-sm">
+            🛡️
+          </span>
+</span>
+        smarter
+        <br class="hidden sm:inline"/>
+        and 
+        <span class="inline-flex items-center align-middle mx-1">
+<span class="w-7 h-7 md:w-9 md:h-9 rounded-full bg-[#ccff00] flex items-center justify-center text-slate-900 text-xs md:text-base font-bold shadow-sm">
+            ⚡
+          </span>
+</span>
+<span class="text-slate-400 font-bold">more adaptive defense</span>
+</h2>
+<!-- Bento Grid Stats & Capability Cards from Reference -->
+<div class="mt-16 grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+<!-- Bento Card 1: 500+ Audits & Sophos Deployments (Blue Card) -->
+<div class="md:col-span-4 bg-gradient-to-br from-[#0284c7] to-[#0369a1] rounded-3xl p-6 text-white flex flex-col justify-between shadow-xl relative overflow-hidden min-h-[360px]">
+<!-- Top Tag -->
+<div class="flex items-center justify-between">
+<span class="font-extrabold text-base tracking-wider uppercase">HALOSEC™</span>
+<div class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+</div>
+</div>
+<!-- Background Subtle Graphic -->
+<div class="absolute -right-6 -top-6 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+<!-- Bottom Big Stat Box -->
+<div class="mt-12 bg-white rounded-2xl p-5 text-slate-900 shadow-md">
+<div class="text-4xl font-extrabold tracking-tight font-display text-slate-900">500+</div>
+<p class="text-xs font-medium text-slate-600 mt-2 leading-relaxed">
+              Enterprise security audits, cloud policy hardening, and certified Sophos MDR deployments.
+            </p>
+</div>
+</div>
+<!-- Bento Card 2: SLA 100% Commitment -->
+<div class="md:col-span-4 bg-slate-50 border border-slate-200/80 rounded-3xl p-7 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+<div>
+<p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Commitment to measurable SLA</p>
+<div class="text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mt-2 font-display">
+              &lt; 15 min
+            </div>
+<p class="text-xs text-slate-500 mt-2">Active triage &amp; isolation dispatch</p>
+</div>
+<div class="mt-10">
+<!-- Team Avatars Stack -->
+<div class="flex items-center -space-x-2 overflow-hidden mb-4">
+<div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-slate-800 text-white text-[10px] font-bold flex items-center justify-center">SOC</div>
+<div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-sky-600 text-white text-[10px] font-bold flex items-center justify-center">MDR</div>
+<div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">DEV</div>
+<div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">CERT</div>
+</div>
+<p class="text-xs text-slate-700 italic font-medium leading-relaxed">
+              "Their proactive detection containment stopped a zero-day lateral movement before core database exposure."
+            </p>
+</div>
+</div>
+<!-- Bento Card 3 & 4 Right Column Split -->
+<div class="md:col-span-4 flex flex-col gap-6">
+<!-- Neon / Lime Card -->
+<div class="bg-[#d9f99d] rounded-3xl p-6 text-slate-900 shadow-sm flex flex-col justify-between flex-1">
+<div>
+<p class="text-xs font-bold uppercase tracking-wider text-lime-900">P-Risk™ Analyzed Points</p>
+<div class="text-4xl font-extrabold tracking-tight mt-2 font-display text-slate-950">
+                520k+
+              </div>
+</div>
+<p class="text-xs text-slate-800 font-medium mt-4">
+              Endpoint and firewall telemetry streams parsed monthly to anticipate adversary vectors.
+            </p>
+</div>
+<!-- Dark Footprint Card -->
+<div class="bg-slate-950 rounded-3xl p-6 text-white shadow-xl flex items-center justify-between">
+<div>
+<p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Global Footprint</p>
+<p class="text-[11px] text-slate-500 mt-0.5">India, APAC, UAE &amp; EU</p>
+</div>
+<div class="text-4xl font-extrabold text-white font-display">
+              12+
+            </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: StrategicPartnerSection -->
+<!-- BEGIN: SophosMDRSection -->
+<section class="py-20 bg-slate-50 border-t border-slate-100" id="sophos-mdr">
+<div class="max-w-6xl mx-auto px-4">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+<div>
+<span class="text-xs font-bold uppercase tracking-widest text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-100">
+            Official Sophos Silver Partner
+          </span>
+<h3 class="text-3xl font-extrabold text-slate-900 mt-3 font-sans">
+            Sophos Managed Detection &amp; Response (MDR)
+          </h3>
+<p class="text-sm text-slate-600 mt-2 max-w-xl">
+            24/7/365 threat hunting, detection, and remediation service delivered by our certified Halosec engineering team in direct alignment with Sophos Global X-Ops.
+          </p>
+</div>
+<div class="mt-4 md:mt-0">
+<a class="inline-flex items-center gap-2 text-xs font-bold bg-slate-900 text-white px-5 py-2.5 rounded-full hover:bg-slate-800 transition" href="tel:+917356543520">
+<span>TALK TO A CERTIFIED ARCHITECT</span>
+<span>↗</span>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Service Card 1 -->
+<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-sky-300 transition-all">
+<div class="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center font-bold text-sm mb-4">
+            ⚡
+          </div>
+<h4 class="text-base font-bold text-slate-900">Active Threat Hunting</h4>
+<p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Human-led adversary tracking across Microsoft 365, AWS, network boundaries, and endpoints to locate stealth actors that bypass traditional antivirus.
+          </p>
+<ul class="mt-4 space-y-1.5 text-xs text-slate-600 font-medium">
+<li class="flex items-center gap-2">✓ Full root-cause diagnosis</li>
+<li class="flex items-center gap-2">✓ Sophos Intercept X integration</li>
+</ul>
+</div>
+<!-- Service Card 2 -->
+<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-sky-300 transition-all">
+<div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-sm mb-4">
+            🛡️
+          </div>
+<h4 class="text-base font-bold text-slate-900">Full-Scale Incident Remediation</h4>
+<p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Other vendors only notify you with alerts. We isolate infected nodes, terminate unauthorized processes, and revert compromised systems directly.
+          </p>
+<ul class="mt-4 space-y-1.5 text-xs text-slate-600 font-medium">
+<li class="flex items-center gap-2">✓ Rapid device isolation</li>
+<li class="flex items-center gap-2">✓ Zero customer alert fatigue</li>
+</ul>
+</div>
+<!-- Service Card 3 -->
+<div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-sky-300 transition-all">
+<div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-sm mb-4">
+            🔒
+          </div>
+<h4 class="text-base font-bold text-slate-900">Sophos Firewall &amp; XGS Management</h4>
+<p class="text-xs text-slate-600 mt-2 leading-relaxed">
+            Hardened configuration, Zero Trust Network Access (ZTNA), and synchronized security heartbeat connecting endpoint states to firewall perimeter rules.
+          </p>
+<ul class="mt-4 space-y-1.5 text-xs text-slate-600 font-medium">
+<li class="flex items-center gap-2">✓ Automated breach lockdown</li>
+<li class="flex items-center gap-2">✓ High-availability cluster setups</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- END: SophosMDRSection -->
+<!-- BEGIN: PRiskScoreSection -->
+<section class="py-24 bg-white" id="prisk-score">
+<div class="max-w-6xl mx-auto px-4">
+<div class="bg-slate-900 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
+<div class="absolute right-0 top-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+<div class="lg:col-span-7">
+<span class="text-xs font-bold font-mono tracking-widest text-lime-400 uppercase bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+              Diagnostic Framework
+            </span>
+<h3 class="text-3xl md:text-4xl font-extrabold text-white mt-4 font-sans leading-tight">
+              Halosec P-Risk™ Score
+            </h3>
+<p class="text-slate-300 text-sm mt-3 leading-relaxed max-w-xl">
+              Understand your external threat exposure before attackers exploit it. Our proprietary P-Risk™ algorithm runs automated intelligence tests evaluating surface vulnerabilities, shadow IT, credential leaks, and DNS weaknesses.
+            </p>
+<div class="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
+<div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+<div class="text-xs text-slate-400">DNS &amp; MX Hygiene</div>
+<div class="text-lg font-bold text-white mt-1">DMARC / SPF</div>
+</div>
+<div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+<div class="text-xs text-slate-400">Endpoint Status</div>
+<div class="text-lg font-bold text-lime-400 mt-1">Zero Leaks</div>
+</div>
+<div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 col-span-2 sm:col-span-1">
+<div class="text-xs text-slate-400">Turnaround</div>
+<div class="text-lg font-bold text-sky-400 mt-1">&lt; 24 Hours</div>
+</div>
+</div>
+</div>
+<!-- Interactive Request Widget -->
+<div class="lg:col-span-5 bg-white text-slate-900 p-6 md:p-8 rounded-2xl shadow-lg border border-slate-100">
+<h4 class="text-lg font-extrabold text-slate-900">Request Free P-Risk™ Diagnostic</h4>
+<p class="text-xs text-slate-500 mt-1">Free for organizations with 50+ endpoints.</p>
+<form class="mt-5 space-y-3" onsubmit="event.preventDefault(); alert('P-Risk diagnostic request queued. A Halosec senior analyst will contact your IT team within 4 hours.');">
+<div>
+<label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Corporate Domain</label>
+<input class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="company.com" required="" type="text"/>
+</div>
+<div>
+<label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Work Email</label>
+<input class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="cio@company.com" required="" type="email"/>
+</div>
+<div>
+<label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Direct Phone</label>
+<input class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="+91..." required="" type="tel"/>
+</div>
+<button class="w-full mt-2 bg-[#ccff00] hover:bg-[#b8e600] text-slate-950 font-bold text-xs uppercase py-3 rounded-xl transition shadow-md flex items-center justify-center gap-1.5" type="submit">
+<span>GENERATE EXECUTIVE REPORT</span>
+<span>↗</span>
+</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: PRiskScoreSection -->
+<!-- BEGIN: BespokeITSoftwareSection -->
+<section class="py-20 bg-slate-50 border-t border-slate-200/60" id="bespoke-it">
+<div class="max-w-6xl mx-auto px-4">
+<div class="text-center max-w-2xl mx-auto mb-16">
+<span class="text-xs font-bold uppercase tracking-widest text-slate-500">Secure Development Division</span>
+<h3 class="text-3xl font-extrabold text-slate-900 mt-2 font-sans">
+          Bespoke IT Software &amp; Hardened PHP Web Backends
+        </h3>
+<p class="text-xs md:text-sm text-slate-600 mt-3 leading-relaxed">
+          Off-the-shelf software introduces unneeded attack surfaces. Halosec engineers bespoke, low-footprint business applications built from scratch with zero framework bloat and military-grade input sanitization.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div>
+<div class="text-2xl mb-3">🐘</div>
+<h4 class="text-base font-bold text-slate-900">Hardened PHP 8.3 Architecture</h4>
+<p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              Custom web backends built strictly following OWASP ASVS Level 3 controls, strictly typed data structures, and memory-safe configurations without third-party plug-in vulnerabilities.
+            </p>
+</div>
+<div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+<span>Architecture</span>
+<span class="font-bold text-slate-800">Zero CVE Footprint</span>
+</div>
+</div>
+<div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div>
+<div class="text-2xl mb-3">🔑</div>
+<h4 class="text-base font-bold text-slate-900">Custom Banking &amp; ERP Portals</h4>
+<p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              Tailored internal applications for enterprise workflows, employee portals, and customer verification systems with built-in hardware key (WebAuthn/FIDO2) enforcement.
+            </p>
+</div>
+<div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+<span>Identity</span>
+<span class="font-bold text-slate-800">Hardware 2FA / SSO</span>
+</div>
+</div>
+<div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+<div>
+<div class="text-2xl mb-3">🔍</div>
+<h4 class="text-base font-bold text-slate-900">Penetration Testing &amp; Red Teaming</h4>
+<p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              White-box and black-box penetration assessments for Web, Mobile (iOS/Android), and REST/GraphQL APIs with practical exploitation proof-of-concept reports.
+            </p>
+</div>
+<div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+<span>Methodology</span>
+<span class="font-bold text-slate-800">NIST 800-115 + OWASP</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: BespokeITSoftwareSection -->
+<!-- BEGIN: EmergencySOCBanner -->
+<section class="py-12 bg-rose-600 text-white relative overflow-hidden">
+<div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-white text-rose-600 flex items-center justify-center font-bold text-xl status-pulse shadow-md">
+          🚨
+        </div>
+<div>
+<h4 class="text-lg md:text-xl font-extrabold tracking-tight">Active Cyber Incident or Suspected Breach?</h4>
+<p class="text-xs text-rose-100 mt-0.5">Immediate triage by certified incident responders. No waiting in ticketing queues.</p>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<a class="bg-white text-rose-700 hover:bg-rose-50 font-extrabold text-sm px-6 py-3 rounded-full transition shadow-lg flex items-center gap-2" href="tel:+917356543520">
+<span>CALL SOC: +91 73565 43520</span>
+<span>↗</span>
+</a>
+</div>
+</div>
+</section>
+<!-- END: EmergencySOCBanner -->
+<!-- BEGIN: MainFooter -->
+<footer class="bg-slate-950 text-slate-400 text-xs py-16 border-t border-slate-800">
+<div class="max-w-6xl mx-auto px-4">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+<!-- Col 1: Brand & Details -->
+<div class="md:col-span-2">
+<div class="bg-white p-2.5 rounded-xl inline-block mb-4 shadow-sm">
+<img alt="Halosec Cyber Security" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XIxH7Sjhz4h8CqnvSNBxlwYVHzZ5C6rknKhKSNPMqR-JWo_Ag_egPdtzPZaQY4mPfmlf_7IY0_DcCNS6E-KQiaXI3YKpB-7D4pPqAvRQ67M7114qJltDsNiJvPmPUy5Q9Erjie7h86qPOu0LQbYgcd4SaEg2ZTpbP3ecwvMY5NzXHHIVe722ywrLcqmsiTkejSCE_Xh7gVZzsDrVKBsji0UsJzubUx8duQL6i-tmTvHDBCl7u4Q3bNPksv"/>
+</div>
+<p class="text-xs text-slate-400 max-w-sm leading-relaxed">
+            Halosec is an accredited cybersecurity consulting partner and official Sophos Silver Partner providing proactive defense, P-Risk™ diagnostics, managed MDR, and hardened bespoke software solutions.
+          </p>
+<div class="mt-4 text-[11px] text-slate-400 space-y-1">
+<p><span class="text-white font-semibold">Address:</span> Vyaparabhavan Bldg, Kerala, India</p>
+<p><span class="text-white font-semibold">Direct SOC:</span> +91 73565 43520</p>
+<p><span class="text-white font-semibold">Inquiries:</span> contact@halosec.in</p>
+</div>
+</div>
+<!-- Col 2: Services -->
+<div>
+<p class="text-white font-bold text-xs uppercase tracking-wider mb-3 font-sans">Core Services</p>
+<ul class="space-y-2 text-slate-400">
+<li><a class="hover:text-white transition" href="#sophos-mdr">Sophos MDR Management</a></li>
+<li><a class="hover:text-white transition" href="#services">Web &amp; API Pentesting</a></li>
+<li><a class="hover:text-white transition" href="#services">Data Loss Prevention (DLP)</a></li>
+<li><a class="hover:text-white transition" href="#services">Endpoint Hardening</a></li>
+<li><a class="hover:text-white transition" href="#bespoke-it">Hardened PHP Development</a></li>
+</ul>
+</div>
+<!-- Col 3: Diagnostic -->
+<div>
+<p class="text-white font-bold text-xs uppercase tracking-wider mb-3 font-sans">Diagnostics</p>
+<ul class="space-y-2 text-slate-400">
+<li><a class="hover:text-white transition" href="#prisk-score">P-Risk Score™ Audit</a></li>
+<li><a class="hover:text-white transition" href="#">Ransomware Readiness</a></li>
+<li><a class="hover:text-white transition" href="#">Cloud Config Validation</a></li>
+<li><a class="hover:text-white transition" href="#">ISO 27001 Gap Review</a></li>
+</ul>
+</div>
+<!-- Col 4: Regional SOCs -->
+<div>
+<p class="text-white font-bold text-xs uppercase tracking-wider mb-3 font-sans">Operations</p>
+<ul class="space-y-2 text-slate-400 text-[11px]">
+<li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Kerala Cyber Hub (IN)</li>
+<li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Bangalore SOC Dispatch</li>
+<li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> UAE Enterprise Desk</li>
+</ul>
+</div>
+</div>
+<!-- Bottom Bar -->
+<div class="mt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400">
+<div>
+          © <script>document.write(new Date().getFullYear())</script> Halosec. All rights reserved. Official Sophos Silver Consulting Partner.
+        </div>
+<div class="flex items-center gap-6 mt-4 sm:mt-0">
+<a class="hover:text-slate-200 transition" href="#">Privacy Policy</a>
+<a class="hover:text-slate-200 transition" href="#">Responsible Disclosure</a>
+<a class="hover:text-slate-200 transition" href="#">SOC Incident Terms</a>
+</div>
+</div>
+</div>
+</footer>
+<!-- END: MainFooter -->
+</body></html>
