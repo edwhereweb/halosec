@@ -1,6 +1,9 @@
 <?= $this->include('partials/page_header', ['eyebrow' => 'Staff only', 'heading' => 'Admin login', 'lead' => 'Sign in to review incoming leads.']) ?>
 <section class="max-w-md mx-auto px-4 py-16">
   <div class="rounded-3xl bg-white border border-slate-200 shadow-xl p-8">
+    <div class="flex flex-col items-center justify-center mb-6 text-center">
+      <?= $this->include('partials/brand_logo', ['variant' => 'light', 'size' => 'lg', 'showTagline' => true]) ?>
+    </div>
     <?= $this->include('partials/flash', ['flash' => $flash]) ?>
     <?= $this->include('partials/form_open', ['formAction' => $formAction]) ?>
     <div class="space-y-5">

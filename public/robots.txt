@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /storage/
+
+Sitemap: https://halosec.in/sitemap.xml

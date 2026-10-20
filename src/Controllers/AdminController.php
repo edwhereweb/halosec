@@ -46,7 +46,7 @@ final class AdminController
         if ($method === 'POST') {
             $username = is_string($post['username'] ?? null) ? trim($post['username']) : '';
             $password = is_string($post['password'] ?? null) ? $post['password'] : '';
-            $old = ['username' => mb_substr($username, 0, 254)];
+            $old = ['username' => function_exists('mb_substr') ? mb_substr($username, 0, 254, 'UTF-8') : substr($username, 0, 254)];
 
             if (!$this->csrf->isValid($post[CsrfManager::FIELD] ?? null)) {
                 http_response_code(419);
@@ -73,7 +73,7 @@ final class AdminController
 
         return $this->view->render('pages/admin_login', [
             'title' => 'Admin login',
-            'path' => '',
+            'path' => '/admin/login',
             'formAction' => '/admin/login',
             'old' => $old,
             'errors' => [],

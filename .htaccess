@@ -1,0 +1,41 @@
+# HaloSec Root-Level Security & Routing Wrapper for Shared Hosting
+Options -Indexes -MultiViews
+
+# 1. Deny direct access to dotfiles (.env, .git, etc.)
+<FilesMatch "^\.(env|git|htaccess|htpasswd)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 2. Deny direct access to configuration and database dump files
+<FilesMatch "\.(sql|log|json|lock|dist|md)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 3. Safe routing to public/ if document root is set to the repository root
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct web access to internal core directories
+    RewriteRule ^(src|config|views|storage|tests|database)/ - [F,L]
+
+    # Enforce HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Forward to public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

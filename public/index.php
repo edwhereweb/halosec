@@ -38,6 +38,33 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 
 SessionManager::start();
 
+$envFile = $root . '/.env';
+if (is_file($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (is_array($lines)) {
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+            if (str_contains($line, '=')) {
+                [$key, $value] = explode('=', $line, 2);
+                $key = trim($key);
+                $value = trim($value);
+                if ((str_starts_with($value, '"') && str_ends_with($value, '"'))
+                    || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
+                    $value = substr($value, 1, -1);
+                }
+                if (getenv($key) === false) {
+                    putenv("{$key}={$value}");
+                    $_ENV[$key] = $value;
+                    $_SERVER[$key] = $value;
+                }
+            }
+        }
+    }
+}
+
 $config = require $root . '/config/app.php';
 $services = require $root . '/config/services.php';
 $audit = require $root . '/config/audit.php';
@@ -122,6 +149,14 @@ $router = new Router();
 $router->add('GET', '/', [$pages, 'home']);
 $router->add('GET', '/about', [$pages, 'about']);
 $router->add('GET', '/services', [$pages, 'services']);
+$router->add('GET', '/robots.txt', static function (): string {
+    header('Content-Type: text/plain; charset=utf-8');
+    return (string) file_get_contents(__DIR__ . '/robots.txt');
+});
+$router->add('GET', '/sitemap.xml', static function (): string {
+    header('Content-Type: application/xml; charset=utf-8');
+    return (string) file_get_contents(__DIR__ . '/sitemap.xml');
+});
 foreach (['GET', 'POST'] as $m) {
     $router->add($m, '/free-audit', $form(Lead::TYPE_AUDIT, '/free-audit', 'Free Cybersecurity Audit', 'pages/audit'));
     $router->add($m, '/consultation', $form(Lead::TYPE_CONSULTATION, '/consultation', 'Book a Consultation', 'pages/consultation'));

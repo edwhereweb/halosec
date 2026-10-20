@@ -29,7 +29,9 @@ $contentBlocks = $contentBlocks ?? [];
 
     <!-- Hero Title & Tracked Securious Moniker -->
     <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] text-white font-sans drop-shadow-sm">
+      <span class="sr-only">HaloSec Cybersecurity — </span>
       <?= $e($contentBlocks['home.hero_prefix'] ?? 'We are') ?> <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-sky-100 to-sky-300"><?= $e($contentBlocks['home.hero_title'] ?? 'Securious') ?></span>
+      <span class="block text-xl md:text-2xl font-bold tracking-normal text-sky-200/95 mt-3 font-sans">Enterprise Cybersecurity &amp; 24/7 SOC Surveillance</span>
     </h1>
     <p class="mt-4 font-display text-lg md:text-xl tracking-[0.35em] text-lime-300 font-bold uppercase" aria-label="Securious">S E C U R I O U S</p>
 
@@ -120,6 +122,144 @@ $contentBlocks = $contentBlocks ?? [];
     <?php endforeach; ?>
   </div>
 </section>
+
+<?php
+$rawVideo = (string) ($config['founder_video_id'] ?? '');
+$videoId = '';
+if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $rawVideo, $matches)) {
+    $videoId = $matches[1];
+} elseif (preg_match('/^[a-zA-Z0-9_-]{11}$/', $rawVideo)) {
+    $videoId = $rawVideo;
+}
+$chapters = [
+    ['time' => '00:07', 'sec' => 7, 'title' => 'Introduction & Real-Life Security Audit Story'],
+    ['time' => '02:38', 'sec' => 158, 'title' => 'ബിസിനസുകളിലേക്ക് ഹാക്കർമാർ എങ്ങനെ കയറിക്കൂടുന്നു? (Top Vulnerabilities)'],
+    ['time' => '03:07', 'sec' => 187, 'title' => 'Why password strength is important?'],
+    ['time' => '04:43', 'sec' => 283, 'title' => 'Software updates and patching'],
+    ['time' => '05:50', 'sec' => 350, 'title' => 'Segmentation of network'],
+    ['time' => '07:49', 'sec' => 469, 'title' => 'എന്തുകൊണ്ട് ആന്റിവൈറസ് മാത്രം പോരാ? (Endpoint Security)'],
+    ['time' => '10:16', 'sec' => 616, 'title' => 'Data Loss Prevention tools'],
+    ['time' => '11:57', 'sec' => 717, 'title' => 'ബിസിനസുകൾക്കുള്ള ലളിതമായ പരിഹാരങ്ങൾ & Free Security Audit'],
+];
+?>
+
+<!-- Founder's Security Briefing & Audit Walkthrough -->
+<section id="founder-briefing" class="max-w-7xl mx-auto px-4 py-16 scroll-mt-20">
+  <div class="rounded-3xl bg-slate-900 border border-slate-800 text-white p-6 sm:p-10 lg:p-12 relative overflow-hidden shadow-2xl">
+    <div class="absolute -right-20 -top-20 w-96 h-96 bg-sky-500/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-slate-800/80 pb-8 mb-8">
+        <div class="max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-lime-400/10 border border-lime-400/20 text-lime-300 text-xs font-bold uppercase tracking-widest mb-4">
+            <svg class="w-3.5 h-3.5 text-lime-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path></svg>
+            Founder's Video Briefing
+          </div>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            How Hackers Breach Businesses &amp; Why Antivirus Isn't Enough
+          </h2>
+          <p class="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+            Real-world security audit findings, critical corporate vulnerabilities, and why perimeter defenses fail without network segmentation and proactive endpoint monitoring.
+          </p>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <a class="bg-gradient-to-r from-lime-300 via-lime-200 to-lime-300 hover:from-lime-400 hover:to-lime-200 text-slate-950 font-extrabold text-xs uppercase px-6 py-3.5 rounded-xl shadow-lg transition-all hover:scale-105 active:scale-95 inline-flex items-center gap-2 border border-lime-200/50" href="/free-audit">
+            <span>Get Free Audit</span>
+            <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" x2="17" y1="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Player & Chapters Side-by-Side -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <!-- 16:9 Video Container -->
+        <div class="lg:col-span-7 xl:col-span-8 flex flex-col justify-between">
+          <div class="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl aspect-video group">
+            <?php if ($videoId !== '') : ?>
+            <iframe
+              id="founder-video-iframe"
+              class="w-full h-full"
+              src="https://www.youtube-nocookie.com/embed/<?= $e($videoId) ?>?enablejsapi=1&rel=0&modestbranding=1"
+              title="Founder Security Audit Briefing"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+            <?php else : ?>
+            <!-- Fallback video frame if ID is pending in .env -->
+            <div class="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+              <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center mb-4 text-sky-400 group-hover:scale-110 transition-transform">
+                <svg class="w-8 h-8 text-sky-300 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+              <p class="font-bold text-white text-base">Founder's Video Guide</p>
+              <p class="text-xs text-slate-400 max-w-sm mt-1">Real-life security audit walkthrough &amp; corporate attack vectors.</p>
+              <span class="mt-4 text-[11px] font-mono px-3 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700">Set FOUNDER_VIDEO_ID in .env</span>
+            </div>
+            <?php endif; ?>
+          </div>
+          <div class="mt-3 flex items-center justify-between text-xs text-slate-400 px-1">
+            <span class="inline-flex items-center gap-1.5 text-slate-300">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Click any chapter to jump directly to that timestamp
+            </span>
+            <span class="text-slate-400 font-mono text-[11px]">8 Key Chapters</span>
+          </div>
+        </div>
+
+        <!-- Interactive Chapter Navigation -->
+        <div class="lg:col-span-5 xl:col-span-4 bg-slate-950/70 backdrop-blur-md rounded-2xl border border-slate-800/80 p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Jump to Chapter</span>
+              <span class="text-[11px] text-lime-400 font-semibold font-mono">12+ Mins Masterclass</span>
+            </div>
+
+            <div class="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
+              <?php foreach ($chapters as $ch) : ?>
+              <button
+                type="button"
+                onclick="seekFounderVideo(<?= $ch['sec'] ?>)"
+                class="w-full text-left flex items-start gap-3 p-2 rounded-xl transition-all duration-150 hover:bg-slate-800/80 border border-transparent hover:border-slate-700 group focus:outline-none focus:ring-1 focus:ring-lime-400">
+                <span class="px-2 py-0.5 rounded-md bg-slate-800/90 text-sky-300 font-mono text-[11px] font-bold group-hover:bg-lime-400 group-hover:text-slate-950 transition-colors shrink-0">
+                  <?= $e($ch['time']) ?>
+                </span>
+                <span class="text-xs font-medium text-slate-300 group-hover:text-white leading-snug">
+                  <?= $e($ch['title']) ?>
+                </span>
+              </button>
+              <?php endforeach; ?>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-800/80">
+            <a href="/free-audit" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider transition-colors border border-slate-700/60 hover:text-lime-300">
+              <span>Book Your Free Security Audit</span>
+              <span>→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function seekFounderVideo(seconds) {
+  const iframe = document.getElementById('founder-video-iframe');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage(JSON.stringify({
+      event: 'command',
+      func: 'seekTo',
+      args: [seconds, true]
+    }), '*');
+    iframe.contentWindow.postMessage(JSON.stringify({
+      event: 'command',
+      func: 'playVideo',
+      args: []
+    }), '*');
+  }
+}
+</script>
 
 <!-- Founders Note -->
 <section class="max-w-5xl mx-auto px-4 py-16">

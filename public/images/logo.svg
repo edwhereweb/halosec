@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 42" fill="none" class="halosec-logo">
+  <defs>
+    <linearGradient id="haloRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#22d3ee" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.95" />
+    </linearGradient>
+    <filter id="haloGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Cyan Halo Aura Ring behind "ha" -->
+  <ellipse cx="36" cy="21" rx="19" ry="18" stroke="url(#haloRingGrad)" stroke-width="2.5" fill="none" opacity="0.85" filter="url(#haloGlow)" />
+
+  <!-- "halo" in vibrant royal blue -->
+  <text x="7" y="28" font-family="'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="800" letter-spacing="-0.03em" fill="#0056b3">halo</text>
+
+  <!-- "sec" in solid deep slate/black -->
+  <text x="61" y="28" font-family="'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="800" letter-spacing="-0.03em" fill="#090e17">sec</text>
+</svg>

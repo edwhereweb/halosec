@@ -2,16 +2,117 @@
 /** @var HaloSec\View $this */
 $e = static fn (mixed $v): string => HaloSec\View::e($v);
 $path = $path ?? '';
+$services = $services ?? [];
 $contentBlocks = $contentBlocks ?? [];
 $showEmergencyBanner = ($contentBlocks['home.emergency_banner_enabled'] ?? '1') !== '0';
+
+$baseUrl = rtrim((string) (getenv('APP_URL') ?: (isset($_SERVER['HTTP_HOST']) ? ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']) : 'https://halosec.in')), '/');
+$canonicalUrl = $baseUrl . ($path === '/' ? '' : $path);
+
+$siteName = $config['name'] ?? 'HaloSec';
+$defaultTitle = $siteName . ' – Impenetrable Cybersecurity, 24/7 SOC & Penetration Testing';
+$pageTitle = isset($title) && $title !== '' && $title !== 'HaloSec'
+    ? $title . ' | ' . $siteName
+    : $defaultTitle;
+
+$defaultDesc = 'HaloSec delivers enterprise cybersecurity services, 24/7 proactive SOC surveillance, endpoint defense, and offensive penetration testing. Certified Zoho & Sophos Silver Partners.';
+$metaDesc = $description ?? $defaultDesc;
 ?>
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= $e($title ?? 'HaloSec') ?> | <?= $e($config['name'] ?? 'HaloSec') ?> – The Aura of Security for Your Business</title>
-<meta name="description" content="HaloSec – We are Securious. Zoho Partners and Sophos Silver Partners delivering cybersecurity services for your business.">
+<title><?= $e($pageTitle) ?></title>
+<meta name="description" content="<?= $e($metaDesc) ?>">
+<link rel="canonical" href="<?= $e($canonicalUrl) ?>">
+<?php if (($isAdmin ?? false) || str_starts_with($path, '/admin')) : ?>
+<meta name="robots" content="noindex, nofollow">
+<?php else : ?>
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<?php endif; ?>
+
+<!-- Open Graph / Facebook / LinkedIn -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="<?= $e($siteName) ?>">
+<meta property="og:title" content="<?= $e($pageTitle) ?>">
+<meta property="og:description" content="<?= $e($metaDesc) ?>">
+<meta property="og:url" content="<?= $e($canonicalUrl) ?>">
+<meta property="og:image" content="<?= $e($baseUrl) ?>/images/halosec-logo.png">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<?= $e($pageTitle) ?>">
+<meta name="twitter:description" content="<?= $e($metaDesc) ?>">
+<meta name="twitter:image" content="<?= $e($baseUrl) ?>/images/halosec-logo.png">
+
+<link rel="icon" type="image/png" href="/images/favicon.png">
+
+<?php if (!($isAdmin ?? false)) : ?>
+<!-- Structured Data: Organization & ProfessionalService Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "<?= $e($baseUrl) ?>/#organization",
+      "name": "HaloSec",
+      "url": "<?= $e($baseUrl) ?>",
+      "logo": "<?= $e($baseUrl) ?>/images/halosec-logo.png",
+      "slogan": "The Aura of Security for Your Business",
+      "description": "Enterprise cybersecurity services, 24/7 SOC surveillance, endpoint defense, and offensive penetration testing.",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "<?= $e($config['emergency_phone'] ?? '+917356543520') ?>",
+        "contactType": "Emergency Cyber Incident Response",
+        "availableLanguage": "English"
+      }
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": "<?= $e($baseUrl) ?>/#service",
+      "name": "HaloSec Cybersecurity",
+      "image": "<?= $e($baseUrl) ?>/images/halosec-logo.png",
+      "url": "<?= $e($baseUrl) ?>",
+      "telephone": "<?= $e($config['emergency_phone'] ?? '+917356543520') ?>",
+      "priceRange": "$$",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "HaloSec Core Cybersecurity Services",
+        "itemListElement": [
+          <?php
+          $catalog = [];
+          foreach ($services as $sSlug => $sData) {
+              $catalog[] = json_encode([
+                  '@type' => 'Offer',
+                  'itemOffered' => [
+                      '@type' => 'Service',
+                      'name' => $sData['title'] ?? '',
+                      'description' => $sData['short'] ?? '',
+                      'url' => $baseUrl . '/services/' . $sSlug,
+                  ],
+              ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+          }
+          echo implode(",\n          ", $catalog);
+          ?>
+        ]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "<?= $e($baseUrl) ?>/#website",
+      "url": "<?= $e($baseUrl) ?>",
+      "name": "HaloSec",
+      "publisher": {
+        "@id": "<?= $e($baseUrl) ?>/#organization"
+      }
+    }
+  ]
+}
+</script>
+<?php endif; ?>
+
 <link href="https://fonts.googleapis.com" rel="preconnect">
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -71,9 +172,9 @@ tailwind.config = {
 <div class="min-h-screen">
   <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
     <div class="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
-      <a class="flex min-w-0 items-center gap-3 rounded-lg text-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-700" href="/admin" aria-label="HaloSec admin dashboard">
-        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 font-display text-sm font-bold text-white">H</span>
-        <span class="min-w-0"><span class="block font-display text-base font-bold tracking-tight">HaloSec</span><span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Operations</span></span>
+      <a class="flex min-w-0 items-center gap-3 rounded-lg text-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-700 group" href="/admin" aria-label="HaloSec admin dashboard">
+        <img src="/images/halosec-logo.png" alt="HaloSec Admin Operations" class="h-7 w-auto object-contain" width="300" height="86" style="aspect-ratio: 300 / 86;" />
+        <span class="rounded-md bg-slate-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">Operations</span>
       </a>
       <div class="flex min-w-0 items-center gap-3 sm:gap-5">
         <span class="hidden truncate text-sm font-semibold text-slate-600 sm:block"><?= $e($title ?? 'Admin') ?></span>
@@ -136,20 +237,9 @@ tailwind.config = {
 
   <!-- Primary Floating Island Navigation Header -->
   <div class="max-w-7xl mx-auto bg-white/90 backdrop-blur-xl border border-white/80 rounded-2xl shadow-xl shadow-black/20 p-2.5 sm:px-4 flex items-center justify-between gap-4">
-    <!-- Brand Logo & Aura Shield Mark -->
-    <a class="flex items-center gap-3 group" href="/" aria-label="HaloSec Home">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-sky-400 to-lime-300 flex items-center justify-center shadow-md shadow-sky-900/40 group-hover:scale-105 transition-transform duration-200">
-        <svg class="w-5 h-5 text-slate-950" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.46-3.08 8.63-7 9.8-3.92-1.17-7-5.34-7-9.8V6.3l7-3.12zm-1 5.82v5h2v-5h-2zm0 6v2h2v-2h-2z"></path>
-        </svg>
-      </div>
-      <div class="flex flex-col">
-        <div class="flex items-center gap-2">
-          <span class="font-display text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-sky-700 transition-colors">Halo<span class="text-sky-600">Sec</span></span>
-          <span class="inline-block w-1.5 h-1.5 rounded-full bg-lime-400"></span>
-        </div>
-        <span class="text-[10px] tracking-widest uppercase font-semibold text-slate-500 -mt-0.5">We Are Securious</span>
-      </div>
+    <!-- Brand Logo -->
+    <a class="flex items-center group py-0.5" href="/" aria-label="HaloSec Home">
+      <?= $this->include('partials/brand_logo', ['variant' => 'light', 'size' => 'md', 'showTagline' => true]) ?>
     </a>
 
     <!-- Main Navigation Links with Light Pill Styling -->
@@ -208,8 +298,10 @@ tailwind.config = {
 <footer class="bg-slate-950 text-slate-400 text-xs mt-20 border-t border-slate-800">
   <div class="max-w-7xl mx-auto px-4 py-14 grid gap-10 md:grid-cols-4">
     <div class="md:col-span-2">
-      <p class="font-display text-2xl font-bold text-white">Halo<span class="text-lime-300">Sec</span></p>
-      <p class="mt-3 text-sm max-w-md leading-relaxed text-slate-300"><?= $e($config['tagline'] ?? 'The Aura of Security for Your Business') ?>. We are Securious — we are curious about security.</p>
+      <a href="/" class="inline-block group mb-3" aria-label="HaloSec Home">
+        <?= $this->include('partials/brand_logo', ['variant' => 'dark', 'size' => 'lg', 'showTagline' => true]) ?>
+      </a>
+      <p class="mt-2 text-sm max-w-md leading-relaxed text-slate-300"><?= $e($config['tagline'] ?? 'The Aura of Security for Your Business') ?>. We are Securious — we are curious about security.</p>
       <p class="mt-4 text-xs font-bold uppercase tracking-widest text-slate-400">Zoho Partners · Sophos Silver Partners</p>
     </div>
     <div>
