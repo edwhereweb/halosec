@@ -27,8 +27,13 @@ final class View
     public function render(string $template, array $data = [], string $layout = 'layout'): string
     {
         $content = $this->include($template, $data);
+        $isAdmin = str_starts_with($template, 'pages/admin_') && $template !== 'pages/admin_login';
 
-        return $this->include($layout, array_merge($data, ['content' => $content]));
+        return $this->include($layout, array_merge($data, [
+            'content' => $content,
+            'isAdmin' => $isAdmin,
+            'adminPage' => $isAdmin ? substr($template, strlen('pages/admin_')) : '',
+        ]));
     }
 
     /**

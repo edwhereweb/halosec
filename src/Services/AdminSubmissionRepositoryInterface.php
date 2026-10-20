@@ -14,9 +14,16 @@ interface AdminSubmissionRepositoryInterface extends LeadStorageInterface, LeadR
         int $perPage,
         ?string $fromDate = null,
         ?string $toDate = null,
+        ?string $assigneeId = null,
     ): array;
 
-    public function submissionCount(?string $formKey, ?string $status, ?string $fromDate = null, ?string $toDate = null): int;
+    public function submissionCount(
+        ?string $formKey,
+        ?string $status,
+        ?string $fromDate = null,
+        ?string $toDate = null,
+        ?string $assigneeId = null,
+    ): int;
 
     /** @return array<string, mixed>|null */
     public function submission(int $id): ?array;
@@ -37,7 +44,7 @@ interface AdminSubmissionRepositoryInterface extends LeadStorageInterface, LeadR
     public function dashboardStats(): array;
 
     /** @return list<array<string, mixed>> */
-    public function securityEvents(int $limit = 50, ?string $severity = null): array;
+    public function securityEvents(int $limit = 50, ?string $severity = null, ?string $eventType = null): array;
 
     /** @return list<array<string, mixed>> */
     public function auditLogs(int $limit = 50): array;

@@ -109,7 +109,7 @@ final class AdminController
         $stats = $this->repository?->dashboardStats();
         $recent = $this->repository?->listSubmissions(null, null, 1, 20) ?? array_slice($this->leads->all(), 0, 8);
         return $this->view->render('pages/admin_dashboard', [
-            'title' => 'Admin dashboard',
+            'title' => 'Dashboard',
             'path' => '',
             'counts' => $this->leads->counts(),
             'recent' => $recent,
@@ -142,7 +142,7 @@ final class AdminController
             : $this->repository->listSubmissions($type, null, $page, self::PER_PAGE);
 
         return $this->view->render('pages/admin_leads', [
-            'title' => 'Leads',
+            'title' => 'All Inbox',
             'path' => '',
             'type' => $type,
             'total' => $total,
@@ -162,7 +162,7 @@ final class AdminController
             return 404;
         }
 
-        return $this->view->render('pages/admin_lead', ['title' => 'Lead', 'path' => '', 'lead' => $lead]);
+        return $this->view->render('pages/admin_lead', ['title' => 'Submission Detail', 'path' => '', 'lead' => $lead]);
     }
 
     /**
@@ -182,27 +182,44 @@ final class AdminController
             : null;
         $fromDate = $this->dateFilter($query['from'] ?? null);
         $toDate = $this->dateFilter($query['to'] ?? null);
+        $assigneeId = $this->assigneeFilter($query['assignee'] ?? null);
         $page = is_string($query['page'] ?? null) && ctype_digit($query['page']) ? max(1, (int) $query['page']) : 1;
         $allRows = [];
         if ($this->repository === null) {
             $allRows = $this->leads->all($formKey);
+            $allRows = array_values(array_filter($allRows, static function (array $row) use ($status, $fromDate, $toDate, $assigneeId): bool {
+                $rowStatus = (string) ($row['status'] ?? 'new');
+                $submittedDate = substr((string) ($row['created_at'] ?? ''), 0, 10);
+                if (($status !== null && $status !== $rowStatus)
+                    || ($fromDate !== null && $submittedDate < $fromDate)
+                    || ($toDate !== null && $submittedDate > $toDate)) {
+                    return false;
+                }
+                if ($assigneeId === 'unassigned') {
+                    return empty($row['assigned_admin_user_id']);
+                }
+
+                return $assigneeId === null || (string) ($row['assigned_admin_user_id'] ?? '') === $assigneeId;
+            }));
             $total = count($allRows);
         } else {
-            $total = $this->repository->submissionCount($formKey, $status, $fromDate, $toDate);
+            $total = $this->repository->submissionCount($formKey, $status, $fromDate, $toDate, $assigneeId);
         }
         $pages = max(1, (int) ceil($total / self::PER_PAGE));
         $page = min($page, $pages);
         $rows = $this->repository === null
             ? array_slice($allRows, ($page - 1) * self::PER_PAGE, self::PER_PAGE)
-            : $this->repository->listSubmissions($formKey, $status, $page, self::PER_PAGE, $fromDate, $toDate);
+            : $this->repository->listSubmissions($formKey, $status, $page, self::PER_PAGE, $fromDate, $toDate, $assigneeId);
 
         return $this->view->render('pages/admin_submissions', [
-            'title' => 'Frontend data',
+            'title' => 'All Inbox',
             'path' => '',
             'type' => $formKey,
             'status' => $status,
             'fromDate' => $fromDate,
             'toDate' => $toDate,
+            'assigneeId' => $assigneeId,
+            'assignees' => $this->repository?->adminUsers() ?? [],
             'total' => $total,
             'rows' => $rows,
             'page' => $page,
@@ -226,7 +243,7 @@ final class AdminController
         }
 
         return $this->view->render('pages/admin_submission', [
-            'title' => 'Submission',
+            'title' => 'Submission Detail',
             'path' => '',
             'submission' => $record,
             'notes' => $repository->notes((int) $id),
@@ -343,7 +360,8 @@ final class AdminController
             : null;
         $fromDate = $this->dateFilter($query['from'] ?? null);
         $toDate = $this->dateFilter($query['to'] ?? null);
-        $count = $this->repository->submissionCount($formKey, $status, $fromDate, $toDate);
+        $assigneeId = $this->assigneeFilter($query['assignee'] ?? null);
+        $count = $this->repository->submissionCount($formKey, $status, $fromDate, $toDate, $assigneeId);
         $stream = fopen('php://output', 'wb');
         if ($stream === false) {
             http_response_code(500);
@@ -351,11 +369,11 @@ final class AdminController
             return 'Could not create export.';
         }
         header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="frontend-submissions.csv"');
+        header('Content-Disposition: attachment; filename="halosec-submissions.csv"');
         header('X-Content-Type-Options: nosniff');
         fputcsv($stream, ['id', 'form_key', 'submitted_at', 'status', 'assigned_admin_user_id', 'fields']);
         for ($page = 1; $page <= (int) ceil($count / 100); $page++) {
-            foreach ($this->repository->listSubmissions($formKey, $status, $page, 100, $fromDate, $toDate) as $row) {
+            foreach ($this->repository->listSubmissions($formKey, $status, $page, 100, $fromDate, $toDate, $assigneeId) as $row) {
                 $fields = json_encode($row['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}';
                 fputcsv($stream, [
                     $row['id'],
@@ -379,13 +397,20 @@ final class AdminController
             return $denied;
         }
 
+        $eventType = is_string($query['event'] ?? null)
+            && in_array($query['event'], ['admin_login_failed', 'security_events'], true)
+            ? $query['event']
+            : null;
+
         return $this->view->render('pages/admin_security', [
-            'title' => 'Security events',
+            'title' => $eventType === 'admin_login_failed' ? 'Failed Logins' : 'Security Events',
             'path' => '',
             'events' => $this->repository?->securityEvents(
                 50,
                 is_string($query['severity'] ?? null) ? $query['severity'] : null,
+                $eventType,
             ) ?? [],
+            'eventType' => $eventType ?? '',
             'severity' => is_string($query['severity'] ?? null) ? $query['severity'] : '',
         ]);
     }
@@ -397,7 +422,7 @@ final class AdminController
         }
 
         return $this->view->render('pages/admin_audit', [
-            'title' => 'Audit log',
+            'title' => 'Audit Logs',
             'path' => '',
             'entries' => $this->repository?->auditLogs() ?? [],
         ]);
@@ -427,7 +452,7 @@ final class AdminController
         }
 
         return $this->view->render('pages/admin_settings', [
-            'title' => 'Site settings',
+            'title' => 'Site Settings',
             'path' => '',
             'settings' => $this->repository?->settings() ?? [],
             'blocks' => $this->repository?->contentBlocks() ?? [],
@@ -461,7 +486,7 @@ final class AdminController
         }
 
         return $this->view->render('pages/admin_users', [
-            'title' => 'Admin users',
+            'title' => 'Admin Users / Roles',
             'path' => '',
             'users' => $this->repository?->adminUsers() ?? [],
             'message' => $message,
@@ -551,6 +576,15 @@ final class AdminController
         $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
 
         return $date !== false && $date->format('Y-m-d') === $value ? $value : null;
+    }
+
+    private function assigneeFilter(mixed $value): ?string
+    {
+        if ($value === 'unassigned') {
+            return 'unassigned';
+        }
+
+        return is_string($value) && ctype_digit($value) && (int) $value > 0 ? $value : null;
     }
 
     private function redirect(string $to): string

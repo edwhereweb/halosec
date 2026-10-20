@@ -53,7 +53,7 @@ final class AdminAuthorizationTest extends TestCase
         );
 
         http_response_code(200);
-        $this->assertStringContainsString('Frontend data', $controller->submissions([]));
+        $this->assertStringContainsString('All Inbox', $controller->submissions([]));
         $this->assertSame('Forbidden', $controller->settings('GET', []));
         $this->assertSame(403, http_response_code());
         http_response_code(200);
