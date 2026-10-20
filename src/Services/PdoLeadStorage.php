@@ -103,9 +103,9 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         int $perPage,
         ?string $fromDate = null,
         ?string $toDate = null,
-    ): array
-    {
-        [$where, $params] = $this->filters($formKey, $status, $fromDate, $toDate);
+        ?string $assigneeId = null,
+    ): array {
+        [$where, $params] = $this->filters($formKey, $status, $fromDate, $toDate, $assigneeId);
         $offset = (max(1, $page) - 1) * max(1, min($perPage, 100));
         $query = $this->pdo->prepare(
             'SELECT id, form_key, submitted_at, status, assigned_admin_user_id FROM form_submissions'
@@ -121,9 +121,15 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         return $rows;
     }
 
-    public function submissionCount(?string $formKey, ?string $status, ?string $fromDate = null, ?string $toDate = null): int
+    public function submissionCount(
+        ?string $formKey,
+        ?string $status,
+        ?string $fromDate = null,
+        ?string $toDate = null,
+        ?string $assigneeId = null,
+    ): int
     {
-        [$where, $params] = $this->filters($formKey, $status, $fromDate, $toDate);
+        [$where, $params] = $this->filters($formKey, $status, $fromDate, $toDate, $assigneeId);
         $query = $this->pdo->prepare('SELECT COUNT(*) FROM form_submissions' . $where);
         $query->execute($params);
 
@@ -247,7 +253,7 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         ];
     }
 
-    public function securityEvents(int $limit = 50, ?string $severity = null): array
+    public function securityEvents(int $limit = 50, ?string $severity = null, ?string $eventType = null): array
     {
         $sql = 'SELECT severity, event_type, description, created_at FROM (
                 SELECT severity, event_type, description, created_at FROM security_events
@@ -260,6 +266,15 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         if (in_array($severity, ['info', 'low', 'medium', 'high', 'critical'], true)) {
             $sql .= ' WHERE severity = :severity';
             $params['severity'] = $severity;
+        }
+        if (in_array($eventType, ['admin_login_failed', 'security_events'], true)) {
+            $sql .= isset($params['severity']) ? ' AND' : ' WHERE';
+            if ($eventType === 'admin_login_failed') {
+                $sql .= ' event_type = :event_type';
+            } else {
+                $sql .= ' event_type <> :event_type';
+            }
+            $params['event_type'] = 'admin_login_failed';
         }
         $query = $this->pdo->prepare(
             $sql . ' ORDER BY created_at DESC LIMIT ' . max(1, min($limit, 100)),
@@ -527,7 +542,13 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
     }
 
     /** @return array{string, array<string, string>} */
-    private function filters(?string $formKey, ?string $status, ?string $fromDate, ?string $toDate): array
+    private function filters(
+        ?string $formKey,
+        ?string $status,
+        ?string $fromDate,
+        ?string $toDate,
+        ?string $assigneeId = null,
+    ): array
     {
         $where = [];
         $params = [];
@@ -547,6 +568,12 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
             $nextDay = (new \DateTimeImmutable($toDate))->modify('+1 day')->format('Y-m-d');
             $where[] = 'submitted_at < :to_date';
             $params['to_date'] = $nextDay . ' 00:00:00';
+        }
+        if ($assigneeId === 'unassigned') {
+            $where[] = 'assigned_admin_user_id IS NULL';
+        } elseif (is_string($assigneeId) && ctype_digit($assigneeId) && (int) $assigneeId > 0) {
+            $where[] = 'assigned_admin_user_id = :assignee_id';
+            $params['assignee_id'] = $assigneeId;
         }
 
         return [$where === [] ? '' : ' WHERE ' . implode(' AND ', $where), $params];

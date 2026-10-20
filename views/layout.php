@@ -60,12 +60,49 @@ tailwind.config = {
 .tilt-card:hover{transform:translateY(-14px) scale(1.05) rotateY(0deg) rotateZ(0deg)!important;z-index:30}
 @keyframes pulseSoft{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
 .status-pulse{animation:pulseSoft 3s ease-in-out infinite}
+:focus-visible{outline:3px solid #0369a1;outline-offset:3px}
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
 </style>
 </head>
-<body class="bg-[#fcfdfd] text-slate-800 antialiased selection:bg-[#ccff00] selection:text-slate-900 font-sans">
+<body class="<?= ($isAdmin ?? false) ? 'bg-slate-100 text-slate-800 antialiased font-sans' : 'bg-[#fcfdfd] text-slate-800 antialiased selection:bg-[#ccff00] selection:text-slate-900 font-sans' ?>">
 <a class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-2" href="#main">Skip to content</a>
 
+<?php if ($isAdmin ?? false) : ?>
+<div class="min-h-screen">
+  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <div class="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <a class="flex min-w-0 items-center gap-3 rounded-lg text-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-700" href="/admin" aria-label="HaloSec admin dashboard">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 font-display text-sm font-bold text-white">H</span>
+        <span class="min-w-0"><span class="block font-display text-base font-bold tracking-tight">HaloSec</span><span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Operations</span></span>
+      </a>
+      <div class="flex min-w-0 items-center gap-3 sm:gap-5">
+        <span class="hidden truncate text-sm font-semibold text-slate-600 sm:block"><?= $e($title ?? 'Admin') ?></span>
+        <form method="post" action="/admin/logout">
+          <input type="hidden" name="_csrf" value="<?= $e($csrfToken ?? '') ?>">
+          <button type="submit" class="rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-700">Log out</button>
+        </form>
+      </div>
+    </div>
+  </header>
+  <div class="mx-auto flex min-h-[calc(100vh-61px)] max-w-[1600px] flex-col lg:flex-row">
+    <aside class="border-b border-slate-200 bg-white lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
+      <nav aria-label="Admin navigation">
+        <?= $this->include('pages/admin_nav', [
+            'activePage' => $adminPage ?? '',
+            'currentType' => $type ?? null,
+            'eventType' => $eventType ?? '',
+        ]) ?>
+      </nav>
+    </aside>
+    <div class="min-w-0 flex-1">
+      <main id="main" class="min-w-0 px-4 py-6 sm:px-6 lg:px-8">
+        <?= $content ?>
+      </main>
+      <footer class="border-t border-slate-200 px-4 py-4 text-xs text-slate-500 sm:px-6 lg:px-8">HaloSec administrative workspace</footer>
+    </div>
+  </div>
+</div>
+<?php else : ?>
 <!-- Redesigned High-Fidelity Header -->
 <header class="absolute top-0 left-0 right-0 z-50 pt-4 px-4 sm:px-6 lg:px-8">
   <!-- Top Utility Bar: Emergency Alert & Live Status -->
@@ -197,5 +234,6 @@ tailwind.config = {
   </div>
   <p class="border-t border-slate-800/80 text-center text-xs py-6 text-slate-500">© <?= $e(date('Y')) ?> HaloSec. All rights reserved.</p>
 </footer>
+<?php endif; ?>
 </body>
 </html>

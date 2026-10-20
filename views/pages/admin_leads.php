@@ -2,9 +2,8 @@
 $e = static fn (mixed $v): string => HaloSec\View::e($v);
 $qs = static fn (int $p): string => '?' . http_build_query(array_filter(['type' => $type, 'page' => $p > 1 ? $p : null]));
 ?>
-<section class="max-w-6xl mx-auto px-4 pt-28 pb-16">
-  <?= $this->include('pages/admin_nav') ?>
-  <h1 class="text-3xl font-extrabold text-slate-900 mb-4">Leads <span class="text-base font-semibold text-slate-500">(<?= $e($total) ?>)</span></h1>
+<section class="mx-auto w-full max-w-7xl space-y-5">
+  <h1 class="text-3xl font-bold text-slate-950">All Inbox <span class="text-base font-semibold text-slate-500">(<?= $e($total) ?>)</span></h1>
   <form method="get" action="/admin/leads" class="mb-6 flex items-center gap-3">
     <label for="f_type" class="text-sm font-semibold text-slate-700">Type</label>
     <select id="f_type" name="type" class="rounded-xl border-slate-300 text-sm" onchange="this.form.submit()">

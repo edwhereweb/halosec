@@ -1,27 +1,26 @@
 <?php $e = static fn (mixed $v): string => HaloSec\View::e($v); ?>
-<section class="max-w-4xl mx-auto px-4 pt-28 pb-16">
-  <?= $this->include('pages/admin_nav') ?>
-  <h1 class="mb-2 text-3xl font-extrabold text-slate-900">Site settings</h1>
+<section class="mx-auto w-full max-w-7xl space-y-6">
+  <div><p class="text-sm font-semibold text-slate-500">Content &amp; Settings</p><h1 class="mt-1 text-3xl font-bold text-slate-950">Site Settings</h1></div>
   <p class="mb-6 text-sm text-slate-600">Store non-secret operational settings in the database. Never enter credentials here.</p>
   <?php if ($message !== null) : ?><p role="status" class="mb-4 rounded-xl bg-sky-50 p-3 text-sm text-sky-900"><?= $e($message) ?></p><?php endif; ?>
-  <div class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(280px,1fr)]">
-    <form method="post" action="/admin/settings" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div id="site-settings" class="grid scroll-mt-24 gap-6 xl:grid-cols-2">
+    <form method="post" action="/admin/settings" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
       <h2 class="mb-4 font-bold text-slate-900">Add or update a setting</h2>
       <label for="setting_key" class="mb-1 block text-sm font-semibold text-slate-700">Key</label>
       <input id="setting_key" name="key" required maxlength="100" pattern="[A-Za-z0-9_.-]+" class="mb-4 w-full rounded-xl border-slate-300 text-sm" placeholder="site.tagline">
       <label for="setting_value" class="mb-1 block text-sm font-semibold text-slate-700">Value</label>
       <textarea id="setting_value" name="value" required maxlength="4000" rows="4" class="mb-4 w-full rounded-xl border-slate-300 text-sm"></textarea>
-      <button class="rounded-full bg-[#e4fc68] px-5 py-3 text-xs font-bold uppercase text-slate-900" type="submit">Save setting</button>
+      <button class="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700" type="submit">Save setting</button>
     </form>
-    <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h2 class="mb-4 font-bold text-slate-900">Current settings</h2>
       <?php if ($settings === []) : ?><p class="text-sm text-slate-500">No DB-backed settings have been added.</p><?php else : ?>
       <dl class="space-y-4"><?php foreach ($settings as $key => $value) : ?><div class="border-b border-slate-100 pb-3"><dt class="text-xs font-bold uppercase tracking-wider text-slate-500"><?= $e($key) ?></dt><dd class="mt-1 break-words text-sm text-slate-900"><?= $e($value) ?></dd></div><?php endforeach; ?></dl>
       <?php endif; ?>
     </section>
   </div>
-  <section class="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <section id="content-blocks" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
     <h2 class="mb-1 text-xl font-extrabold text-slate-900">Content blocks</h2>
     <p class="mb-5 text-sm text-slate-600">Use plain text only. HTML is escaped when displayed; never paste executable markup.</p>
     <form method="post" action="/admin/content-blocks" class="mb-6 grid gap-3 md:grid-cols-[1fr_2fr_auto]">

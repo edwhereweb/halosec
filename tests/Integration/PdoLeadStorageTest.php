@@ -143,6 +143,41 @@ final class PdoLeadStorageTest extends TestCase
         $this->assertSame(2, (int) $this->pdo->query("SELECT COUNT(*) FROM form_submissions WHERE status = 'spam'")->fetchColumn());
     }
 
+    public function testSubmissionListAndCountCanFilterByAssignee(): void
+    {
+        $this->storage->save(new Lead(Lead::TYPE_CONTACT, ['name' => 'Assigned'], gmdate('c')));
+        $this->storage->save(new Lead(Lead::TYPE_AUDIT, ['name' => 'Unassigned'], gmdate('c')));
+        $rows = $this->storage->listSubmissions(null, null, 1, 10);
+        $this->pdo->prepare('UPDATE form_submissions SET assigned_admin_user_id = :assignee WHERE id = :id')
+            ->execute(['assignee' => 7, 'id' => $rows[0]['submission_id']]);
+
+        $assigned = $this->storage->listSubmissions(null, null, 1, 10, null, null, '7');
+        $unassigned = $this->storage->listSubmissions(null, null, 1, 10, null, null, 'unassigned');
+
+        $this->assertCount(1, $assigned);
+        $this->assertSame(7, $assigned[0]['assigned_admin_user_id']);
+        $this->assertSame(1, $this->storage->submissionCount(null, null, null, null, '7'));
+        $this->assertCount(1, $unassigned);
+        $this->assertNull($unassigned[0]['assigned_admin_user_id']);
+        $this->assertSame(1, $this->storage->submissionCount(null, null, null, null, 'unassigned'));
+    }
+
+    public function testSecurityEventsCanBeFilteredByEventType(): void
+    {
+        $this->storage->recordFailedLogin('127.0.0.1', 'operator');
+        $this->pdo->exec(
+            "INSERT INTO security_events (severity, event_type, description) VALUES ('high', 'suspicious_submission', 'Test event')",
+        );
+
+        $failedLogins = $this->storage->securityEvents(50, null, 'admin_login_failed');
+        $securityEvents = $this->storage->securityEvents(50, null, 'security_events');
+
+        $this->assertCount(1, $failedLogins);
+        $this->assertSame('admin_login_failed', $failedLogins[0]['event_type']);
+        $this->assertCount(1, $securityEvents);
+        $this->assertSame('suspicious_submission', $securityEvents[0]['event_type']);
+    }
+
     public function testAllReturnsSubmissionsBeyondOnePage(): void
     {
         for ($i = 0; $i < 101; $i++) {

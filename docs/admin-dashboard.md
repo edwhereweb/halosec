@@ -44,11 +44,12 @@ Do not enable the database DSN until the schema and an initial admin account are
 ## Dashboard and operations
 
 - `/admin` shows submission KPIs (today, open, spam, high-severity events, and unresolved over 24 hours) plus recent submissions.
-- `/admin/submissions` filters by form type and status; the detail route supports status changes, assignment, notes, and history.
+- `/admin/submissions` is the All Inbox and filters by submission type, status, assignee (including unassigned), and date range. The grouped admin navigation links directly to each submission type.
+- `/admin/submissions/{id}` supports status changes, assignment, internal notes, and note history.
 - The inbox supports bulk resolve/spam/archive and CSV export. Exported user data is serialized as CSV and formula-leading values are escaped.
 - `/admin/settings` manages the allowlisted non-secret site settings (`site.name`, `site.tagline`, `site.contact_email`, `site.emergency_phone`) and plain-text content blocks. Content is HTML-escaped when used in frontend templates.
 - `/admin/users` creates accounts and changes their role/active state. It prevents self-lockout and prevents disabling/demoting the last active super administrator.
-- `/admin/security` shows suspicious submission and failed-login events; `/admin/audit` lists admin mutations.
+- `/admin/security?event=security_events` shows security events; `/admin/security?event=admin_login_failed` shows failed logins. `/admin/audit` lists admin mutations.
 
 ## Table glossary
 

@@ -18,6 +18,6 @@ Unknown form keys are intentionally rejected by validation. Avoid accepting arbi
 
 ## Admin workflow
 
-The inbox filters by form and status and paginates results. Each record has a source key, submitted timestamp, status (`new`, `in_review`, `resolved`, `spam`, `archived`), optional admin assignee, normalized fields, and internal notes. Editors can change status and add notes; assignment, settings, audit, and user administration require stronger roles. Every workflow update writes an audit entry. Assignment IDs must refer to active database users.
+The All Inbox filters by form, status, assignee (including unassigned), and date range, and paginates results. Each record has a source key, submitted timestamp, status (`new`, `in_review`, `resolved`, `spam`, `archived`), optional admin assignee, normalized fields, and internal notes. Editors can change status and add notes; assignment, settings, audit, and user administration require stronger roles. Every workflow update writes an audit entry. Assignment IDs must refer to active database users.
 
 CSV export includes the selected filter and a JSON representation of normalized fields. Bulk actions are limited to 100 selected records per request, require CSRF, and accept only supported statuses.
