@@ -394,9 +394,12 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         }
     }
 
-    public function updateAdminUser(int $userId, string $role, bool $active, ?int $actorId): bool
+    public function updateAdminUser(int $userId, string $role, bool $active, ?int $actorId, ?string $password = null): bool
     {
         if ($userId < 1 || !in_array($role, ['super_admin', 'admin', 'editor', 'viewer'], true)) {
+            return false;
+        }
+        if ($password !== null && $password !== '' && (strlen($password) < 12 || strlen($password) > 1024)) {
             return false;
         }
         try {
@@ -454,6 +457,19 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
                 ->execute(['user_id' => $userId, 'role_id' => $roleId]);
             $this->pdo->prepare('UPDATE admin_users SET is_active = :active, updated_at = CURRENT_TIMESTAMP WHERE id = :id')
                 ->execute(['active' => $active ? 1 : 0, 'id' => $userId]);
+
+            if ($password !== null && $password !== '') {
+                $passStmt = $this->pdo->prepare('UPDATE admin_users SET password_hash = :hash WHERE id = :id');
+                $passStmt->execute([
+                    'hash' => password_hash(
+                        $password,
+                        defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_DEFAULT,
+                    ),
+                    'id' => $userId,
+                ]);
+                $this->audit($actorId, 'admin_user.password_changed', 'admin_user', $userId, []);
+            }
+
             $this->audit($actorId, 'admin_user.updated', 'admin_user', $userId, ['role' => $role, 'active' => $active]);
             $this->pdo->commit();
 

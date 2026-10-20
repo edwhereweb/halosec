@@ -504,12 +504,13 @@ final class AdminController
         }
         $role = is_string($post['role'] ?? null) ? $post['role'] : '';
         $active = ($post['active'] ?? null) === '1';
+        $password = is_string($post['password'] ?? null) && trim($post['password']) !== '' ? trim($post['password']) : null;
         $actorId = $this->auth->userId();
         if ($this->repository === null || !ctype_digit($id) || (int) $id === $actorId && (!$active || $role !== 'super_admin')
-            || !$this->repository->updateAdminUser((int) $id, $role, $active, $actorId)) {
+            || !$this->repository->updateAdminUser((int) $id, $role, $active, $actorId, $password)) {
             http_response_code(422);
 
-            return 'Unable to update this user. Keep at least one active super administrator.';
+            return 'Unable to update this user. Passwords must be at least 12 characters. Keep at least one active super administrator.';
         }
 
         return $this->redirect('/admin/users');

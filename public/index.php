@@ -100,11 +100,12 @@ if ($config['database_dsn'] !== '') {
         $adminRepository = new PdoLeadStorage($database);
         $leadStorage = $adminRepository;
 
-        // Auto-bootstrap admin user into database if not yet seeded
+        // Auto-bootstrap admin user into database if not yet seeded or if .env hash needs to override default seed
         if ($config['admin_username'] !== '' && $config['admin_password_hash'] !== '') {
-            $checkStmt = $database->prepare('SELECT COUNT(*) FROM admin_users WHERE username = :username AND deleted_at IS NULL');
+            $checkStmt = $database->prepare('SELECT id, password_hash FROM admin_users WHERE username = :username AND deleted_at IS NULL');
             $checkStmt->execute(['username' => $config['admin_username']]);
-            if ((int) $checkStmt->fetchColumn() === 0) {
+            $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            if (!is_array($existing)) {
                 $insertUser = $database->prepare('INSERT INTO admin_users (username, password_hash, is_active) VALUES (:username, :hash, 1)');
                 $insertUser->execute([
                     'username' => $config['admin_username'],
@@ -115,6 +116,13 @@ if ($config['database_dsn'] !== '') {
                 $assignRole->execute([
                     'uid' => $newUserId,
                     'role' => $config['admin_role'] ?: 'super_admin',
+                ]);
+            } elseif ($existing['password_hash'] === '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti'
+                && $config['admin_password_hash'] !== '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti') {
+                $updatePass = $database->prepare('UPDATE admin_users SET password_hash = :hash WHERE id = :id');
+                $updatePass->execute([
+                    'hash' => $config['admin_password_hash'],
+                    'id' => (int) $existing['id'],
                 ]);
             }
         }

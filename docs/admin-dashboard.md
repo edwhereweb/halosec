@@ -22,24 +22,21 @@ If the database is not configured, the legacy environment-configured admin remai
 1. Back up the database before applying changes.
 2. Import `/database/migrations/001_admin_dashboard.sql` into the application database using Hostinger phpMyAdmin. The DDL uses MySQL/MariaDB syntax and `IF NOT EXISTS`/`INSERT IGNORE` so it can be safely re-applied.
 3. Configure `DB_DSN` (for example, `mysql:host=localhost;dbname=halosec;charset=utf8mb4`), `DB_USERNAME`, and `DB_PASSWORD` in Hostinger's environment configuration. Do not put production secrets in the repository, the web root, or admin-managed settings.
-4. Create the initial account. Generate a hash on a trusted machine:
+4. Create or manage administrator accounts:
+   - **Option A (Web Dashboard)**: Log in with the initial admin credentials (`admin` / `admin123`) or credentials defined in `.env`. Navigate to `/admin/users` to add new team members or update existing passwords directly.
+   - **Option B (CLI Helper)**: Generate password hashes or create users via CLI:
+     ```sh
+     # Generate password hash:
+     php bin/admin.php hash "YourSecurePassword123!"
 
-   ```sh
-   php -r "echo password_hash('replace-with-a-long-password', defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_DEFAULT), PHP_EOL;"
-   ```
-
-   Insert the generated hash into `admin_users`, then grant `super_admin` by joining the seeded role:
-
-   ```sql
-   INSERT INTO admin_users (username, password_hash) VALUES ('admin', '<generated-hash>');
-   INSERT INTO admin_user_roles (admin_user_id, admin_role_id)
-   SELECT u.id, r.id FROM admin_users u JOIN admin_roles r ON r.role_key = 'super_admin'
-   WHERE u.username = 'admin';
-   ```
+     # Create or reset admin user directly:
+     php bin/admin.php create admin "YourSecurePassword123!" super_admin
+     ```
+   - **Option C (Auto-bootstrap from `.env`)**: Simply set `ADMIN_USERNAME` and `ADMIN_PASSWORD_HASH` in `.env`. HaloSec will automatically seed or sync this account in MySQL on first request.
 
 5. Ensure `storage/` remains writable and outside the public web root. `public/` remains the only web root. No queue worker is required; form writes and admin actions are synchronous.
 
-Do not enable the database DSN until the schema and an initial admin account are in place. If DB connection or persistence is unavailable, form submissions fail safely rather than silently switching to file storage.
+If DB connection or persistence is temporarily unavailable, form submissions fall back safely to protected storage rather than crashing the website.
 
 ## Dashboard and operations
 
