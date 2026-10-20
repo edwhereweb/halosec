@@ -28,7 +28,7 @@ Options -Indexes -MultiViews
     RewriteEngine On
 
     # Block direct web access to internal core directories
-    RewriteRule ^(src|config|views|storage|tests|database)/ - [F,L]
+    RewriteRule ^(src|config|views|storage|tests|database|bin)/ - [F,L]
 
     # Enforce HTTPS
     RewriteCond %{HTTPS} off

@@ -31,4 +31,9 @@ final class PageController
     {
         return $this->view->render('pages/404', ['title' => 'Page not found', 'path' => '']);
     }
+
+    public function serverError(): string
+    {
+        return $this->view->render('pages/500', ['title' => 'Server Error', 'path' => '']);
+    }
 }

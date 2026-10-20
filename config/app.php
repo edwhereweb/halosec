@@ -5,10 +5,13 @@ declare(strict_types=1);
 return [
     'name' => 'HaloSec',
     'tagline' => 'The Aura of Security for Your Business',
+    'app_env' => getenv('APP_ENV') ?: 'production',
+    'app_url' => getenv('APP_URL') ?: 'https://halosec.in',
     'emergency_phone' => getenv('EMERGENCY_PHONE') ?: '+917356543520',
     'contact_email' => getenv('CONTACT_EMAIL') ?: 'hello@halosec.in',
     'storage_path' => dirname(__DIR__) . '/storage/leads',
     'auth_path' => dirname(__DIR__) . '/storage/auth',
+    'logs_path' => dirname(__DIR__) . '/storage/logs',
     'admin_username' => (string) getenv('ADMIN_USERNAME'),
     'admin_password_hash' => (string) getenv('ADMIN_PASSWORD_HASH'),
     'admin_role' => (string) (getenv('ADMIN_ROLE') ?: 'super_admin'),

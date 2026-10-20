@@ -32,12 +32,6 @@ use HaloSec\Services\LeadService;
 use HaloSec\Services\PdoLeadStorage;
 use HaloSec\View;
 
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('Referrer-Policy: strict-origin-when-cross-origin');
-
-SessionManager::start();
-
 $envFile = $root . '/.env';
 if (is_file($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -64,6 +58,33 @@ if (is_file($envFile)) {
         }
     }
 }
+
+// Production error logging configuration
+$isDev = (getenv('APP_ENV') ?: 'production') === 'development';
+if ($isDev) {
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+    error_reporting(E_ALL);
+    ini_set('log_errors', '1');
+    $logDir = $root . '/storage/logs';
+    if (!is_dir($logDir)) {
+        @mkdir($logDir, 0755, true);
+    }
+    ini_set('error_log', $logDir . '/error.log');
+}
+
+// Baseline HTTP response security headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
+header_remove('X-Powered-By');
+
+SessionManager::start();
 
 $config = require $root . '/config/app.php';
 $services = require $root . '/config/services.php';
@@ -232,15 +253,25 @@ foreach (['GET', 'POST'] as $m) {
 $router->add('POST', '/admin/content-blocks', static fn () => $admin->updateContentBlock($post));
 $router->add('POST', '/admin/logout', static fn () => $admin->logout($post));
 
-$result = $router->dispatch($method, $path);
+try {
+    $result = $router->dispatch($method, $path);
 
-if ($result === 405) {
-    http_response_code(405);
-    header('Allow: GET, POST');
-    echo 'Method not allowed';
-} elseif ($result === null || $result === 404) {
-    http_response_code(404);
-    echo $pages->notFound();
-} else {
-    echo $result;
+    if ($result === 405) {
+        http_response_code(405);
+        header('Allow: GET, POST');
+        echo 'Method not allowed';
+    } elseif ($result === null || $result === 404) {
+        http_response_code(404);
+        echo $pages->notFound();
+    } else {
+        echo $result;
+    }
+} catch (Throwable $e) {
+    error_log('Unhandled application error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+    http_response_code(500);
+    if ((getenv('APP_ENV') ?: 'production') === 'development') {
+        echo '<h1>500 Internal Server Error</h1><pre>' . htmlspecialchars((string) $e, ENT_QUOTES, 'UTF-8') . '</pre>';
+    } else {
+        echo $pages->serverError();
+    }
 }
