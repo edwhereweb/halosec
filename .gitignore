@@ -1,11 +1,35 @@
+# Dependencies & Tests
 /vendor/
 /coverage/
-.env
 .php-cs-fixer.cache
 .phpunit.result.cache
+
+# Environment configuration
+.env
+
+# Private Storage (dynamic application data, logs, sessions, backups)
 /storage/leads/*
 !/storage/leads/.gitkeep
 /storage/logs/*
 !/storage/logs/.gitkeep
 /storage/auth/*
 !/storage/auth/.gitkeep
+/storage/uploads/*
+!/storage/uploads/.gitkeep
+/storage/cache/*
+!/storage/cache/.gitkeep
+/storage/backups/*
+!/storage/backups/.gitkeep
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+
+# Public User Uploads & Media
+/public/uploads/*
+!/public/uploads/.gitkeep
+!/public/uploads/.htaccess
+
+# Local Database & Log files
+*.log
+*.sqlite
+*.sqlite3
+*.db
