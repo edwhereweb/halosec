@@ -1,4 +1,7 @@
-<?php $e = static fn (mixed $v): string => HaloSec\View::e($v); ?>
+<?php
+$e = static fn (mixed $v): string => HaloSec\View::e($v);
+$contentBlocks = $contentBlocks ?? [];
+?>
 <!-- Hero Section -->
 <section class="relative pt-44 pb-20 md:pt-52 md:pb-24 rounded-b-[48px] overflow-hidden shadow-2xl bg-gradient-to-b from-slate-950 via-[#071739] to-[#040d21] border-b border-white/10">
   <!-- Ambient Cyber Aura Background Elements -->
@@ -26,7 +29,7 @@
 
     <!-- Hero Title & Tracked Securious Moniker -->
     <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] text-white font-sans drop-shadow-sm">
-      We are <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-sky-100 to-sky-300">Securious</span>
+      <?= $e($contentBlocks['home.hero_prefix'] ?? 'We are') ?> <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-sky-100 to-sky-300"><?= $e($contentBlocks['home.hero_title'] ?? 'Securious') ?></span>
     </h1>
     <p class="mt-4 font-display text-lg md:text-xl tracking-[0.35em] text-lime-300 font-bold uppercase" aria-label="Securious">S E C U R I O U S</p>
 
@@ -38,7 +41,7 @@
     <!-- High-clarity, elevated CTA grouping -->
     <div class="mt-9 flex flex-wrap items-center justify-center gap-4">
       <a class="bg-gradient-to-r from-lime-300 via-lime-200 to-lime-300 hover:from-lime-400 hover:to-lime-200 text-slate-950 font-extrabold text-xs uppercase px-7 py-3.5 rounded-xl shadow-xl shadow-lime-950/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 border border-lime-200/50" href="/free-audit">
-        <span>Get a Free Cybersecurity Audit</span>
+        <span><?= $e($contentBlocks['home.audit_cta_label'] ?? 'Get a Free Cybersecurity Audit') ?></span>
         <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" x2="17" y1="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
       </a>
       <a class="bg-slate-900/70 hover:bg-slate-900 backdrop-blur-xl text-white border border-white/20 text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all hover:border-sky-400/50 shadow-lg flex items-center gap-2" href="/consultation">

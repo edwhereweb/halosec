@@ -101,6 +101,23 @@ final class FormValidatorTest extends TestCase
         $this->assertArrayHasKey('phone', $result->errors);
     }
 
+    public function testNewsletterAndSecurityReportUseNormalizedValidation(): void
+    {
+        $validator = $this->validator();
+        $newsletter = $validator->validate(Lead::TYPE_NEWSLETTER, ['email' => 'news@example.com']);
+        $report = $validator->validate(Lead::TYPE_SECURITY_REPORT, [
+            'name' => 'Ann',
+            'email' => 'ann@example.com',
+            'phone' => '+1 555 123 4567',
+            'attack_type' => 'Ransomware',
+            'message' => 'Please investigate',
+        ]);
+
+        $this->assertTrue($newsletter->isValid());
+        $this->assertSame('news@example.com', $newsletter->data['email']);
+        $this->assertTrue($report->isValid());
+    }
+
     public function testEnquiryRejectsUnknownService(): void
     {
         $result = $this->validator()->validate(Lead::TYPE_ENQUIRY, [

@@ -11,6 +11,8 @@ final class Lead
     public const TYPE_CONSULTATION = 'consultation';
     public const TYPE_EMERGENCY = 'emergency';
     public const TYPE_CONTACT = 'contact';
+    public const TYPE_NEWSLETTER = 'newsletter';
+    public const TYPE_SECURITY_REPORT = 'security_report';
 
     public const TYPES = [
         self::TYPE_AUDIT,
@@ -18,6 +20,8 @@ final class Lead
         self::TYPE_CONSULTATION,
         self::TYPE_EMERGENCY,
         self::TYPE_CONTACT,
+        self::TYPE_NEWSLETTER,
+        self::TYPE_SECURITY_REPORT,
     ];
 
     /**

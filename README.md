@@ -19,16 +19,15 @@ vendor/bin/phpunit
 
 ## Lead storage
 
-Submissions (audit, service enquiry, consultation, emergency, contact) are validated server-side and
-appended as one JSON object per line (JSONL, with timestamp) to `storage/leads/<type>.jsonl`
-using an exclusive file lock. `storage/` must be writable by the web server and must not be served
-over HTTP (`public/` is the only web root; `storage/.htaccess` denies access as a safeguard).
-Storage sits behind `HaloSec\Services\LeadStorageInterface`, so a PDO implementation can replace
-`FileLeadStorage` in `public/index.php` without touching controllers.
+Submissions are validated server-side. With `DB_DSN` configured, the PDO adapter stores submissions
+and normalized fields in MySQL/MariaDB for the admin inbox. Without a DSN, submissions are appended
+as JSONL to `storage/leads/<type>.jsonl` using an exclusive file lock. `storage/` must be writable
+by the web server and must not be served over HTTP (`public/` is the only web root;
+`storage/.htaccess` denies access as a safeguard).
 
 ## Admin
 
-A single admin account is configured through environment variables (no credentials in the repo):
+Without a database, a single legacy admin account can be configured through environment variables (no credentials in the repo):
 
 ```
 php -r "echo password_hash('your-password', PASSWORD_DEFAULT), PHP_EOL;"   # generate the hash
@@ -40,11 +39,14 @@ If either is unset, admin login is disabled. Quote the hash if your shell/env fi
 
 - `/admin/login` — sign in (CSRF-protected, generic error messages, session ID regenerated on success,
   5 failed attempts per IP in 15 minutes locks login for the rest of the window; state kept in `storage/auth/`).
-- `/admin` — dashboard: lead counts per type and the most recent leads.
-- `/admin/leads` — all leads, filterable by type, paginated; `/admin/leads/<type>/<n>` shows one lead.
+- `/admin` — operations dashboard.
+- `/admin/submissions` — unified frontend submissions inbox (database mode).
+- `/admin/users`, `/admin/settings`, `/admin/security`, and `/admin/audit` — role-protected operations pages.
+- `/admin/leads` remains available for legacy JSONL browsing.
 - `POST /admin/logout` (CSRF-protected) destroys the session and cookie. Sessions expire after 30 minutes idle.
 
-Every admin route re-checks authentication and responds with `Cache-Control: no-store`. Admin pages are read-only.
+Every protected admin action re-checks authentication and authorization and responds with `Cache-Control: no-store`.
+See [docs/admin-dashboard.md](docs/admin-dashboard.md) and [docs/admin-submissions.md](docs/admin-submissions.md) for MySQL setup, roles, migration, and form wiring.
 
 ## Layout
 

@@ -1,7 +1,11 @@
 <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
   <nav class="flex gap-4 text-sm font-bold" aria-label="Admin">
     <a class="text-sky-700 hover:underline" href="/admin">Dashboard</a>
-    <a class="text-sky-700 hover:underline" href="/admin/leads">All leads</a>
+    <a class="text-sky-700 hover:underline" href="/admin/submissions">Frontend data</a>
+    <a class="text-sky-700 hover:underline" href="/admin/settings">Settings</a>
+    <a class="text-sky-700 hover:underline" href="/admin/users">Users</a>
+    <a class="text-sky-700 hover:underline" href="/admin/security">Security</a>
+    <a class="text-sky-700 hover:underline" href="/admin/audit">Audit log</a>
   </nav>
   <form method="post" action="/admin/logout">
     <input type="hidden" name="_csrf" value="<?= HaloSec\View::e($csrfToken) ?>">
