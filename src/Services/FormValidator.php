@@ -101,12 +101,16 @@ final class FormValidator
                 $text('message', 2000, false, 'Message');
                 break;
             case Lead::TYPE_EMERGENCY:
+            case Lead::TYPE_SECURITY_REPORT:
                 $text('name', 100, true, 'Your name');
                 $email();
                 $phone(true);
                 $text('company', 150, false, 'Company');
                 $choice('attack_type', $this->attackTypes, 'attack type');
                 $text('message', 2000, true, 'Description of the incident');
+                break;
+            case Lead::TYPE_NEWSLETTER:
+                $email();
                 break;
             case Lead::TYPE_CONTACT:
                 $text('name', 100, true, 'Your name');

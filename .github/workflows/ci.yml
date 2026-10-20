@@ -15,6 +15,6 @@ jobs:
           php-version: '8.3'
           extensions: mbstring, json
       - run: composer install --no-interaction --prefer-dist
-      - run: vendor/bin/php-cs-fixer fix src/ --dry-run --diff
+      - run: vendor/bin/php-cs-fixer fix src/ --dry-run --diff --allow-risky=yes
       - run: vendor/bin/phpstan analyse src tests --level=8
       - run: vendor/bin/phpunit

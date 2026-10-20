@@ -94,6 +94,8 @@ final class FormController
             Lead::TYPE_AUDIT => 'Thank you! Your audit request is in. A HaloSec specialist will contact you within one business day.',
             Lead::TYPE_CONSULTATION => 'Thank you! We have received your consultation request and will be in touch shortly.',
             Lead::TYPE_EMERGENCY => 'Incident report received. Our response team has been alerted. If you have not heard from us in 15 minutes, call the emergency hotline.',
+            Lead::TYPE_SECURITY_REPORT => 'Security report received. Our response team will review it shortly.',
+            Lead::TYPE_NEWSLETTER => 'Thank you for subscribing to HaloSec updates.',
             Lead::TYPE_ENQUIRY => 'Thank you! Your enquiry has been sent. Our team will reply shortly.',
             default => 'Thank you! Your message has been sent.',
         };

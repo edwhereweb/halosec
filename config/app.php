@@ -11,6 +11,10 @@ return [
     'auth_path' => dirname(__DIR__) . '/storage/auth',
     'admin_username' => (string) getenv('ADMIN_USERNAME'),
     'admin_password_hash' => (string) getenv('ADMIN_PASSWORD_HASH'),
+    'admin_role' => (string) (getenv('ADMIN_ROLE') ?: 'super_admin'),
+    'database_dsn' => (string) getenv('DB_DSN'),
+    'database_username' => (string) getenv('DB_USERNAME'),
+    'database_password' => (string) getenv('DB_PASSWORD'),
     'employee_scales' => ['1 to 5', '5 to 15', '1 to 50', '50 to 100', '100 to 500', '500+'],
     'attack_types' => [
         'Ransomware',

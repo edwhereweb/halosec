@@ -2,13 +2,15 @@
 /** @var HaloSec\View $this */
 $e = static fn (mixed $v): string => HaloSec\View::e($v);
 $path = $path ?? '';
+$contentBlocks = $contentBlocks ?? [];
+$showEmergencyBanner = ($contentBlocks['home.emergency_banner_enabled'] ?? '1') !== '0';
 ?>
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= $e($title ?? 'HaloSec') ?> | HaloSec – The Aura of Security for Your Business</title>
+<title><?= $e($title ?? 'HaloSec') ?> | <?= $e($config['name'] ?? 'HaloSec') ?> – The Aura of Security for Your Business</title>
 <meta name="description" content="HaloSec – We are Securious. Zoho Partners and Sophos Silver Partners delivering cybersecurity services for your business.">
 <link href="https://fonts.googleapis.com" rel="preconnect">
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
@@ -69,6 +71,7 @@ tailwind.config = {
   <!-- Top Utility Bar: Emergency Alert & Live Status -->
   <div class="max-w-7xl mx-auto mb-3 flex items-center justify-between text-xs text-white/80 border-b border-white/10 pb-2.5 px-2">
     <div class="flex items-center gap-4">
+      <?php if ($showEmergencyBanner) : ?>
       <span class="inline-flex items-center gap-1.5 font-medium text-lime-300">
         <span class="relative flex h-2 w-2">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
@@ -76,7 +79,10 @@ tailwind.config = {
         </span>
         SOC Monitoring 24/7 Active
       </span>
+      <?php endif; ?>
+      <?php if ($showEmergencyBanner) : ?>
       <span class="hidden md:inline-block text-white/40">|</span>
+      <?php endif; ?>
       <span class="hidden md:flex items-center gap-2 text-white/70">
         <span>Certified Partners:</span>
         <span class="bg-white/10 px-2 py-0.5 rounded text-[11px] font-semibold text-white">Zoho Certified</span>

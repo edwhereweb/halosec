@@ -29,6 +29,7 @@ use HaloSec\Security\SessionManager;
 use HaloSec\Services\FileLeadStorage;
 use HaloSec\Services\FormValidator;
 use HaloSec\Services\LeadService;
+use HaloSec\Services\PdoLeadStorage;
 use HaloSec\View;
 
 header('X-Content-Type-Options: nosniff');
@@ -59,19 +60,55 @@ $validator = new FormValidator(
     $audit['questions'],
     $audit['options'],
 );
-// Swap FileLeadStorage for a PDO-backed LeadStorageInterface implementation to move to a database.
-$leadStorage = new FileLeadStorage($config['storage_path']);
+$adminRepository = null;
+$database = null;
+if ($config['database_dsn'] !== '') {
+    $database = new PDO(
+        $config['database_dsn'],
+        $config['database_username'],
+        $config['database_password'],
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false],
+    );
+    $adminRepository = new PdoLeadStorage($database);
+    $leadStorage = $adminRepository;
+} else {
+    $leadStorage = new FileLeadStorage($config['storage_path']);
+}
 $leadService = new LeadService($validator, $leadStorage);
+if ($adminRepository !== null) {
+    $settings = $adminRepository->settings();
+    foreach ([
+        'site.name' => 'name',
+        'site.tagline' => 'tagline',
+        'site.contact_email' => 'contact_email',
+        'site.emergency_phone' => 'emergency_phone',
+    ] as $settingKey => $configKey) {
+        if (isset($settings[$settingKey])) {
+            $config[$configKey] = $settings[$settingKey];
+        }
+    }
+    $blocks = [];
+    foreach ($adminRepository->contentBlocks() as $block) {
+        $key = (string) $block['block_key'];
+        if ($key === 'home.emergency_banner_enabled') {
+            $blocks[$key] = (int) $block['is_active'] === 1 ? (string) $block['content'] : '0';
+        } elseif ((int) $block['is_active'] === 1) {
+            $blocks[$key] = (string) $block['content'];
+        }
+    }
+    $view->share(['config' => $config, 'contentBlocks' => $blocks]);
+}
 
 $pages = new PageController($view);
 $forms = new FormController($view, $leadService, $csrf, $services, $_SESSION);
 $admin = new AdminController(
     $view,
-    new AdminAuth($_SESSION, $config['admin_username'], $config['admin_password_hash']),
+    new AdminAuth($_SESSION, $config['admin_username'], $config['admin_password_hash'], $config['admin_role'], $database),
     $csrf,
     new LoginThrottle($config['auth_path']),
     $leadStorage,
     (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+    $adminRepository,
 );
 
 $post = $_POST;
@@ -100,6 +137,10 @@ foreach (['GET', 'POST'] as $m) {
         $slug,
     ));
 }
+$router->add('GET', '/newsletter', $form(Lead::TYPE_NEWSLETTER, '/newsletter', 'Newsletter', 'pages/newsletter'));
+$router->add('POST', '/newsletter', $form(Lead::TYPE_NEWSLETTER, '/newsletter', 'Newsletter', 'pages/newsletter'));
+$router->add('GET', '/security-report', $form(Lead::TYPE_SECURITY_REPORT, '/security-report', 'Security report', 'pages/emergency'));
+$router->add('POST', '/security-report', $form(Lead::TYPE_SECURITY_REPORT, '/security-report', 'Security report', 'pages/emergency'));
 
 foreach (['GET', 'POST'] as $m) {
     $router->add($m, '/admin/login', static fn () => $admin->login($method, $post));
@@ -107,6 +148,21 @@ foreach (['GET', 'POST'] as $m) {
 $router->add('GET', '/admin', [$admin, 'dashboard']);
 $router->add('GET', '/admin/leads', static fn () => $admin->leads($_GET));
 $router->add('GET', '/admin/leads/{type}/{number}', [$admin, 'lead']);
+$router->add('GET', '/admin/submissions', static fn () => $admin->submissions($_GET));
+$router->add('GET', '/admin/submissions/export', static fn () => $admin->exportSubmissions($_GET));
+$router->add('POST', '/admin/submissions/bulk', static fn () => $admin->bulkChangeSubmissionStatus($post));
+$router->add('GET', '/admin/submissions/{id}', [$admin, 'submission']);
+$router->add('POST', '/admin/submissions/{id}/status', static fn (string $id) => $admin->changeSubmissionStatus($id, $post));
+$router->add('POST', '/admin/submissions/{id}/assignment', static fn (string $id) => $admin->assignSubmission($id, $post));
+$router->add('POST', '/admin/submissions/{id}/notes', static fn (string $id) => $admin->addSubmissionNote($id, $post));
+$router->add('GET', '/admin/security', static fn () => $admin->security($_GET));
+$router->add('GET', '/admin/audit', [$admin, 'audit']);
+$router->add('POST', '/admin/users/{id}', static fn (string $id) => $admin->updateUser($id, $post));
+foreach (['GET', 'POST'] as $m) {
+    $router->add($m, '/admin/settings', static fn () => $admin->settings($method, $post));
+    $router->add($m, '/admin/users', static fn () => $admin->users($method, $post));
+}
+$router->add('POST', '/admin/content-blocks', static fn () => $admin->updateContentBlock($post));
 $router->add('POST', '/admin/logout', static fn () => $admin->logout($post));
 
 $result = $router->dispatch($method, $path);
