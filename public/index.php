@@ -90,14 +90,38 @@ $validator = new FormValidator(
 $adminRepository = null;
 $database = null;
 if ($config['database_dsn'] !== '') {
-    $database = new PDO(
-        $config['database_dsn'],
-        $config['database_username'],
-        $config['database_password'],
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false],
-    );
-    $adminRepository = new PdoLeadStorage($database);
-    $leadStorage = $adminRepository;
+    try {
+        $database = new PDO(
+            $config['database_dsn'],
+            $config['database_username'],
+            $config['database_password'],
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false],
+        );
+        $adminRepository = new PdoLeadStorage($database);
+        $leadStorage = $adminRepository;
+
+        // Auto-bootstrap admin user into database if not yet seeded
+        if ($config['admin_username'] !== '' && $config['admin_password_hash'] !== '') {
+            $checkStmt = $database->prepare('SELECT COUNT(*) FROM admin_users WHERE username = :username AND deleted_at IS NULL');
+            $checkStmt->execute(['username' => $config['admin_username']]);
+            if ((int) $checkStmt->fetchColumn() === 0) {
+                $insertUser = $database->prepare('INSERT INTO admin_users (username, password_hash, is_active) VALUES (:username, :hash, 1)');
+                $insertUser->execute([
+                    'username' => $config['admin_username'],
+                    'hash' => $config['admin_password_hash'],
+                ]);
+                $newUserId = (int) $database->lastInsertId();
+                $assignRole = $database->prepare('INSERT INTO admin_user_roles (admin_user_id, admin_role_id) SELECT :uid, id FROM admin_roles WHERE role_key = :role');
+                $assignRole->execute([
+                    'uid' => $newUserId,
+                    'role' => $config['admin_role'] ?: 'super_admin',
+                ]);
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('Database connection error: ' . $e->getMessage());
+        $leadStorage = new FileLeadStorage($config['storage_path']);
+    }
 } else {
     $leadStorage = new FileLeadStorage($config['storage_path']);
 }
