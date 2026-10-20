@@ -380,6 +380,16 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         }
         try {
             $this->pdo->beginTransaction();
+            if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql') {
+                $superAdminLock = $this->pdo->prepare(
+                    "SELECT id FROM admin_roles WHERE role_key = 'super_admin' FOR UPDATE",
+                );
+            } else {
+                $superAdminLock = $this->pdo->prepare(
+                    "UPDATE admin_roles SET role_key = role_key WHERE role_key = 'super_admin'",
+                );
+            }
+            $superAdminLock->execute();
             $userQuery = $this->pdo->prepare(
                 "SELECT u.id, u.is_active,
                     MAX(CASE WHEN r.role_key = 'super_admin' THEN 1 ELSE 0 END) AS is_super_admin
