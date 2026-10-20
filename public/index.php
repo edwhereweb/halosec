@@ -122,31 +122,43 @@ if ($config['database_dsn'] !== '') {
         $leadStorage = $adminRepository;
 
         // Auto-bootstrap admin user into database if not yet seeded or if .env hash needs to override default seed
-        if ($config['admin_username'] !== '' && $config['admin_password_hash'] !== '') {
-            $checkStmt = $database->prepare('SELECT id, password_hash FROM admin_users WHERE username = :username AND deleted_at IS NULL');
-            $checkStmt->execute(['username' => $config['admin_username']]);
-            $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
-            if (!is_array($existing)) {
-                $insertUser = $database->prepare('INSERT INTO admin_users (username, password_hash, is_active) VALUES (:username, :hash, 1)');
-                $insertUser->execute([
-                    'username' => $config['admin_username'],
-                    'hash' => $config['admin_password_hash'],
-                ]);
-                $newUserId = (int) $database->lastInsertId();
-                $assignRole = $database->prepare('INSERT INTO admin_user_roles (admin_user_id, admin_role_id) SELECT :uid, id FROM admin_roles WHERE role_key = :role');
-                $assignRole->execute([
-                    'uid' => $newUserId,
-                    'role' => $config['admin_role'] ?: 'super_admin',
-                ]);
-            } elseif ($existing['password_hash'] === '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti'
-                && $config['admin_password_hash'] !== '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti') {
-                $updatePass = $database->prepare('UPDATE admin_users SET password_hash = :hash WHERE id = :id');
-                $updatePass->execute([
-                    'hash' => $config['admin_password_hash'],
-                    'id' => (int) $existing['id'],
-                ]);
-            }
+        // Ensure standard roles exist in MySQL
+        try {
+            $database->exec("INSERT IGNORE INTO admin_roles (role_key) VALUES ('super_admin'), ('admin'), ('editor'), ('viewer')");
+        } catch (Throwable) {}
+
+        // Auto-bootstrap admin user into database if not yet seeded or if .env hash needs to override default seed
+        $adminUser = $config['admin_username'] !== '' ? $config['admin_username'] : 'admin';
+        $adminHash = $config['admin_password_hash'] !== '' ? $config['admin_password_hash'] : '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti';
+
+        $checkStmt = $database->prepare('SELECT id, password_hash FROM admin_users WHERE LOWER(username) = LOWER(:username) AND deleted_at IS NULL');
+        $checkStmt->execute(['username' => $adminUser]);
+        $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        if (!is_array($existing)) {
+            $insertUser = $database->prepare('INSERT INTO admin_users (username, password_hash, is_active) VALUES (:username, :hash, 1)');
+            $insertUser->execute([
+                'username' => $adminUser,
+                'hash' => str_starts_with($adminHash, '$') ? $adminHash : password_hash($adminHash, PASSWORD_DEFAULT),
+            ]);
+            $newUserId = (int) $database->lastInsertId();
+            $assignRole = $database->prepare("INSERT IGNORE INTO admin_user_roles (admin_user_id, admin_role_id) SELECT :uid, id FROM admin_roles WHERE role_key = :role");
+            $assignRole->execute([
+                'uid' => $newUserId,
+                'role' => $config['admin_role'] ?: 'super_admin',
+            ]);
+        } elseif ($existing['password_hash'] === '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti'
+            && $adminHash !== '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti') {
+            $updatePass = $database->prepare('UPDATE admin_users SET password_hash = :hash WHERE id = :id');
+            $updatePass->execute([
+                'hash' => str_starts_with($adminHash, '$') ? $adminHash : password_hash($adminHash, PASSWORD_DEFAULT),
+                'id' => (int) $existing['id'],
+            ]);
         }
+
+        // Ensure every active admin user has at least one role mapped
+        try {
+            $database->exec("INSERT IGNORE INTO admin_user_roles (admin_user_id, admin_role_id) SELECT u.id, r.id FROM admin_users u JOIN admin_roles r ON r.role_key = 'super_admin' WHERE u.deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM admin_user_roles ur WHERE ur.admin_user_id = u.id)");
+        } catch (Throwable) {}
     } catch (Throwable $e) {
         error_log('Database connection error: ' . $e->getMessage());
         $leadStorage = new FileLeadStorage($config['storage_path']);

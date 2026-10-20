@@ -490,7 +490,7 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         );
         $query->execute([
             'ip_hash' => hash('sha256', $ip),
-            'account_hash' => hash('sha256', mb_strtolower(trim($username))),
+            'account_hash' => hash('sha256', strtolower(trim($username))),
         ]);
     }
 
