@@ -71,14 +71,18 @@ tailwind.config = {
   <!-- Top Utility Bar: Emergency Alert & Live Status -->
   <div class="max-w-7xl mx-auto mb-3 flex items-center justify-between text-xs text-white/80 border-b border-white/10 pb-2.5 px-2">
     <div class="flex items-center gap-4">
-      <?php if ($showEmergencyBanner) : ?><span class="inline-flex items-center gap-1.5 font-medium text-lime-300">
+      <?php if ($showEmergencyBanner) : ?>
+      <span class="inline-flex items-center gap-1.5 font-medium text-lime-300">
         <span class="relative flex h-2 w-2">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-lime-400"></span>
-        </span><?php endif; ?>
+        </span>
         SOC Monitoring 24/7 Active
       </span>
+      <?php endif; ?>
+      <?php if ($showEmergencyBanner) : ?>
       <span class="hidden md:inline-block text-white/40">|</span>
+      <?php endif; ?>
       <span class="hidden md:flex items-center gap-2 text-white/70">
         <span>Certified Partners:</span>
         <span class="bg-white/10 px-2 py-0.5 rounded text-[11px] font-semibold text-white">Zoho Certified</span>

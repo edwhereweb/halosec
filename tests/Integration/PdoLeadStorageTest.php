@@ -143,6 +143,15 @@ final class PdoLeadStorageTest extends TestCase
         $this->assertSame(2, (int) $this->pdo->query("SELECT COUNT(*) FROM form_submissions WHERE status = 'spam'")->fetchColumn());
     }
 
+    public function testAllReturnsSubmissionsBeyondOnePage(): void
+    {
+        for ($i = 0; $i < 101; $i++) {
+            $this->assertTrue($this->storage->save(new Lead(Lead::TYPE_CONTACT, ['email' => 'person@example.com'], gmdate('c'))));
+        }
+
+        $this->assertCount(101, $this->storage->all(Lead::TYPE_CONTACT));
+    }
+
     public function testUserCreationAndLastSuperAdminProtection(): void
     {
         $this->pdo->exec("INSERT INTO admin_roles (role_key) VALUES ('super_admin'), ('editor'), ('viewer')");

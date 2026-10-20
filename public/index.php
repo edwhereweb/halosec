@@ -89,8 +89,11 @@ if ($adminRepository !== null) {
     }
     $blocks = [];
     foreach ($adminRepository->contentBlocks() as $block) {
-        if ((int) $block['is_active'] === 1) {
-            $blocks[(string) $block['block_key']] = (string) $block['content'];
+        $key = (string) $block['block_key'];
+        if ($key === 'home.emergency_banner_enabled') {
+            $blocks[$key] = (int) $block['is_active'] === 1 ? (string) $block['content'] : '0';
+        } elseif ((int) $block['is_active'] === 1) {
+            $blocks[$key] = (string) $block['content'];
         }
     }
     $view->share(['config' => $config, 'contentBlocks' => $blocks]);

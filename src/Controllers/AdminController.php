@@ -127,17 +127,26 @@ final class AdminController
         }
 
         $type = is_string($query['type'] ?? null) && in_array($query['type'], Lead::TYPES, true) ? $query['type'] : null;
-        $all = $this->leads->all($type);
-        $pages = max(1, (int) ceil(count($all) / self::PER_PAGE));
         $page = is_string($query['page'] ?? null) && ctype_digit($query['page']) ? (int) $query['page'] : 1;
+        $all = [];
+        if ($this->repository === null) {
+            $all = $this->leads->all($type);
+            $total = count($all);
+        } else {
+            $total = $this->repository->submissionCount($type, null);
+        }
+        $pages = max(1, (int) ceil($total / self::PER_PAGE));
         $page = min(max(1, $page), $pages);
+        $rows = $this->repository === null
+            ? array_slice($all, ($page - 1) * self::PER_PAGE, self::PER_PAGE)
+            : $this->repository->listSubmissions($type, null, $page, self::PER_PAGE);
 
         return $this->view->render('pages/admin_leads', [
             'title' => 'Leads',
             'path' => '',
             'type' => $type,
-            'total' => count($all),
-            'rows' => array_slice($all, ($page - 1) * self::PER_PAGE, self::PER_PAGE),
+            'total' => $total,
+            'rows' => $rows,
             'page' => $page,
             'pages' => $pages,
         ]);

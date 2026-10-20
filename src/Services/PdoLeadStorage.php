@@ -77,7 +77,13 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
 
     public function all(?string $type = null): array
     {
-        return $this->listSubmissions($type, null, 1, 10000);
+        $count = $this->submissionCount($type, null);
+        $rows = [];
+        for ($page = 1; $page <= (int) ceil($count / 100); $page++) {
+            array_push($rows, ...$this->listSubmissions($type, null, $page, 100));
+        }
+
+        return $rows;
     }
 
     public function find(string $type, int $number): ?array
