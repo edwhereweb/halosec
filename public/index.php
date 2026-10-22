@@ -205,12 +205,14 @@ if ($config['database_dsn'] !== '') {
             $database->exec("INSERT IGNORE INTO admin_user_roles (admin_user_id, admin_role_id) SELECT u.id, r.id FROM admin_users u JOIN admin_roles r ON r.role_key = 'super_admin' WHERE u.deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM admin_user_roles ur WHERE ur.admin_user_id = u.id)");
         } catch (Throwable) {}
     } catch (Throwable $e) {
-        error_log('Database connection error: ' . $e->getMessage());
+        $dbError = $e->getMessage();
+        error_log('Database connection error: ' . $dbError);
         $database = null;
         $adminRepository = null;
         $leadStorage = new FileLeadStorage($config['storage_path']);
     }
 } else {
+    $dbError = 'Database DSN or credentials are not configured in your .env file.';
     $leadStorage = new FileLeadStorage($config['storage_path']);
 }
 $leadService = new LeadService($validator, $leadStorage);
@@ -256,6 +258,7 @@ $admin = new AdminController(
     $leadStorage,
     $clientIp,
     $adminRepository,
+    $dbError,
 );
 
 $post = $_POST;

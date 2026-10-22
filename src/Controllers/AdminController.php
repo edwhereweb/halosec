@@ -28,6 +28,7 @@ final class AdminController
         private LeadReaderInterface $leads,
         private string $clientId,
         private ?AdminSubmissionRepositoryInterface $repository = null,
+        private ?string $dbError = null,
     ) {
     }
 
@@ -121,6 +122,7 @@ final class AdminController
             'recent' => $recent,
             'stats' => $stats,
             'isDatabase' => $this->repository !== null,
+            'dbError' => $this->dbError,
         ]);
     }
 
@@ -420,6 +422,7 @@ final class AdminController
             'eventType' => $eventType ?? '',
             'severity' => is_string($query['severity'] ?? null) ? $query['severity'] : '',
             'isDatabase' => $this->repository !== null,
+            'dbError' => $this->dbError,
         ]);
     }
 
@@ -434,6 +437,7 @@ final class AdminController
             'path' => '',
             'entries' => $this->repository?->auditLogs() ?? [],
             'isDatabase' => $this->repository !== null,
+            'dbError' => $this->dbError,
         ]);
     }
 
@@ -500,6 +504,7 @@ final class AdminController
             'users' => $this->repository?->adminUsers() ?? [],
             'message' => $message,
             'isDatabase' => $this->repository !== null,
+            'dbError' => $this->dbError,
         ]);
     }
 

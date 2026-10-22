@@ -10,6 +10,11 @@
     <p class="mt-1.5 leading-relaxed text-amber-800">
       Logging administrative mutations and audit trails requires MySQL. Connect your MySQL database in <code>.env</code> to activate audit tracking.
     </p>
+    <?php if (!empty($dbError)) : ?>
+    <div class="mt-2.5 rounded-lg bg-amber-100/80 p-2.5 font-mono text-[11px] text-amber-950 break-words">
+      <strong>Diagnostic Error:</strong> <?= $e($dbError) ?>
+    </div>
+    <?php endif; ?>
   </div>
   <?php endif; ?>
   <?php if ($entries === []) : ?><p class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No admin changes recorded.</p>

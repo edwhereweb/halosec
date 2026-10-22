@@ -28,6 +28,11 @@
           Managing database admin accounts and granular roles requires an active MySQL connection. You are currently logged in via environment fallback mode.
           To activate database accounts and role permissions, verify your MySQL connection settings in <code>.env</code> (e.g. <code>DB_HOST=localhost</code>, <code>DB_NAME=...</code>, <code>DB_USER=...</code>, <code>DB_PASSWORD=...</code> or <code>DB_DSN=...</code>).
         </p>
+        <?php if (!empty($dbError)) : ?>
+        <div class="mt-2.5 rounded-lg bg-amber-100/80 p-2.5 font-mono text-[11px] text-amber-950 break-words">
+          <strong>Diagnostic Error:</strong> <?= $e($dbError) ?>
+        </div>
+        <?php endif; ?>
       </div>
       <?php endif; ?>
       <?php if ($users === []) : ?><p class="text-sm text-slate-500">No database admin accounts are configured.</p><?php else : ?>

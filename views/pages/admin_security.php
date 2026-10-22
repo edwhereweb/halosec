@@ -20,6 +20,11 @@ $severityStyles = [
     <p class="mt-1.5 leading-relaxed text-amber-800">
       Logging failed login attempts and real-time security events requires MySQL. Connect your MySQL database in <code>.env</code> to start recording events.
     </p>
+    <?php if (!empty($dbError)) : ?>
+    <div class="mt-2.5 rounded-lg bg-amber-100/80 p-2.5 font-mono text-[11px] text-amber-950 break-words">
+      <strong>Diagnostic Error:</strong> <?= $e($dbError) ?>
+    </div>
+    <?php endif; ?>
   </div>
   <?php endif; ?>
   <form method="get" action="/admin/security" class="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-3">
