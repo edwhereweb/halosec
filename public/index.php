@@ -118,6 +118,40 @@ if ($config['database_dsn'] !== '') {
             $config['database_password'],
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false],
         );
+
+        // Auto-run database schema migration if tables do not exist yet
+        $tablesExist = false;
+        try {
+            $checkTable = $database->query("SHOW TABLES LIKE 'admin_users'");
+            $tablesExist = (bool) $checkTable->fetch();
+        } catch (Throwable) {
+            $tablesExist = false;
+        }
+
+        if (!$tablesExist) {
+            $migrationFile = $root . '/database/migrations/001_admin_dashboard.sql';
+            if (is_file($migrationFile)) {
+                $sqlContent = (string) file_get_contents($migrationFile);
+                $lines = explode("\n", $sqlContent);
+                $buffer = '';
+                foreach ($lines as $line) {
+                    $trimmed = trim($line);
+                    if ($trimmed === '' || str_starts_with($trimmed, '--')) {
+                        continue;
+                    }
+                    $buffer .= $line . "\n";
+                    if (str_ends_with($trimmed, ';')) {
+                        try {
+                            $database->exec(trim($buffer));
+                        } catch (Throwable $e) {
+                            error_log('Auto-migration statement error: ' . $e->getMessage());
+                        }
+                        $buffer = '';
+                    }
+                }
+            }
+        }
+
         $adminRepository = new PdoLeadStorage($database);
         $leadStorage = $adminRepository;
 
@@ -161,6 +195,8 @@ if ($config['database_dsn'] !== '') {
         } catch (Throwable) {}
     } catch (Throwable $e) {
         error_log('Database connection error: ' . $e->getMessage());
+        $database = null;
+        $adminRepository = null;
         $leadStorage = new FileLeadStorage($config['storage_path']);
     }
 } else {

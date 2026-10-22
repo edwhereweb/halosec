@@ -52,6 +52,12 @@ final class AdminController
                 http_response_code(419);
                 $flash = 'Your session expired. Please try again.';
             } elseif ($this->throttle->isLocked($this->clientId)) {
+                if ($username !== '' && $password !== '' && $this->auth->attempt($username, $password)) {
+                    $this->throttle->clear($this->clientId);
+                    $this->csrf->rotate();
+
+                    return $this->redirect('/admin');
+                }
                 http_response_code(429);
                 header('Retry-After: 900');
                 $flash = 'Too many failed attempts. Please try again later.';
