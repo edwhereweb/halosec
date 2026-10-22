@@ -10,10 +10,24 @@ use PHPUnit\Framework\TestCase;
 
 final class AdminAuthTest extends TestCase
 {
+    private function createDb(string $username, string $password): \PDO
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->exec('CREATE TABLE admin_users (id INTEGER PRIMARY KEY, username TEXT, password_hash TEXT, is_active INTEGER, deleted_at TEXT)');
+        $pdo->exec('CREATE TABLE admin_roles (id INTEGER PRIMARY KEY, role_key TEXT)');
+        $pdo->exec('CREATE TABLE admin_user_roles (admin_user_id INTEGER, admin_role_id INTEGER)');
+        $pdo->exec("INSERT INTO admin_users VALUES (1, '{$username}', '" . password_hash($password, PASSWORD_DEFAULT) . "', 1, NULL)");
+        $pdo->exec("INSERT INTO admin_roles VALUES (1, 'super_admin')");
+        $pdo->exec('INSERT INTO admin_user_roles VALUES (1, 1)');
+
+        return $pdo;
+    }
+
     public function testLoginSuccessAndFailure(): void
     {
         $session = [];
-        $auth = new AdminAuth($session, 'admin', password_hash('s3cret-pass', PASSWORD_DEFAULT));
+        $pdo = $this->createDb('admin', 's3cret-pass');
+        $auth = new AdminAuth($session, '', '', 'super_admin', $pdo);
 
         $this->assertFalse($auth->attempt('admin', 'wrong'));
         $this->assertFalse($auth->attempt('other', 's3cret-pass'));
@@ -27,6 +41,7 @@ final class AdminAuthTest extends TestCase
         $session = [];
         $auth = new AdminAuth($session, '', '');
 
+        $this->assertFalse($auth->attempt('admin', 'admin123'));
         $this->assertFalse($auth->attempt('', ''));
         $this->assertFalse($auth->check());
     }
@@ -34,7 +49,8 @@ final class AdminAuthTest extends TestCase
     public function testIdleTimeoutAndLogout(): void
     {
         $session = [];
-        $auth = new AdminAuth($session, 'admin', password_hash('pw', PASSWORD_DEFAULT));
+        $pdo = $this->createDb('admin', 'pw');
+        $auth = new AdminAuth($session, '', '', 'super_admin', $pdo);
         $auth->attempt('admin', 'pw');
 
         $this->assertFalse($auth->check(time() + 4000));

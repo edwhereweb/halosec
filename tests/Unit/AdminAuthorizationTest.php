@@ -16,8 +16,16 @@ final class AdminAuthorizationTest extends TestCase
 {
     public function testViewerCannotOpenSettingsButCanReadTheInbox(): void
     {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->exec('CREATE TABLE admin_users (id INTEGER PRIMARY KEY, username TEXT, password_hash TEXT, is_active INTEGER, deleted_at TEXT)');
+        $pdo->exec('CREATE TABLE admin_roles (id INTEGER PRIMARY KEY, role_key TEXT)');
+        $pdo->exec('CREATE TABLE admin_user_roles (admin_user_id INTEGER, admin_role_id INTEGER)');
+        $pdo->exec("INSERT INTO admin_users VALUES (1, 'viewer', '" . password_hash('viewer-password', PASSWORD_DEFAULT) . "', 1, NULL)");
+        $pdo->exec("INSERT INTO admin_roles VALUES (1, 'viewer')");
+        $pdo->exec('INSERT INTO admin_user_roles VALUES (1, 1)');
+
         $session = [];
-        $auth = new AdminAuth($session, 'viewer', password_hash('viewer-password', PASSWORD_DEFAULT), 'viewer');
+        $auth = new AdminAuth($session, '', '', 'viewer', $pdo);
         $this->assertTrue($auth->attempt('viewer', 'viewer-password'));
         $csrf = new CsrfManager($session);
         $reader = new class implements LeadReaderInterface {

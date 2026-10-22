@@ -266,7 +266,7 @@ $pages = new PageController($view);
 $forms = new FormController($view, $leadService, $csrf, $services, $_SESSION, $formThrottle, $clientIp);
 $admin = new AdminController(
     $view,
-    new AdminAuth($_SESSION, $config['admin_username'], $config['admin_password_hash'], $config['admin_role'], $database),
+    new AdminAuth($_SESSION, '', '', $config['admin_role'], $database),
     $csrf,
     new LoginThrottle($config['auth_path']),
     $leadStorage,

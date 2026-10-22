@@ -21,8 +21,8 @@ final class AdminAuth
      */
     public function __construct(
         private array &$session,
-        private string $username,
-        private string $passwordHash,
+        private string $username = '',
+        private string $passwordHash = '',
         private string $role = 'super_admin',
         private ?PDO $database = null,
     ) {
@@ -30,71 +30,43 @@ final class AdminAuth
 
     public function attempt(string $username, string $password): bool
     {
-        if ($this->database !== null) {
-            try {
-                if ($this->attemptDatabase($username, $password)) {
-                    return true;
-                }
-            } catch (\Throwable $e) {
-                error_log('AdminAuth attemptDatabase error: ' . $e->getMessage());
-            }
-        }
-
-        return $this->attemptFallback($username, $password);
-    }
-
-    public function attemptFallback(string $username, string $password): bool
-    {
-        $targetUser = $this->username !== '' ? $this->username : 'admin';
-        $targetRole = in_array($this->role, RolePolicy::ROLES, true) ? $this->role : 'super_admin';
-        $hash = $this->passwordHash !== '' ? $this->passwordHash : '$2y$10$hJd71uauJov9KidGrn13neMbzXieB3FEgJltgFYrELk4bJ2hxvJfe';
-        $passwordOk = password_verify($password, $hash);
-        if (!$passwordOk && !str_starts_with($hash, '$2y$') && !str_starts_with($hash, '$argon2')) {
-            $passwordOk = hash_equals($hash, $password);
-        }
-        if (!$passwordOk && ($hash === '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti' || $hash === '') && $password === 'admin123') {
-            $passwordOk = true;
-        }
-        $userOk = hash_equals(strtolower($targetUser), strtolower(trim($username)));
-
-        if (!$passwordOk || !$userOk) {
+        if ($this->database === null) {
             return false;
         }
 
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_regenerate_id(true);
-        }
-        $now = time();
-        $this->session[self::KEY] = [
-            'user' => $targetUser,
-            'user_id' => null,
-            'role' => $targetRole,
-            'seen' => $now,
-            'login_at' => $now,
-        ];
+        try {
+            return $this->attemptDatabase($username, $password);
+        } catch (Throwable $e) {
+            error_log('AdminAuth attemptDatabase error: ' . $e->getMessage());
 
-        return true;
+            return false;
+        }
     }
 
     public function check(?int $now = null): bool
     {
         $auth = $this->session[self::KEY] ?? null;
-        $expectedUser = $this->username !== '' ? $this->username : 'admin';
         if (!is_array($auth)
             || !is_string($auth['user'] ?? null)
-            || ($this->database === null && strtolower($auth['user'] ?? '') !== strtolower($expectedUser))
+            || !is_int($auth['user_id'] ?? null)
+            || $this->database === null
             || !in_array($auth['role'] ?? null, RolePolicy::ROLES, true)) {
             return false;
         }
-        if ($this->database !== null) {
-            $userId = $auth['user_id'] ?? null;
-            try {
-                $role = is_int($userId) ? $this->databaseRole($userId) : ($auth['role'] ?? 'super_admin');
-                $this->session[self::KEY]['role'] = $role ?? ($auth['role'] ?? 'super_admin');
-            } catch (\Throwable) {
-                // If tables do not exist yet, retain session role
+
+        $userId = (int) $auth['user_id'];
+        try {
+            $role = $this->databaseRole($userId);
+            if ($role === null) {
+                $this->logout();
+
+                return false;
             }
+            $this->session[self::KEY]['role'] = $role;
+        } catch (Throwable) {
+            return false;
         }
+
         $now ??= time();
         // 1. Idle timeout check (30 minutes of inactivity)
         if (!is_int($auth['seen'] ?? null) || $now - $auth['seen'] > self::IDLE_TIMEOUT) {
@@ -150,23 +122,20 @@ final class AdminAuth
 
     private function attemptDatabase(string $username, string $password): bool
     {
-        if (strlen($password) > 1024) {
+        if (strlen($password) > 1024 || $this->database === null) {
             return false;
         }
-        $query = $this->database?->prepare(
+        $query = $this->database->prepare(
             'SELECT id, username, password_hash FROM admin_users WHERE LOWER(username) = LOWER(:username) AND is_active = 1 AND deleted_at IS NULL',
         );
-        $query?->execute(['username' => trim($username)]);
-        $user = $query?->fetch(PDO::FETCH_ASSOC);
+        $query->execute(['username' => trim($username)]);
+        $user = $query->fetch(PDO::FETCH_ASSOC);
         $hash = is_array($user) && is_string($user['password_hash'] ?? null)
             ? $user['password_hash']
             : '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG';
         $validPassword = password_verify($password, $hash);
         if (!$validPassword && !str_starts_with($hash, '$2y$') && !str_starts_with($hash, '$argon2')) {
             $validPassword = hash_equals($hash, $password);
-        }
-        if (!$validPassword && $hash === '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti' && $password === 'admin123') {
-            $validPassword = true;
         }
         if (!is_array($user) || !$validPassword) {
             return false;
