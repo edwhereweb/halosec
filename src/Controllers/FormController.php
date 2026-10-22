@@ -24,6 +24,8 @@ final class FormController
         private CsrfManager $csrf,
         private array $services,
         private array &$session,
+        private ?\HaloSec\Security\LoginThrottle $throttle = null,
+        private string $clientId = '',
     ) {
     }
 
@@ -55,7 +57,12 @@ final class FormController
         }
 
         if ($method === 'POST') {
-            if (!$this->csrf->isValid($post[CsrfManager::FIELD] ?? null)) {
+            if ($this->throttle !== null && $this->throttle->isLocked($this->clientId)) {
+                http_response_code(429);
+                header('Retry-After: 60');
+                $data['old'] = $post;
+                $data['flash'] = ['type' => 'error', 'message' => 'Too many requests. Please wait a moment before trying again or call our emergency line.'];
+            } elseif (!$this->csrf->isValid($post[CsrfManager::FIELD] ?? null)) {
                 http_response_code(419);
                 $data['old'] = $post;
                 $data['flash'] = ['type' => 'error', 'message' => 'Your session expired. Please try submitting again.'];
@@ -65,11 +72,13 @@ final class FormController
                 }
                 $outcome = $this->leads->submit($type, $post);
                 if ($outcome['status'] === 'ok') {
+                    $this->csrf->rotate();
                     $this->session['flash'] = $this->successMessage($type);
                     header('Location: ' . $path . '#form-status', true, 303);
 
                     return '';
                 }
+                $this->throttle?->recordFailure($this->clientId);
                 $data['old'] = $post;
                 $data['errors'] = $outcome['result']->errors;
                 http_response_code($outcome['status'] === 'invalid' ? 422 : 500);

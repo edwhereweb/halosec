@@ -13,7 +13,8 @@ use Throwable;
 final class AdminAuth
 {
     private const KEY = '_admin_auth';
-    private const IDLE_TIMEOUT = 1800;
+    public const IDLE_TIMEOUT = 1800; // 30 minutes
+    public const ABSOLUTE_TIMEOUT = 28800; // 8 hours absolute limit
 
     /**
      * @param array<string, mixed> $session
@@ -63,7 +64,14 @@ final class AdminAuth
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
         }
-        $this->session[self::KEY] = ['user' => $targetUser, 'user_id' => null, 'role' => $targetRole, 'seen' => time()];
+        $now = time();
+        $this->session[self::KEY] = [
+            'user' => $targetUser,
+            'user_id' => null,
+            'role' => $targetRole,
+            'seen' => $now,
+            'login_at' => $now,
+        ];
 
         return true;
     }
@@ -88,11 +96,21 @@ final class AdminAuth
             }
         }
         $now ??= time();
+        // 1. Idle timeout check (30 minutes of inactivity)
         if (!is_int($auth['seen'] ?? null) || $now - $auth['seen'] > self::IDLE_TIMEOUT) {
-            unset($this->session[self::KEY]);
+            $this->logout();
 
             return false;
         }
+
+        // 2. Absolute timeout check (8 hours maximum session lifetime)
+        $loginAt = $auth['login_at'] ?? $auth['seen'];
+        if (is_int($loginAt) && $now - $loginAt > self::ABSOLUTE_TIMEOUT) {
+            $this->logout();
+
+            return false;
+        }
+
         $this->session[self::KEY]['seen'] = $now;
 
         return true;
@@ -102,6 +120,7 @@ final class AdminAuth
     {
         $this->session = [];
         if (session_status() === PHP_SESSION_ACTIVE) {
+            $_SESSION = [];
             $params = session_get_cookie_params();
             setcookie(session_name(), '', [
                 'expires' => time() - 3600,
@@ -171,11 +190,13 @@ final class AdminAuth
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
         }
+        $now = time();
         $this->session[self::KEY] = [
             'user' => (string) $user['username'],
             'user_id' => $userId,
             'role' => $role,
-            'seen' => time(),
+            'seen' => $now,
+            'login_at' => $now,
         ];
 
         return true;

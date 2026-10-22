@@ -75,11 +75,18 @@ if ($isDev) {
     ini_set('error_log', $logDir . '/error.log');
 }
 
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+
 // Baseline HTTP response security headers
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
+header('X-XSS-Protection: 1; mode=block');
+if ($isHttps) {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
 header_remove('X-Powered-By');
 
 SessionManager::start();
@@ -231,15 +238,23 @@ if ($adminRepository !== null) {
     $view->share(['config' => $config, 'contentBlocks' => $blocks]);
 }
 
+$rawClientIp = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+if (!empty($_SERVER['HTTP_CF_CONNECTING_IP']) && filter_var($_SERVER['HTTP_CF_CONNECTING_IP'], FILTER_VALIDATE_IP)) {
+    $clientIp = (string) $_SERVER['HTTP_CF_CONNECTING_IP'];
+} else {
+    $clientIp = filter_var($rawClientIp, FILTER_VALIDATE_IP) ? $rawClientIp : '127.0.0.1';
+}
+
+$formThrottle = new LoginThrottle($config['auth_path'] . '/forms', 10, 60);
 $pages = new PageController($view);
-$forms = new FormController($view, $leadService, $csrf, $services, $_SESSION);
+$forms = new FormController($view, $leadService, $csrf, $services, $_SESSION, $formThrottle, $clientIp);
 $admin = new AdminController(
     $view,
     new AdminAuth($_SESSION, $config['admin_username'], $config['admin_password_hash'], $config['admin_role'], $database),
     $csrf,
     new LoginThrottle($config['auth_path']),
     $leadStorage,
-    (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+    $clientIp,
     $adminRepository,
 );
 
