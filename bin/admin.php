@@ -125,8 +125,23 @@ switch ($action) {
             }
         } catch (Throwable $e) {
             fwrite(STDERR, "Database Error: " . $e->getMessage() . PHP_EOL);
-            exit(1);
         }
+        break;
+
+    case 'unblock':
+    case 'clear-throttle':
+        $authDir = $config['auth_path'];
+        $files = glob($authDir . '/*.json');
+        $count = 0;
+        if (is_array($files)) {
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    @unlink($file);
+                    $count++;
+                }
+            }
+        }
+        echo "Success: Cleared {$count} IP lockout/throttle file(s) from storage/auth.\n";
         break;
 
     default:
@@ -135,5 +150,6 @@ switch ($action) {
         echo "  php bin/admin.php hash <password>               Generate a secure password hash for .env\n";
         echo "  php bin/admin.php create <username> <password>  Create or reset an admin user in MySQL\n";
         echo "  php bin/admin.php reset <username> <password>   Reset password for an existing admin user\n";
+        echo "  php bin/admin.php unblock                       Clear all failed login IP locks and throttles\n";
         break;
 }
