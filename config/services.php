@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 return [
     'endpoint-security' => [
-        'title' => 'Endpoint Security Implementation',
-        'short' => 'Deploy and tune next-gen endpoint protection across every laptop, server and mobile device.',
+        'title' => 'Endpoint Security Solutions for Your Business',
+        'short' => 'Centralized endpoint defense, ransomware rollback, and strict policy management from 5 to hundreds of systems.',
         'icon' => 'EDR',
-        'intro' => 'We design, deploy and harden endpoint protection so ransomware, malware and malicious '
-            . 'insiders are stopped at the device — backed by policy tuning and ongoing health checks.',
-        'points' => ['Sophos endpoint rollout and policy design', 'Device hardening and patch posture review', 'Ransomware rollback and isolation', 'Staff onboarding and runbooks'],
+        'intro' => 'Looking to secure your company’s devices and data without the headache of managing each system manually? Our Endpoint Security Services give you total control, strong protection, and total peace of mind—whether you have 5 systems or hundreds.',
+        'points' => [
+            'Centrally Managed: Single dashboard control across 5 to hundreds of systems',
+            'Ransomware Protection & Rollback: Stops encryption and restores files safely',
+            'Total Device & Web Control: Centrally block USBs, cameras, and PowerShell',
+            'Protection Against New Threats: Zero-day threat and unpatched exploit defense',
+            'Custom Group Policies: Tailored access levels and confidentiality rules',
+        ],
     ],
     'dlp-implementation' => [
         'title' => 'DLP Implementation (Data Loss Prevention)',

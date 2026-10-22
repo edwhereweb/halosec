@@ -1,4 +1,12 @@
-<?php $e = static fn (mixed $v): string => HaloSec\View::e($v); ?>
+<?php
+$e = static fn (mixed $v): string => HaloSec\View::e($v);
+
+$customTemplate = 'pages/services/' . str_replace('-', '_', (string) ($slug ?? ''));
+if (!empty($slug) && is_file(dirname(__DIR__) . '/' . $customTemplate . '.php')) {
+    echo $this->include($customTemplate, get_defined_vars());
+    return;
+}
+?>
 <?= $this->include('partials/page_header', ['eyebrow' => 'Specialized Practice', 'heading' => $service['title'], 'lead' => $service['short']]) ?>
 <section class="max-w-6xl mx-auto px-4 py-16 grid gap-10 lg:grid-cols-5 items-start">
   <div class="lg:col-span-3 space-y-8">
