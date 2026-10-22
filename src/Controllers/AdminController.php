@@ -120,6 +120,7 @@ final class AdminController
             'counts' => $this->leads->counts(),
             'recent' => $recent,
             'stats' => $stats,
+            'isDatabase' => $this->repository !== null,
         ]);
     }
 
@@ -418,6 +419,7 @@ final class AdminController
             ) ?? [],
             'eventType' => $eventType ?? '',
             'severity' => is_string($query['severity'] ?? null) ? $query['severity'] : '',
+            'isDatabase' => $this->repository !== null,
         ]);
     }
 
@@ -431,6 +433,7 @@ final class AdminController
             'title' => 'Audit Logs',
             'path' => '',
             'entries' => $this->repository?->auditLogs() ?? [],
+            'isDatabase' => $this->repository !== null,
         ]);
     }
 
@@ -496,6 +499,7 @@ final class AdminController
             'path' => '',
             'users' => $this->repository?->adminUsers() ?? [],
             'message' => $message,
+            'isDatabase' => $this->repository !== null,
         ]);
     }
 

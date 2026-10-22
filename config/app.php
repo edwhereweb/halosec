@@ -12,12 +12,28 @@ return [
     'storage_path' => dirname(__DIR__) . '/storage/leads',
     'auth_path' => dirname(__DIR__) . '/storage/auth',
     'logs_path' => dirname(__DIR__) . '/storage/logs',
-    'admin_username' => (string) getenv('ADMIN_USERNAME'),
-    'admin_password_hash' => (string) getenv('ADMIN_PASSWORD_HASH'),
-    'admin_role' => (string) (getenv('ADMIN_ROLE') ?: 'super_admin'),
-    'database_dsn' => (string) getenv('DB_DSN'),
-    'database_username' => (string) getenv('DB_USERNAME'),
-    'database_password' => (string) getenv('DB_PASSWORD'),
+    'admin_username' => (string) ($_ENV['ADMIN_USERNAME'] ?? $_SERVER['ADMIN_USERNAME'] ?? getenv('ADMIN_USERNAME') ?: ''),
+    'admin_password_hash' => (string) ($_ENV['ADMIN_PASSWORD_HASH'] ?? $_SERVER['ADMIN_PASSWORD_HASH'] ?? getenv('ADMIN_PASSWORD_HASH') ?: ''),
+    'admin_role' => (string) ($_ENV['ADMIN_ROLE'] ?? $_SERVER['ADMIN_ROLE'] ?? getenv('ADMIN_ROLE') ?: 'super_admin'),
+    'database_dsn' => (static function (): string {
+        $dsn = (string) ($_ENV['DB_DSN'] ?? $_SERVER['DB_DSN'] ?? getenv('DB_DSN') ?: '');
+        if ($dsn !== '') {
+            return $dsn;
+        }
+        $dbName = (string) ($_ENV['DB_DATABASE'] ?? $_SERVER['DB_DATABASE'] ?? getenv('DB_DATABASE')
+            ?: $_ENV['DB_NAME'] ?? $_SERVER['DB_NAME'] ?? getenv('DB_NAME') ?: '');
+        if ($dbName === '') {
+            return '';
+        }
+        $dbHost = (string) ($_ENV['DB_HOST'] ?? $_SERVER['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost');
+        $dbPort = (string) ($_ENV['DB_PORT'] ?? $_SERVER['DB_PORT'] ?? getenv('DB_PORT') ?: '3306');
+
+        return "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
+    })(),
+    'database_username' => (string) ($_ENV['DB_USERNAME'] ?? $_SERVER['DB_USERNAME'] ?? getenv('DB_USERNAME')
+        ?: $_ENV['DB_USER'] ?? $_SERVER['DB_USER'] ?? getenv('DB_USER') ?: ''),
+    'database_password' => (string) ($_ENV['DB_PASSWORD'] ?? $_SERVER['DB_PASSWORD'] ?? getenv('DB_PASSWORD')
+        ?: $_ENV['DB_PASS'] ?? $_SERVER['DB_PASS'] ?? getenv('DB_PASS') ?: ''),
     'founder_video_id' => (string) (getenv('FOUNDER_VIDEO_ID') ?: 'b5ad0QrOyhQ'),
     'employee_scales' => ['1 to 5', '5 to 15', '1 to 50', '50 to 100', '100 to 500', '500+'],
     'attack_types' => [

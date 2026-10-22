@@ -18,6 +18,18 @@
     </form>
     <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h2 class="mb-4 font-bold text-slate-900">Existing accounts</h2>
+      <?php if (!($isDatabase ?? true)) : ?>
+      <div class="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
+        <div class="flex items-center gap-2 font-bold text-amber-950">
+          <span class="inline-block h-2 w-2 rounded-full bg-amber-500"></span>
+          Database Inactive (Running in Fallback Mode)
+        </div>
+        <p class="mt-1.5 leading-relaxed text-amber-800">
+          Managing database admin accounts and granular roles requires an active MySQL connection. You are currently logged in via environment fallback mode.
+          To activate database accounts and role permissions, verify your MySQL connection settings in <code>.env</code> (e.g. <code>DB_HOST=localhost</code>, <code>DB_NAME=...</code>, <code>DB_USER=...</code>, <code>DB_PASSWORD=...</code> or <code>DB_DSN=...</code>).
+        </p>
+      </div>
+      <?php endif; ?>
       <?php if ($users === []) : ?><p class="text-sm text-slate-500">No database admin accounts are configured.</p><?php else : ?>
       <div class="overflow-x-auto" tabindex="0" aria-label="Scrollable administrator accounts"><table class="min-w-[680px] w-full text-left text-sm"><thead class="text-xs uppercase tracking-wider text-slate-500"><tr><th class="py-2 pr-4">Username</th><th class="py-2 pr-4">Role / access</th><th class="py-2">Save</th></tr></thead>
         <tbody class="divide-y divide-slate-100"><?php foreach ($users as $user) : ?><tr>

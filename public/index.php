@@ -49,11 +49,9 @@ if (is_file($envFile)) {
                     || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
                     $value = substr($value, 1, -1);
                 }
-                if (getenv($key) === false) {
-                    putenv("{$key}={$value}");
-                    $_ENV[$key] = $value;
-                    $_SERVER[$key] = $value;
-                }
+                putenv("{$key}={$value}");
+                $_ENV[$key] = $value;
+                $_SERVER[$key] = $value;
             }
         }
     }
@@ -134,6 +132,9 @@ if ($config['database_dsn'] !== '') {
                 $sqlContent = (string) file_get_contents($migrationFile);
                 $lines = explode("\n", $sqlContent);
                 $buffer = '';
+                try {
+                    $database->exec('SET FOREIGN_KEY_CHECKS = 0');
+                } catch (Throwable) {}
                 foreach ($lines as $line) {
                     $trimmed = trim($line);
                     if ($trimmed === '' || str_starts_with($trimmed, '--')) {
@@ -149,6 +150,9 @@ if ($config['database_dsn'] !== '') {
                         $buffer = '';
                     }
                 }
+                try {
+                    $database->exec('SET FOREIGN_KEY_CHECKS = 1');
+                } catch (Throwable) {}
             }
         }
 

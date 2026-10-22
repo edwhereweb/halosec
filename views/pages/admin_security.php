@@ -11,6 +11,17 @@ $severityStyles = [
 <section class="mx-auto w-full max-w-7xl space-y-5">
   <div><p class="text-sm font-semibold text-slate-500">Security Center</p><h1 class="mt-1 text-3xl font-bold text-slate-950"><?= $eventType === 'admin_login_failed' ? 'Failed Logins' : 'Security Events' ?></h1></div>
   <p class="text-sm text-slate-600"><?= $eventType === 'admin_login_failed' ? 'Review failed administrator sign-in attempts.' : 'Review suspicious submission patterns and security alerts.' ?></p>
+  <?php if (!($isDatabase ?? true)) : ?>
+  <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
+    <div class="flex items-center gap-2 font-bold text-amber-950">
+      <span class="inline-block h-2 w-2 rounded-full bg-amber-500"></span>
+      Security Event &amp; Failed Sign-in Logging Inactive (File Storage Mode)
+    </div>
+    <p class="mt-1.5 leading-relaxed text-amber-800">
+      Logging failed login attempts and real-time security events requires MySQL. Connect your MySQL database in <code>.env</code> to start recording events.
+    </p>
+  </div>
+  <?php endif; ?>
   <form method="get" action="/admin/security" class="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-3">
     <input type="hidden" name="event" value="<?= $e($eventType) ?>">
     <div><label for="severity" class="mb-1 block text-xs font-semibold text-slate-600">Severity</label>
