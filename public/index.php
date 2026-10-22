@@ -32,28 +32,42 @@ use HaloSec\Services\LeadService;
 use HaloSec\Services\PdoLeadStorage;
 use HaloSec\View;
 
-$envFile = $root . '/.env';
-if (is_file($envFile)) {
-    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    if (is_array($lines)) {
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === '' || str_starts_with($line, '#')) {
-                continue;
-            }
-            if (str_contains($line, '=')) {
-                [$key, $value] = explode('=', $line, 2);
-                $key = trim($key);
-                $value = trim($value);
-                if ((str_starts_with($value, '"') && str_ends_with($value, '"'))
-                    || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
-                    $value = substr($value, 1, -1);
+// Prevent direct web access to .env files under any circumstance
+$requestUri = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+if (str_contains(strtolower($requestUri), '.env')) {
+    http_response_code(403);
+    exit('Access denied.');
+}
+
+$envCandidates = [
+    $root . '/.env',
+    __DIR__ . '/.env',
+    dirname($root) . '/.env',
+];
+foreach ($envCandidates as $envFile) {
+    if (is_file($envFile)) {
+        $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (is_array($lines)) {
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line === '' || str_starts_with($line, '#')) {
+                    continue;
                 }
-                putenv("{$key}={$value}");
-                $_ENV[$key] = $value;
-                $_SERVER[$key] = $value;
+                if (str_contains($line, '=')) {
+                    [$key, $value] = explode('=', $line, 2);
+                    $key = trim($key);
+                    $value = trim($value);
+                    if ((str_starts_with($value, '"') && str_ends_with($value, '"'))
+                        || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
+                        $value = substr($value, 1, -1);
+                    }
+                    putenv("{$key}={$value}");
+                    $_ENV[$key] = $value;
+                    $_SERVER[$key] = $value;
+                }
             }
         }
+        break;
     }
 }
 

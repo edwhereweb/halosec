@@ -1,6 +1,17 @@
 # HaloSec Web Root .htaccess
 Options -Indexes
 
+# Block direct access to sensitive configuration and environment files
+<FilesMatch "^\.(env|git|ht)|(\.(sql|log|bak|swp))$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
