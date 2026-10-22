@@ -66,10 +66,14 @@ return [
     ],
     'security-team-outsourcing' => [
         'title' => 'Security Team Outsourcing (Hire a Security Team Member)',
-        'short' => 'Part-time security professionals for SMBs without an in-house team — for defined hours.',
+        'short' => 'Flexible cybersecurity experts for SMBs. Pay hourly or monthly for certified talent without a full-time hire.',
         'icon' => 'HIRE',
-        'intro' => 'Small and mid-sized businesses rarely need a full-time security hire. Engage a HaloSec consultant '
-            . 'for a defined number of hours each week or month and get experienced security leadership and hands-on support.',
-        'points' => ['Part-time / fixed-hour security consultants', 'Ideal for SMBs without an in-house security team', 'Security officer, analyst or engineer roles', 'Flexible monthly engagement'],
+        'intro' => 'Hiring a full-time, in-house security team is way too expensive for most growing businesses. Halosec offers flexible Security Team Outsourcing—hire certified cybersecurity experts tailored to your exact scope and budget, only when you need them.',
+        'points' => [
+            'Certified Engineers: CEH, CompTIA Security+/CySA+, Cloud, and Sophos certified',
+            '100% Customized: Choose exact skills, certifications, and support level needed',
+            'Flexible Plans: Pay hourly or set up fixed-hour monthly engagements',
+            'Scalable Support: Easily scale up or down as your business workload shifts',
+        ],
     ],
 ];
