@@ -35,6 +35,25 @@ $lead = 'Looking to secure your company’s devices and data without the headach
       <p class="mt-4 text-slate-700 leading-relaxed text-base md:text-lg font-medium">
         Looking to secure your company’s devices and data without the headache of managing each system manually? Our Endpoint Security Services give you total control, strong protection, and total peace of mind—whether you have 5 systems or hundreds.
       </p>
+      <!-- Accreditation & Partner Pills -->
+      <div class="mt-6 flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
+          <svg class="w-3.5 h-3.5 text-sky-700" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+          Sophos Silver Partner
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
+          <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+          Automated Ransomware Rollback
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
+          <svg class="w-3.5 h-3.5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" clip-rule="evenodd"></path></svg>
+          Zoho Certified Partner
+        </span>
+        <a href="#enquiry" class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 hover:text-sky-900 bg-sky-50 hover:bg-sky-100 border border-sky-200 px-3 py-1 rounded-full transition-all ml-auto">
+          <span>Jump to Enquiry Form</span>
+          <span>↓</span>
+        </a>
+      </div>
 
       <!-- Built for Teams of Any Size Highlight Grid -->
       <div class="mt-8 pt-8 border-t border-slate-100">
@@ -171,6 +190,28 @@ $lead = 'Looking to secure your company’s devices and data without the headach
     <?= $this->include('partials/form_open', ['formAction' => $formAction]) ?>
     <div class="space-y-5">
       <?= $this->include('partials/contact_fields', ['old' => $old, 'errors' => $errors]) ?>
+
+      <!-- Quick Endpoint Scale Qualification Selector -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Number of Systems / Endpoints
+        </label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="endpoint-scale-pills">
+          <button type="button" data-scope="5–20 systems" class="endpoint-pill text-xs font-bold py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
+            5–20
+          </button>
+          <button type="button" data-scope="20–50 systems" class="endpoint-pill text-xs font-bold py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
+            20–50
+          </button>
+          <button type="button" data-scope="50–150 systems" class="endpoint-pill text-xs font-bold py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
+            50–150
+          </button>
+          <button type="button" data-scope="150+ systems" class="endpoint-pill text-xs font-bold py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
+            150+
+          </button>
+        </div>
+      </div>
+
       <?= $this->include('partials/field', [
           'name' => 'message',
           'label' => 'How can we help? (Number of endpoints, OS types, current antivirus)',
@@ -383,3 +424,29 @@ $lead = 'Looking to secure your company’s devices and data without the headach
     </div>
   </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var pills = document.querySelectorAll('.endpoint-pill');
+  var textarea = document.querySelector('textarea[name="message"]');
+  if (!pills.length || !textarea) return;
+
+  pills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      pills.forEach(function (p) {
+        p.classList.remove('bg-slate-900', 'text-white', 'border-slate-900', 'shadow-sm');
+        p.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-200');
+      });
+      pill.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-200');
+      pill.classList.add('bg-slate-900', 'text-white', 'border-slate-900', 'shadow-sm');
+
+      var scope = pill.getAttribute('data-scope');
+      var prefix = '[Approx. Systems: ' + scope + '] ';
+      var current = textarea.value.replace(/\[Approx\. Systems: [^\]]+\]\s*/g, '');
+      textarea.value = prefix + current.trim();
+      textarea.focus();
+    });
+  });
+});
+</script>
+

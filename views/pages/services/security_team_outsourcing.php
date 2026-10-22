@@ -42,6 +42,30 @@ $lead = 'Hiring a full-time, in-house security team is way too expensive for mos
         </p>
       </div>
 
+      <!-- Verified Certifications & Quick Jump -->
+      <div class="mt-6 flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-sky-600"></span>
+          EC-Council CEH Certified
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+          CompTIA Security+ / CySA+
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-red-600"></span>
+          Sophos Silver Partner
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          Cloud Security (AWS/Azure)
+        </span>
+        <a href="#enquiry" class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 hover:text-sky-900 bg-sky-50 hover:bg-sky-100 border border-sky-200 px-3 py-1 rounded-full transition-all ml-auto">
+          <span>Jump to Talent Request</span>
+          <span>↓</span>
+        </a>
+      </div>
+
       <!-- Quick Highlights Bar -->
       <div class="mt-8 pt-6 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
         <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
@@ -186,6 +210,28 @@ $lead = 'Hiring a full-time, in-house security team is way too expensive for mos
     <?= $this->include('partials/form_open', ['formAction' => $formAction]) ?>
     <div class="space-y-5">
       <?= $this->include('partials/contact_fields', ['old' => $old, 'errors' => $errors]) ?>
+
+      <!-- Quick Engagement Scope Selector -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          Estimated Engagement Scope
+        </label>
+        <div class="grid grid-cols-2 gap-2" id="talent-scope-pills">
+          <button type="button" data-scope="10–15 hrs/mo (Starter Triage)" class="talent-pill text-xs font-bold py-2 px-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
+            10–15 hrs/mo
+          </button>
+          <button type="button" data-scope="20–40 hrs/mo (Growth Management)" class="talent-pill text-xs font-bold py-2 px-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
+            20–40 hrs/mo
+          </button>
+          <button type="button" data-scope="60+ hrs/mo (Dedicated / vCISO)" class="talent-pill text-xs font-bold py-2 px-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
+            60+ hrs/mo
+          </button>
+          <button type="button" data-scope="Ad-hoc Project / Audit" class="talent-pill text-xs font-bold py-2 px-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
+            Ad-hoc Project
+          </button>
+        </div>
+      </div>
+
       <?= $this->include('partials/field', [
           'name' => 'message',
           'label' => 'Describe your requirements (e.g. SOC monitoring, endpoint tuning, weekly hours needed)',
@@ -212,6 +258,74 @@ $lead = 'Hiring a full-time, in-house security team is way too expensive for mos
         <span class="text-emerald-600 font-bold">✓</span>
         <span>Seamless integration with your internal team</span>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- Recommended Engagement Tiers for SMBs -->
+<section class="max-w-6xl mx-auto px-4 py-8" aria-label="Engagement plans">
+  <div class="text-center max-w-3xl mx-auto mb-10">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-lime-50 border border-lime-200 text-lime-900 text-xs font-bold uppercase tracking-wider mb-2">
+      <span class="w-2 h-2 rounded-full bg-lime-500"></span>
+      Engagement Sizing Guide
+    </div>
+    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Recommended Engagement Tiers for SMBs</h2>
+    <p class="mt-2 text-slate-600 text-sm">Choose the tier that matches your team's operational rhythm, or talk to us for custom hours.</p>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-6">
+    <!-- Tier 1 -->
+    <div class="rounded-3xl bg-white border border-slate-200 p-7 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all flex flex-col justify-between">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-sky-700">Tier 1 · Starter</span>
+        <h3 class="text-xl font-extrabold text-slate-900 mt-1">10–15 hrs / month</h3>
+        <p class="mt-2 text-xs text-slate-600 leading-relaxed">Best for businesses with 10–50 systems that need recurring posture health checks without a full-time hire.</p>
+        <ul class="mt-5 space-y-2.5 text-xs text-slate-700">
+          <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Weekly SOC &amp; alert log triage</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Monthly policy &amp; patch audits</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Incident standby response</li>
+        </ul>
+      </div>
+      <button type="button" data-tier="Tier 1: Starter (10–15 hrs/month)" class="tier-select-btn mt-6 w-full text-center py-2.5 px-4 rounded-xl border border-slate-300 hover:border-slate-900 bg-slate-50 hover:bg-slate-900 hover:text-white text-xs font-extrabold transition-all">
+        Select Starter Tier
+      </button>
+    </div>
+
+    <!-- Tier 2 -->
+    <div class="rounded-3xl bg-white border-2 border-sky-500 p-7 shadow-md hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden">
+      <div class="absolute top-0 right-0 bg-sky-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+        Most Popular
+      </div>
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-sky-700">Tier 2 · Growth</span>
+        <h3 class="text-xl font-extrabold text-slate-900 mt-1">20–40 hrs / month</h3>
+        <p class="mt-2 text-xs text-slate-600 leading-relaxed">For software/SaaS teams, fintechs, or firms handling sensitive client financial or health data.</p>
+        <ul class="mt-5 space-y-2.5 text-xs text-slate-700">
+          <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> DevSecOps &amp; app security testing</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Active endpoint &amp; USB rule push</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Compliance audit readiness (ISO/SOC2)</li>
+        </ul>
+      </div>
+      <button type="button" data-tier="Tier 2: Growth (20–40 hrs/month)" class="tier-select-btn mt-6 w-full text-center py-2.5 px-4 rounded-xl bg-gradient-to-r from-lime-300 via-lime-200 to-lime-300 hover:from-lime-400 hover:to-lime-200 text-slate-950 text-xs font-extrabold transition-all shadow-sm">
+        Select Growth Tier
+      </button>
+    </div>
+
+    <!-- Tier 3 -->
+    <div class="rounded-3xl bg-white border border-slate-200 p-7 shadow-sm hover:shadow-xl hover:border-sky-300 transition-all flex flex-col justify-between">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-sky-700">Tier 3 · Dedicated</span>
+        <h3 class="text-xl font-extrabold text-slate-900 mt-1">60+ hrs / month</h3>
+        <p class="mt-2 text-xs text-slate-600 leading-relaxed">Acts as your embedded Virtual CISO &amp; senior hands-on engineer for high-growth operations.</p>
+        <ul class="mt-5 space-y-2.5 text-xs text-slate-700">
+          <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Direct executive &amp; board reporting</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Vendor security risk reviews</li>
+          <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Full architecture &amp; roadmap leadership</li>
+        </ul>
+      </div>
+      <button type="button" data-tier="Tier 3: Dedicated (60+ hrs/month)" class="tier-select-btn mt-6 w-full text-center py-2.5 px-4 rounded-xl border border-slate-300 hover:border-slate-900 bg-slate-50 hover:bg-slate-900 hover:text-white text-xs font-extrabold transition-all">
+        Select Dedicated Tier
+      </button>
     </div>
   </div>
 </section>
@@ -441,3 +555,49 @@ $lead = 'Hiring a full-time, in-house security team is way too expensive for mos
     </div>
   </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var pills = document.querySelectorAll('.talent-pill');
+  var tierButtons = document.querySelectorAll('.tier-select-btn');
+  var textarea = document.querySelector('textarea[name="message"]');
+  var enquirySection = document.getElementById('enquiry');
+  if (!textarea) return;
+
+  function updateScope(scopeText) {
+    pills.forEach(function (p) {
+      if (p.getAttribute('data-scope') === scopeText) {
+        p.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-200');
+        p.classList.add('bg-slate-900', 'text-white', 'border-slate-900', 'shadow-sm');
+      } else {
+        p.classList.remove('bg-slate-900', 'text-white', 'border-slate-900', 'shadow-sm');
+        p.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-200');
+      }
+    });
+
+    var prefix = '[Engagement: ' + scopeText + '] ';
+    var current = textarea.value.replace(/\[Engagement: [^\]]+\]\s*/g, '');
+    textarea.value = prefix + current.trim();
+  }
+
+  pills.forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      var scope = pill.getAttribute('data-scope');
+      updateScope(scope);
+      textarea.focus();
+    });
+  });
+
+  tierButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var tier = btn.getAttribute('data-tier');
+      updateScope(tier);
+      if (enquirySection) {
+        enquirySection.scrollIntoView({ behavior: 'smooth' });
+      }
+      setTimeout(function () { textarea.focus(); }, 400);
+    });
+  });
+});
+</script>
+
