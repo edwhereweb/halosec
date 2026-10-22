@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS admin_user_roles (
     CONSTRAINT fk_admin_user_roles_role FOREIGN KEY (admin_role_id) REFERENCES admin_roles (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Initial Super Admin Seed (Username: admin)
+-- Initial Super Admin Seed (Username: admin / Password: admin123)
 INSERT IGNORE INTO admin_users (id, username, password_hash, is_active)
-VALUES (1, 'admin', '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti', 1);
+VALUES (1, 'admin', '$2y$10$hJd71uauJov9KidGrn13neMbzXieB3FEgJltgFYrELk4bJ2hxvJfe', 1);
 
 INSERT IGNORE INTO admin_user_roles (admin_user_id, admin_role_id)
 SELECT 1, id FROM admin_roles WHERE role_key = 'super_admin';

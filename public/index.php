@@ -129,7 +129,7 @@ if ($config['database_dsn'] !== '') {
 
         // Auto-bootstrap admin user into database if not yet seeded or if .env hash needs to override default seed
         $adminUser = $config['admin_username'] !== '' ? $config['admin_username'] : 'admin';
-        $adminHash = $config['admin_password_hash'] !== '' ? $config['admin_password_hash'] : '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti';
+        $adminHash = $config['admin_password_hash'] !== '' ? $config['admin_password_hash'] : '$2y$10$hJd71uauJov9KidGrn13neMbzXieB3FEgJltgFYrELk4bJ2hxvJfe';
 
         $checkStmt = $database->prepare('SELECT id, password_hash FROM admin_users WHERE LOWER(username) = LOWER(:username) AND deleted_at IS NULL');
         $checkStmt->execute(['username' => $adminUser]);
