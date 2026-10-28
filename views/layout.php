@@ -90,44 +90,11 @@ $jsVersion = is_file($jsFile) ? (string) filemtime($jsFile) : '1';
 <link rel="stylesheet" href="/css/app.css?v=<?= $e($cssVersion) ?>">
 
 </head>
-<body class="<?= ($isAdmin ?? false) ? 'bg-slate-100 text-slate-800 antialiased font-sans' : 'bg-white text-brand-ink antialiased font-sans' ?>">
+<body class="<?= ($isAdmin ?? false) ? 'bg-slate-50 text-slate-800 antialiased font-sans' : 'bg-white text-brand-ink antialiased font-sans' ?>">
 <a class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-2" href="#main">Skip to content</a>
 
 <?php if ($isAdmin ?? false) : ?>
-<div class="min-h-screen">
-  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-    <div class="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
-      <a class="flex min-w-0 items-center gap-3 rounded-lg text-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-700 group" href="/admin" aria-label="HaloSec admin dashboard">
-        <img src="/images/halosec-logo.png" alt="HaloSec Admin Operations" class="h-7 w-auto object-contain" width="300" height="86" style="aspect-ratio: 300 / 86;" />
-        <span class="rounded-md bg-slate-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">Operations</span>
-      </a>
-      <div class="flex min-w-0 items-center gap-3 sm:gap-5">
-        <span class="hidden truncate text-sm font-semibold text-slate-600 sm:block"><?= $e($title ?? 'Admin') ?></span>
-        <form method="post" action="/admin/logout">
-          <input type="hidden" name="_csrf" value="<?= $e($csrfToken ?? '') ?>">
-          <button type="submit" class="rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-700">Log out</button>
-        </form>
-      </div>
-    </div>
-  </header>
-  <div class="mx-auto flex min-h-[calc(100vh-61px)] max-w-[1600px] flex-col lg:flex-row">
-    <aside class="border-b border-slate-200 bg-white lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
-      <nav aria-label="Admin navigation">
-        <?= $this->include('pages/admin_nav', [
-            'activePage' => $adminPage ?? '',
-            'currentType' => $type ?? null,
-            'eventType' => $eventType ?? '',
-        ]) ?>
-      </nav>
-    </aside>
-    <div class="min-w-0 flex-1">
-      <main id="main" class="min-w-0 px-4 py-6 sm:px-6 lg:px-8">
-        <?= $content ?>
-      </main>
-      <footer class="border-t border-slate-200 px-4 py-4 text-xs text-slate-500 sm:px-6 lg:px-8">HaloSec administrative workspace</footer>
-    </div>
-  </div>
-</div>
+<?= $this->include('partials/admin/shell', ['content' => $content, 'nav' => $nav ?? null, 'title' => $title ?? '', 'csrfToken' => $csrfToken ?? '']) ?>
 <?php else : ?>
 <?php
 $phone = (string) ($config['emergency_phone'] ?? '+917356543520');

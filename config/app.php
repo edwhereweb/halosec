@@ -7,6 +7,8 @@ return [
     'tagline' => 'The Aura of Security for Your Business',
     'app_env' => getenv('APP_ENV') ?: 'production',
     'app_url' => getenv('APP_URL') ?: 'https://halosec.in',
+    // Times in the admin area are shown in this zone (stored times stay UTC).
+    'admin_timezone' => getenv('ADMIN_TIMEZONE') ?: 'Asia/Kolkata',
     'emergency_phone' => getenv('EMERGENCY_PHONE') ?: '+917356543520',
     'contact_email' => getenv('CONTACT_EMAIL') ?: 'hello@halosec.in',
     // Public business details for search engines (structured data). Leave unset until they are real.

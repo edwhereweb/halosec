@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace HaloSec\Controllers;
 
+use HaloSec\Admin\Ui;
 use HaloSec\Models\Lead;
 use HaloSec\Security\AdminAuth;
 use HaloSec\Security\CsrfManager;
 use HaloSec\Security\LoginThrottle;
 use HaloSec\Security\RolePolicy;
+use HaloSec\Services\AdminAnalytics;
 use HaloSec\Services\AdminSubmissionRepositoryInterface;
 use HaloSec\Services\LeadReaderInterface;
 use HaloSec\View;
@@ -138,9 +140,8 @@ final class AdminController
         }
         $secret = $this->auth->hasTwoFactor() ? null : $this->auth->pendingEnrollmentSecret();
 
-        return $this->view->render('pages/admin_account', [
-            'title' => 'My Account',
-            'path' => '',
+        return $this->render('pages/admin_account', 'account', [
+            'title' => 'My account',
             'username' => $this->auth->username(),
             'hasTwoFactor' => $this->auth->hasTwoFactor(),
             'requireTwoFactor' => $this->requireTwoFactor,
@@ -229,17 +230,100 @@ final class AdminController
         if (($denied = $this->guard('dashboard')) !== null) {
             return $denied;
         }
+        $analytics = new AdminAnalytics();
+        $period = $analytics->period(30);
+        $rows = $this->analyticsRows($period['prev_from']);
+        $current = $analytics->between($rows, $period['from'], $period['to']);
+        $previous = $analytics->between($rows, $period['prev_from'], $period['from']);
+        $repo = $this->repository;
+        $me = $this->auth->userId();
+        $week = $analytics->period(7);
 
-        $stats = $this->repository?->dashboardStats();
-        $recent = $this->repository?->listSubmissions(null, null, 1, 20) ?? array_slice($this->leads->all(), 0, 8);
-        return $this->view->render('pages/admin_dashboard', [
+        return $this->render('pages/admin_dashboard', 'dashboard', [
             'title' => 'Dashboard',
-            'path' => '',
-            'counts' => $this->leads->counts(),
-            'recent' => $recent,
-            'stats' => $stats,
-            'isDatabase' => $this->repository !== null,
+            'summary' => $analytics->summary($current, $previous),
+            'series' => $analytics->series($current, 30),
+            'byType' => $analytics->countBy(array_values(array_filter($current, static fn (array $r): bool => $r['status'] !== 'spam')), 'form_key'),
+            'medianResponse' => $repo === null ? null : $analytics->medianResponseHours($repo->firstResponses($period['from'])),
+            'previousMedianResponse' => $repo === null ? null : $analytics->medianResponseHours(
+                array_values(array_filter($repo->firstResponses($period['prev_from']), static fn (array $p): bool => $p['submitted_at'] < $period['from'])),
+            ),
+            'urgent' => $repo?->listSubmissions('urgent', 'open', 1, 5) ?? [],
+            'unassigned' => $repo?->listSubmissions(null, 'new', 1, 6, null, null, 'unassigned') ?? [],
+            'mine' => $repo === null || $me === null ? [] : $repo->listSubmissions(null, 'open', 1, 6, null, null, (string) $me),
+            'recent' => $repo?->listSubmissions(null, null, 1, 8) ?? array_slice($this->leads->all(), 0, 8),
+            'failedLogins7d' => $repo?->failedLoginCount($week['from']) ?? 0,
+            'isDatabase' => $repo !== null,
             'dbError' => $this->dbError,
+        ]);
+    }
+
+    /** @param array<string, mixed> $query */
+    public function analytics(array $query): string
+    {
+        if (($denied = $this->guard('dashboard')) !== null) {
+            return $denied;
+        }
+        $days = AdminAnalytics::range($query['range'] ?? null);
+        $analytics = new AdminAnalytics();
+        $period = $analytics->period($days);
+        $rows = $this->analyticsRows($period['prev_from']);
+        $current = $analytics->between($rows, $period['from'], $period['to']);
+        $previous = $analytics->between($rows, $period['prev_from'], $period['from']);
+        $notSpam = array_values(array_filter($current, static fn (array $r): bool => $r['status'] !== 'spam'));
+        $repo = $this->repository;
+        $values = static fn (array $forms, string $field): array => $repo?->fieldValues($forms, $field, $period['from']) ?? [];
+
+        $serviceNames = [];
+        foreach ($this->services() as $slug => $service) {
+            $serviceNames[$slug] = (string) ($service['nav_label'] ?? $service['title'] ?? $slug);
+        }
+        $services = [];
+        foreach ($analytics->distribution($values(['enquiry'], 'service'), 8) as $slug => $count) {
+            $services[$serviceNames[$slug] ?? (string) $slug] = $count;
+        }
+        $teamNames = [];
+        foreach ($repo?->adminUsers() ?? [] as $user) {
+            $teamNames[(int) $user['id']] = (string) $user['username'];
+        }
+        $workload = [];
+        $handled = [];
+        foreach ($current as $row) {
+            $owner = $row['assigned_admin_user_id'] === null ? 'Unassigned' : ($teamNames[(int) $row['assigned_admin_user_id']] ?? 'Former member');
+            if (in_array($row['status'], Ui::OPEN_STATUSES, true)) {
+                $workload[$owner] = ($workload[$owner] ?? 0) + 1;
+            } elseif ($row['status'] === 'resolved' && $owner !== 'Unassigned') {
+                $handled[$owner] = ($handled[$owner] ?? 0) + 1;
+            }
+        }
+        arsort($workload);
+        arsort($handled);
+        $scales = [];
+        $scaleCounts = array_count_values($values(['audit'], 'employee_scale'));
+        foreach ((array) ($this->config()['employee_scales'] ?? []) as $scale) {
+            $scales[(string) $scale] = (int) ($scaleCounts[(string) $scale] ?? 0);
+        }
+
+        return $this->render('pages/admin_analytics', 'analytics', [
+            'title' => 'Analytics',
+            'days' => $days,
+            'rangeLabel' => AdminAnalytics::RANGES[$days],
+            'summary' => $analytics->summary($current, $previous),
+            'series' => $analytics->series($current, $days),
+            'byType' => $analytics->countBy($notSpam, 'form_key'),
+            'byStatus' => $analytics->countBy($current, 'status'),
+            'services' => $services,
+            'industries' => $analytics->distribution($values(['audit'], 'industry')),
+            'scales' => $scales,
+            'topics' => $analytics->distribution($values(['consultation'], 'topic')),
+            'attacks' => $analytics->distribution($values(['emergency', 'security_report'], 'attack_type')),
+            'scores' => $analytics->scoreBands(array_map('intval', array_filter($values(['audit'], 'score'), 'is_numeric'))),
+            'heatmap' => $analytics->heatmap($notSpam),
+            'workload' => $workload,
+            'handled' => $handled,
+            'medianResponse' => $repo === null ? null : $analytics->medianResponseHours($repo->firstResponses($period['from'])),
+            'failedLogins' => $repo?->failedLoginCount($period['from']) ?? 0,
+            'isDatabase' => $repo !== null,
         ]);
     }
 
@@ -254,25 +338,16 @@ final class AdminController
 
         $type = is_string($query['type'] ?? null) && in_array($query['type'], Lead::TYPES, true) ? $query['type'] : null;
         $page = is_string($query['page'] ?? null) && ctype_digit($query['page']) ? (int) $query['page'] : 1;
-        $all = [];
-        if ($this->repository === null) {
-            $all = $this->leads->all($type);
-            $total = count($all);
-        } else {
-            $total = $this->repository->submissionCount($type, null);
-        }
+        $all = $this->leads->all($type);
+        $total = count($all);
         $pages = max(1, (int) ceil($total / self::PER_PAGE));
         $page = min(max(1, $page), $pages);
-        $rows = $this->repository === null
-            ? array_slice($all, ($page - 1) * self::PER_PAGE, self::PER_PAGE)
-            : $this->repository->listSubmissions($type, null, $page, self::PER_PAGE);
 
-        return $this->view->render('pages/admin_leads', [
-            'title' => 'All Inbox',
-            'path' => '',
+        return $this->render('pages/admin_leads', 'inbox', [
+            'title' => 'Inbox',
             'type' => $type,
             'total' => $total,
-            'rows' => $rows,
+            'rows' => array_slice($all, ($page - 1) * self::PER_PAGE, self::PER_PAGE),
             'page' => $page,
             'pages' => $pages,
         ]);
@@ -288,7 +363,7 @@ final class AdminController
             return 404;
         }
 
-        return $this->view->render('pages/admin_lead', ['title' => 'Submission Detail', 'path' => '', 'lead' => $lead]);
+        return $this->render('pages/admin_lead', 'inbox', ['title' => 'Submission', 'lead' => $lead]);
     }
 
     /**
@@ -299,62 +374,46 @@ final class AdminController
         if (($denied = $this->guard('submissions.read')) !== null) {
             return $denied;
         }
-        $formKey = is_string($query['type'] ?? null) && in_array($query['type'], Lead::TYPES, true)
-            ? $query['type']
-            : null;
-        $statuses = ['new', 'in_review', 'resolved', 'spam', 'archived'];
-        $status = is_string($query['status'] ?? null) && in_array($query['status'], $statuses, true)
-            ? $query['status']
-            : null;
-        $fromDate = $this->dateFilter($query['from'] ?? null);
-        $toDate = $this->dateFilter($query['to'] ?? null);
-        $assigneeId = $this->assigneeFilter($query['assignee'] ?? null);
-        $page = is_string($query['page'] ?? null) && ctype_digit($query['page']) ? max(1, (int) $query['page']) : 1;
-        $allRows = [];
         if ($this->repository === null) {
-            $allRows = $this->leads->all($formKey);
-            $allRows = array_values(array_filter($allRows, static function (array $row) use ($status, $fromDate, $toDate, $assigneeId): bool {
-                $rowStatus = (string) ($row['status'] ?? 'new');
-                $submittedDate = substr((string) ($row['created_at'] ?? ''), 0, 10);
-                if (($status !== null && $status !== $rowStatus)
-                    || ($fromDate !== null && $submittedDate < $fromDate)
-                    || ($toDate !== null && $submittedDate > $toDate)) {
-                    return false;
-                }
-                if ($assigneeId === 'unassigned') {
-                    return empty($row['assigned_admin_user_id']);
-                }
-
-                return $assigneeId === null || (string) ($row['assigned_admin_user_id'] ?? '') === $assigneeId;
-            }));
-            $total = count($allRows);
-        } else {
-            $total = $this->repository->submissionCount($formKey, $status, $fromDate, $toDate, $assigneeId);
+            return $this->leads($query);
         }
+        $filters = $this->inboxFilters($query);
+        $repo = $this->repository;
+        $page = is_string($query['page'] ?? null) && ctype_digit($query['page']) ? max(1, (int) $query['page']) : 1;
+        $total = $repo->submissionCount($filters['type'], $filters['statusFilter'], $filters['from'], $filters['to'], $filters['assigneeFilter'], $filters['q']);
         $pages = max(1, (int) ceil($total / self::PER_PAGE));
         $page = min($page, $pages);
-        $rows = $this->repository === null
-            ? array_slice($allRows, ($page - 1) * self::PER_PAGE, self::PER_PAGE)
-            : $this->repository->listSubmissions($formKey, $status, $page, self::PER_PAGE, $fromDate, $toDate, $assigneeId);
+        $counts = $repo->statusCounts($filters['type'], $filters['assigneeFilter'], $filters['q']);
+        $counts = ['open' => ($counts['new'] ?? 0) + ($counts['in_review'] ?? 0)] + $counts + ['all' => array_sum($counts)];
 
-        return $this->view->render('pages/admin_submissions', [
-            'title' => 'All Inbox',
-            'path' => '',
-            'type' => $formKey,
-            'status' => $status,
-            'fromDate' => $fromDate,
-            'toDate' => $toDate,
-            'assigneeId' => $assigneeId,
-            'assignees' => $this->repository?->adminUsers() ?? [],
+        $active = match (true) {
+            $filters['type'] === 'urgent' => 'urgent',
+            $filters['assignee'] === 'me' => 'mine',
+            $filters['assignee'] === 'unassigned' => 'unassigned',
+            default => 'inbox',
+        };
+
+        return $this->render('pages/admin_submissions', $active, [
+            'title' => match ($active) {
+                'urgent' => 'Emergencies',
+                'mine' => 'Assigned to me',
+                'unassigned' => 'Unassigned',
+                default => 'Inbox',
+            },
+            'filters' => $filters,
+            'statusCounts' => $counts,
+            'assignees' => $repo->adminUsers(),
             'total' => $total,
-            'rows' => $rows,
+            'rows' => $repo->listSubmissions($filters['type'], $filters['statusFilter'], $page, self::PER_PAGE, $filters['from'], $filters['to'], $filters['assigneeFilter'], $filters['q']),
             'page' => $page,
             'pages' => $pages,
             'canManage' => RolePolicy::allows($this->auth->role(), 'submissions.manage'),
+            'saved' => is_string($query['saved'] ?? null) ? $query['saved'] : null,
         ]);
     }
 
-    public function submission(string $id): string|int
+    /** @param array<string, mixed> $query */
+    public function submission(string $id, array $query = []): string|int
     {
         if (($denied = $this->guard('submissions.read')) !== null) {
             return $denied;
@@ -367,15 +426,26 @@ final class AdminController
         if ($record === null) {
             return 404;
         }
+        $saved = is_string($query['saved'] ?? null) ? $query['saved'] : null;
 
-        return $this->view->render('pages/admin_submission', [
-            'title' => 'Submission Detail',
-            'path' => '',
+        return $this->render('pages/admin_submission', Ui::isUrgent($record['form_key'], $record['status']) ? 'urgent' : 'inbox', [
+            'title' => Ui::contactName($record['data']),
             'submission' => $record,
-            'notes' => $repository->notes((int) $id),
+            'timeline' => $repository->timeline((int) $id),
+            'neighbours' => $repository->neighbours((int) $id),
             'users' => $repository->adminUsers(),
+            'me' => $this->auth->userId(),
             'canManage' => RolePolicy::allows($this->auth->role(), 'submissions.manage'),
             'canAssign' => RolePolicy::allows($this->auth->role(), 'submissions.assign'),
+            'flashMessage' => match ($saved) {
+                'status' => 'Status updated.',
+                'assigned' => 'Assignment updated.',
+                'note' => 'Note added.',
+                default => null,
+            },
+            'services' => $this->services(),
+            'auditQuestions' => (array) ($this->auditConfig()['questions'] ?? []),
+            'auditOptions' => (array) ($this->auditConfig()['options'] ?? []),
         ]);
     }
 
@@ -396,7 +466,7 @@ final class AdminController
             return 'Unable to update submission.';
         }
 
-        return $this->redirect('/admin/submissions/' . $id);
+        return $this->redirect('/admin/submissions/' . $id . '?saved=status');
     }
 
     /** @param array<string, mixed> $post */
@@ -409,6 +479,9 @@ final class AdminController
             return 'Invalid request';
         }
         $assignee = $post['assigned_admin_user_id'] ?? '';
+        if ($assignee === 'me') {
+            $assignee = (string) ($this->auth->userId() ?? '');
+        }
         $assigneeId = $assignee === '' ? null : (is_string($assignee) && ctype_digit($assignee) ? (int) $assignee : -1);
         if ($this->repository === null || !ctype_digit($id) || $assigneeId === -1
             || !$this->repository->assign((int) $id, $assigneeId, $this->auth->userId())) {
@@ -417,7 +490,7 @@ final class AdminController
             return 'Unable to assign submission.';
         }
 
-        return $this->redirect('/admin/submissions/' . $id);
+        return $this->redirect('/admin/submissions/' . $id . '?saved=assigned');
     }
 
     /** @param array<string, mixed> $post */
@@ -437,7 +510,7 @@ final class AdminController
             return 'Unable to save note.';
         }
 
-        return $this->redirect('/admin/submissions/' . $id);
+        return $this->redirect('/admin/submissions/' . $id . '?saved=note');
     }
 
     /** @param array<string, mixed> $post */
@@ -463,8 +536,10 @@ final class AdminController
 
             return 'No submissions were updated.';
         }
+        $back = is_string($post['return'] ?? null) && str_starts_with($post['return'], '/admin/submissions')
+            && !str_contains($post['return'], '//') ? $post['return'] : '/admin/submissions';
 
-        return $this->redirect('/admin/submissions');
+        return $this->redirect($back . (str_contains($back, '?') ? '&' : '?') . 'saved=' . $changed);
     }
 
     /** @param array<string, mixed> $query */
@@ -478,16 +553,8 @@ final class AdminController
 
             return 'Database storage is required for CSV export.';
         }
-        $formKey = is_string($query['type'] ?? null) && in_array($query['type'], Lead::TYPES, true)
-            ? $query['type']
-            : null;
-        $status = is_string($query['status'] ?? null) && in_array($query['status'], ['new', 'in_review', 'resolved', 'spam', 'archived'], true)
-            ? $query['status']
-            : null;
-        $fromDate = $this->dateFilter($query['from'] ?? null);
-        $toDate = $this->dateFilter($query['to'] ?? null);
-        $assigneeId = $this->assigneeFilter($query['assignee'] ?? null);
-        $count = $this->repository->submissionCount($formKey, $status, $fromDate, $toDate, $assigneeId);
+        $f = $this->inboxFilters($query);
+        $count = $this->repository->submissionCount($f['type'], $f['statusFilter'], $f['from'], $f['to'], $f['assigneeFilter'], $f['q']);
         $stream = fopen('php://output', 'wb');
         if ($stream === false) {
             http_response_code(500);
@@ -495,20 +562,29 @@ final class AdminController
             return 'Could not create export.';
         }
         header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="halosec-submissions.csv"');
+        header('Content-Disposition: attachment; filename="halosec-submissions-' . gmdate('Y-m-d') . '.csv"');
         header('X-Content-Type-Options: nosniff');
-        fputcsv($stream, ['id', 'form_key', 'submitted_at', 'status', 'assigned_admin_user_id', 'fields']);
+        $names = [];
+        foreach ($this->repository->adminUsers() as $user) {
+            $names[(int) $user['id']] = (string) $user['username'];
+        }
+        fputcsv($stream, ['id', 'type', 'received (' . Ui::zoneAbbr() . ')', 'status', 'assignee', 'name', 'email', 'phone', 'company', 'all fields']);
         for ($page = 1; $page <= (int) ceil($count / 100); $page++) {
-            foreach ($this->repository->listSubmissions($formKey, $status, $page, 100, $fromDate, $toDate, $assigneeId) as $row) {
+            foreach ($this->repository->listSubmissions($f['type'], $f['statusFilter'], $page, 100, $f['from'], $f['to'], $f['assigneeFilter'], $f['q']) as $row) {
                 $fields = json_encode($row['data'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}';
-                fputcsv($stream, [
-                    $row['id'],
-                    $row['form_key'],
-                    $row['created_at'],
-                    $row['status'],
-                    $row['assigned_admin_user_id'] ?? '',
-                    $this->spreadsheetSafe($fields),
-                ]);
+                $data = $row['data'];
+                fputcsv($stream, array_map(fn (mixed $v): string => $this->spreadsheetSafe((string) $v), [
+                    $row['submission_id'],
+                    Ui::formLabel($row['form_key']),
+                    Ui::dateTime($row['created_at']),
+                    Ui::statusLabel($row['status']),
+                    $row['assigned_admin_user_id'] === null ? '' : ($names[$row['assigned_admin_user_id']] ?? $row['assigned_admin_user_id']),
+                    is_scalar($data['name'] ?? null) ? $data['name'] : '',
+                    is_scalar($data['email'] ?? null) ? $data['email'] : '',
+                    is_scalar($data['phone'] ?? null) ? $data['phone'] : '',
+                    is_scalar($data['company'] ?? null) ? $data['company'] : '',
+                    $fields,
+                ]));
             }
         }
         fclose($stream);
@@ -523,22 +599,24 @@ final class AdminController
             return $denied;
         }
 
-        $eventType = is_string($query['event'] ?? null)
-            && in_array($query['event'], ['admin_login_failed', 'security_events'], true)
-            ? $query['event']
+        $eventType = is_string($query['event'] ?? null) && $query['event'] === 'admin_login_failed'
+            ? 'admin_login_failed'
+            : 'security_events';
+        $severity = is_string($query['severity'] ?? null) && in_array($query['severity'], ['info', 'low', 'medium', 'high', 'critical'], true)
+            ? $query['severity']
             : null;
+        $analytics = new AdminAnalytics();
+        $repo = $this->repository;
 
-        return $this->view->render('pages/admin_security', [
-            'title' => $eventType === 'admin_login_failed' ? 'Failed Logins' : 'Security Events',
-            'path' => '',
-            'events' => $this->repository?->securityEvents(
-                50,
-                is_string($query['severity'] ?? null) ? $query['severity'] : null,
-                $eventType,
-            ) ?? [],
-            'eventType' => $eventType ?? '',
-            'severity' => is_string($query['severity'] ?? null) ? $query['severity'] : '',
-            'isDatabase' => $this->repository !== null,
+        return $this->render('pages/admin_security', 'security', [
+            'title' => 'Security log',
+            'events' => $repo?->securityEvents(100, $severity, $eventType) ?? [],
+            'eventType' => $eventType,
+            'severity' => $severity ?? '',
+            'failed24h' => $repo?->failedLoginCount(gmdate('Y-m-d H:i:s', time() - 86400)) ?? 0,
+            'failed7d' => $repo?->failedLoginCount($analytics->period(7)['from']) ?? 0,
+            'failed30d' => $repo?->failedLoginCount($analytics->period(30)['from']) ?? 0,
+            'isDatabase' => $repo !== null,
             'dbError' => $this->dbError,
         ]);
     }
@@ -549,10 +627,9 @@ final class AdminController
             return $denied;
         }
 
-        return $this->view->render('pages/admin_audit', [
-            'title' => 'Audit Logs',
-            'path' => '',
-            'entries' => $this->repository?->auditLogs() ?? [],
+        return $this->render('pages/admin_audit', 'audit', [
+            'title' => 'Audit log',
+            'entries' => $this->repository?->auditLogs(200) ?? [],
             'isDatabase' => $this->repository !== null,
             'dbError' => $this->dbError,
         ]);
@@ -580,13 +657,14 @@ final class AdminController
                 $message = 'Setting saved.';
             }
         }
+        $saved = $_GET['saved'] ?? null;
 
-        return $this->view->render('pages/admin_settings', [
-            'title' => 'Site Settings',
-            'path' => '',
+        return $this->render('pages/admin_settings', 'content', [
+            'title' => 'Website content',
             'settings' => $this->repository?->settings() ?? [],
             'blocks' => $this->repository?->contentBlocks() ?? [],
-            'message' => $message,
+            'message' => $message ?? ($saved === 'block' ? 'Website text saved. It is live now.' : null),
+            'isDatabase' => $this->repository !== null,
         ]);
     }
 
@@ -597,6 +675,7 @@ final class AdminController
             return $denied;
         }
         $message = null;
+        $error = false;
         if ($method === 'POST') {
             if (!$this->validCsrf($post)) {
                 http_response_code(419);
@@ -609,17 +688,21 @@ final class AdminController
             if ($this->repository === null
                 || !$this->repository->createAdminUser($username, $password, $role, $this->auth->userId())) {
                 http_response_code(422);
-                $message = 'Unable to create user. Use a unique username and a password of at least 12 characters.';
+                $message = 'Could not add this person. Use a unique username and a password of at least 12 characters.';
+                $error = true;
             } else {
-                $message = 'Admin user created.';
+                $message = $username . ' can now sign in. Ask them to set up 2FA under My account.';
             }
         }
+        $saved = $_GET['saved'] ?? null;
 
-        return $this->view->render('pages/admin_users', [
-            'title' => 'Admin Users / Roles',
-            'path' => '',
+        return $this->render('pages/admin_users', 'users', [
+            'title' => 'Team & roles',
             'users' => $this->repository?->adminUsers() ?? [],
-            'message' => $message,
+            'message' => $message ?? ($saved === '1' ? 'Changes saved.' : null),
+            'messageIsError' => $error,
+            'me' => $this->auth->userId(),
+            'requireTwoFactor' => $this->requireTwoFactor,
             'isDatabase' => $this->repository !== null,
             'dbError' => $this->dbError,
         ]);
@@ -645,7 +728,7 @@ final class AdminController
             return 'Unable to update this user. Passwords must be at least 12 characters. Keep at least one active super administrator.';
         }
 
-        return $this->redirect('/admin/users');
+        return $this->redirect('/admin/users?saved=1');
     }
 
     /** @param array<string, mixed> $post */
@@ -667,7 +750,113 @@ final class AdminController
             return 'Unable to save content block.';
         }
 
-        return $this->redirect('/admin/settings');
+        return $this->redirect('/admin/settings?saved=block');
+    }
+
+    /**
+     * Renders an admin page inside the admin shell, with the sidebar's counts and the signed-in user.
+     *
+     * @param array<string, mixed> $data
+     */
+    private function render(string $template, string $active, array $data): string
+    {
+        $role = $this->auth->role();
+        $can = [];
+        foreach (['dashboard', 'submissions.read', 'submissions.manage', 'settings.manage', 'security.read', 'audit.read', 'users.manage'] as $permission) {
+            $can[$permission] = RolePolicy::allows($role, $permission);
+        }
+        try {
+            $counts = $this->repository?->navCounts($this->auth->userId());
+        } catch (\Throwable) {
+            $counts = null;
+        }
+
+        return $this->view->render($template, $data + [
+            'path' => '',
+            'nav' => [
+                'active' => $active,
+                'counts' => $counts,
+                'can' => $can,
+                'username' => $this->auth->username(),
+                'role' => $role,
+                'hasTwoFactor' => $this->auth->hasTwoFactor(),
+            ],
+        ]);
+    }
+
+    /**
+     * Rows for analytics: from the database, or from file storage (where everything counts as "new").
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function analyticsRows(string $fromUtc): array
+    {
+        if ($this->repository !== null) {
+            return $this->repository->analyticsRows($fromUtc);
+        }
+        $rows = [];
+        foreach ($this->leads->all() as $lead) {
+            $at = gmdate('Y-m-d H:i:s', strtotime((string) ($lead['created_at'] ?? '')) ?: 0);
+            if ($at >= $fromUtc) {
+                $rows[] = ['form_key' => (string) ($lead['type'] ?? ''), 'status' => 'new', 'submitted_at' => $at, 'assigned_admin_user_id' => null];
+            }
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Normalised inbox filters from the query string.
+     *
+     * @param array<string, mixed> $query
+     *
+     * @return array{type: string|null, status: string, statusFilter: string|null, assignee: string|null, assigneeFilter: string|null, from: string|null, to: string|null, q: string|null}
+     */
+    private function inboxFilters(array $query): array
+    {
+        $type = is_string($query['type'] ?? null) && ($query['type'] === 'urgent' || in_array($query['type'], Lead::TYPES, true))
+            ? $query['type']
+            : null;
+        $status = is_string($query['status'] ?? null) && in_array($query['status'], array_merge(['open', 'all'], Ui::STATUSES), true)
+            ? $query['status']
+            : 'open';
+        $assignee = ($query['assignee'] ?? null) === 'me' ? 'me' : $this->assigneeFilter($query['assignee'] ?? null);
+        $q = is_string($query['q'] ?? null) && trim($query['q']) !== '' ? mb_substr(trim($query['q']), 0, 100) : null;
+
+        return [
+            'type' => $type,
+            'status' => $status,
+            'statusFilter' => $status === 'all' ? null : $status,
+            'assignee' => $assignee,
+            'assigneeFilter' => $assignee === 'me' ? (string) ($this->auth->userId() ?? '0') : $assignee,
+            'from' => $this->dateFilter($query['from'] ?? null),
+            'to' => $this->dateFilter($query['to'] ?? null),
+            'q' => $q,
+        ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private function services(): array
+    {
+        $services = $this->view->shared('services');
+
+        return is_array($services) ? $services : [];
+    }
+
+    /** @return array<string, mixed> */
+    private function config(): array
+    {
+        $config = $this->view->shared('config');
+
+        return is_array($config) ? $config : [];
+    }
+
+    /** @return array<string, mixed> */
+    private function auditConfig(): array
+    {
+        $audit = $this->view->shared('audit');
+
+        return is_array($audit) ? $audit : [];
     }
 
     private function guard(string $permission): ?string

@@ -1,59 +1,107 @@
-<?php $e = static fn (mixed $v): string => HaloSec\View::e($v); ?>
-<section class="mx-auto w-full max-w-7xl space-y-5">
-  <div><p class="text-sm font-semibold text-slate-500">Governance</p><h1 class="mt-1 text-3xl font-bold text-slate-950">Admin Users / Roles</h1></div>
-  <p class="mb-6 text-sm text-slate-600">Create named accounts with least-privilege roles. Passwords are hashed before storage.</p>
-  <?php if ($message !== null) : ?><p role="status" class="mb-4 rounded-xl bg-sky-50 p-3 text-sm text-sky-900"><?= $e($message) ?></p><?php endif; ?>
-  <div class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(300px,1.3fr)]">
-    <form method="post" action="/admin/users" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
-      <label for="admin_username" class="mb-1 block text-sm font-semibold text-slate-700">Username</label>
-      <input id="admin_username" name="username" required minlength="3" maxlength="190" pattern="[A-Za-z0-9_.@-]+" autocomplete="username" class="mb-4 w-full rounded-xl border-slate-300 text-sm">
-      <label for="admin_password" class="mb-1 block text-sm font-semibold text-slate-700">Initial password</label>
-      <input id="admin_password" name="password" type="password" required minlength="12" maxlength="1024" autocomplete="new-password" class="mb-4 w-full rounded-xl border-slate-300 text-sm">
-      <label for="admin_role" class="mb-1 block text-sm font-semibold text-slate-700">Role</label>
-      <select id="admin_role" name="role" required class="mb-5 w-full rounded-xl border-slate-300 text-sm">
-        <?php foreach (['admin', 'editor', 'viewer', 'super_admin'] as $role) : ?><option value="<?= $e($role) ?>"><?= $e(str_replace('_', ' ', ucfirst($role))) ?></option><?php endforeach; ?>
-      </select>
-      <button class="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700" type="submit">Create admin</button>
-    </form>
-    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 class="mb-4 font-bold text-slate-900">Existing accounts</h2>
-      <?php if (!($isDatabase ?? true)) : ?>
-      <div class="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
-        <div class="flex items-center gap-2 font-bold text-amber-950">
-          <span class="inline-block h-2 w-2 rounded-full bg-amber-500"></span>
-          Database Inactive (Running in Fallback Mode)
-        </div>
-        <p class="mt-1.5 leading-relaxed text-amber-800">
-          Managing database admin accounts and granular roles requires an active MySQL connection. You are currently logged in via environment fallback mode.
-          To activate database accounts and role permissions, verify your MySQL connection settings in <code>.env</code> (e.g. <code>DB_HOST=localhost</code>, <code>DB_NAME=...</code>, <code>DB_USER=...</code>, <code>DB_PASSWORD=...</code> or <code>DB_DSN=...</code>).
-        </p>
-        <?php if (!empty($dbError)) : ?>
-        <div class="mt-2.5 rounded-lg bg-amber-100/80 p-2.5 font-mono text-[11px] text-amber-950 break-words">
-          <strong>Diagnostic Error:</strong> <?= $e($dbError) ?>
-        </div>
-        <?php endif; ?>
-      </div>
-      <?php endif; ?>
-      <?php if ($users === []) : ?><p class="text-sm text-slate-500">No database admin accounts are configured.</p><?php else : ?>
-      <div class="overflow-x-auto" tabindex="0" aria-label="Scrollable administrator accounts"><table class="min-w-[680px] w-full text-left text-sm"><thead class="text-xs uppercase tracking-wider text-slate-500"><tr><th class="py-2 pr-4">Username</th><th class="py-2 pr-4">Role / access</th><th class="py-2">Save</th></tr></thead>
-        <tbody class="divide-y divide-slate-100"><?php foreach ($users as $user) : ?><tr>
-          <td class="py-3 pr-4 font-semibold text-slate-800"><?= $e($user['username']) ?></td>
-          <td class="py-3 pr-4"><form id="user_<?= $e($user['id']) ?>" method="post" action="/admin/users/<?= $e($user['id']) ?>" class="space-y-1.5"><input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
-            <div class="flex items-center gap-2">
-              <label class="sr-only" for="role_<?= $e($user['id']) ?>">Role for <?= $e($user['username']) ?></label><select id="role_<?= $e($user['id']) ?>" name="role" class="rounded-xl border-slate-300 text-xs py-1.5 px-2">
-                <?php foreach (['super_admin', 'admin', 'editor', 'viewer'] as $role) : ?><option value="<?= $e($role) ?>" <?= ($user['role_key'] ?? '') === $role ? 'selected' : '' ?>><?= $e(str_replace('_', ' ', ucfirst($role))) ?></option><?php endforeach; ?>
-              </select>
-              <label class="ml-1 inline-flex items-center gap-1 text-xs text-slate-600"><input type="checkbox" name="active" value="1" <?= (int) $user['is_active'] === 1 ? 'checked' : '' ?>> Active</label>
-            </div>
-            <div>
-              <input type="password" name="password" minlength="12" maxlength="1024" autocomplete="new-password" placeholder="New password (leave blank to keep current)" class="w-full max-w-xs rounded-lg border-slate-200 text-xs py-1 px-2.5 placeholder:text-slate-400 focus:border-sky-500">
-            </div>
-          </form></td>
-          <td class="py-3 align-top"><button form="user_<?= $e($user['id']) ?>" class="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-bold uppercase text-slate-800 hover:bg-slate-100 transition" type="submit">Update</button></td>
-        </tr><?php endforeach; ?></tbody>
-      </table></div>
+<?php
+use HaloSec\Admin\Ui;
+
+$e = static fn (mixed $v): string => HaloSec\View::e($v);
+$roles = ['super_admin', 'admin', 'editor', 'viewer'];
+$withoutTwoFactor = count(array_filter($users, static fn (array $u): bool => (int) $u['is_active'] === 1 && empty($u['has_two_factor'])));
+?>
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+  <div>
+    <h1 class="text-[28px] font-bold tracking-tight text-slate-900">Team &amp; roles</h1>
+    <p class="mt-1 text-[15px] text-slate-600">Who can sign in to the admin area, and what they are allowed to do.</p>
+  </div>
+
+  <?php if ($message !== null) : ?>
+  <p role="<?= $messageIsError ? 'alert' : 'status' ?>" class="rounded-xl border px-4 py-3 text-sm font-semibold <?= $messageIsError ? 'border-red-200 bg-red-50 text-red-900' : 'border-emerald-200 bg-emerald-50 text-emerald-900' ?>"><?= $e($message) ?></p>
+  <?php endif; ?>
+
+  <?php if (!($isDatabase ?? true)) : ?>
+  <p role="status" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Team accounts need the database. Check the DB settings in <code>.env</code>.<?php if (!empty($dbError)) : ?> <span class="font-mono text-xs"><?= $e($dbError) ?></span><?php endif; ?></p>
+  <?php endif; ?>
+
+  <?php if ($withoutTwoFactor > 0) : ?>
+  <p class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    <strong><?= $e($withoutTwoFactor) ?> active <?= $withoutTwoFactor === 1 ? 'person has' : 'people have' ?> no two-factor sign-in yet.</strong>
+    <?= $requireTwoFactor ? 'They will be asked to set it up when they next sign in.' : 'Ask them to set it up under My account, then turn on ADMIN_REQUIRE_2FA on the server.' ?>
+  </p>
+  <?php endif; ?>
+
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white" aria-labelledby="people">
+      <h2 id="people" class="border-b border-slate-100 px-5 py-3 text-sm font-bold text-slate-900">People (<?= $e(count($users)) ?>)</h2>
+      <?php if ($users === []) : ?>
+      <p class="p-6 text-sm text-slate-500">No team accounts yet.</p>
+      <?php else : ?>
+      <ul class="divide-y divide-slate-100">
+        <?php foreach ($users as $user) : ?>
+        <?php $isMe = (int) $user['id'] === (int) $me; $active = (int) $user['is_active'] === 1; ?>
+        <li class="px-5 py-4">
+          <details class="group">
+            <summary class="flex cursor-pointer list-none flex-wrap items-center gap-3">
+              <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-extrabold uppercase <?= $active ? 'bg-sky-100 text-sky-900' : 'bg-slate-100 text-slate-400' ?>" aria-hidden="true"><?= $e(mb_substr((string) $user['username'], 0, 1)) ?></span>
+              <span class="min-w-0 flex-1">
+                <span class="block font-semibold <?= $active ? 'text-slate-900' : 'text-slate-400 line-through' ?>"><?= $e($user['username']) ?><?= $isMe ? ' <span class="text-xs font-medium text-slate-500 no-underline">(you)</span>' : '' ?></span>
+                <span class="block text-xs text-slate-500"><?= $e(Ui::roleLabel((string) ($user['role_key'] ?? ''))) ?> · <?= $e(Ui::roleHelp((string) ($user['role_key'] ?? ''))) ?></span>
+              </span>
+              <span class="flex items-center gap-2">
+                <?php if (!$active) : ?><span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">Deactivated</span><?php endif; ?>
+                <span class="rounded-full px-2 py-0.5 text-xs font-semibold <?= !empty($user['has_two_factor']) ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900' ?>"><?= !empty($user['has_two_factor']) ? '✓ 2FA on' : '2FA off' ?></span>
+                <span class="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 group-open:bg-slate-100">Edit</span>
+              </span>
+            </summary>
+            <form method="post" action="/admin/users/<?= $e($user['id']) ?>" class="mt-4 grid gap-4 rounded-xl bg-slate-50 p-4 sm:grid-cols-2">
+              <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
+              <div>
+                <label for="role_<?= $e($user['id']) ?>" class="mb-1 block text-xs font-semibold text-slate-600">Role</label>
+                <select id="role_<?= $e($user['id']) ?>" name="role" class="h-9 w-full rounded-lg border-slate-200 text-sm" <?= $isMe ? 'disabled' : '' ?>>
+                  <?php foreach ($roles as $role) : ?><option value="<?= $e($role) ?>" <?= ($user['role_key'] ?? '') === $role ? 'selected' : '' ?>><?= $e(Ui::roleLabel($role)) ?></option><?php endforeach; ?>
+                </select>
+                <?php if ($isMe) : ?><input type="hidden" name="role" value="<?= $e($user['role_key'] ?? '') ?>"><p class="mt-1 text-xs text-slate-500">You can’t change your own role.</p><?php endif; ?>
+              </div>
+              <div>
+                <label for="pw_<?= $e($user['id']) ?>" class="mb-1 block text-xs font-semibold text-slate-600">New password <span class="font-normal text-slate-400">(optional, 12+ characters)</span></label>
+                <input id="pw_<?= $e($user['id']) ?>" type="password" name="password" minlength="12" maxlength="1024" autocomplete="new-password" class="h-9 w-full rounded-lg border-slate-200 text-sm">
+              </div>
+              <label class="flex items-center gap-2 text-sm text-slate-700 sm:col-span-2">
+                <input type="checkbox" name="active" value="1" <?= $active ? 'checked' : '' ?> <?= $isMe ? 'disabled' : '' ?> class="rounded border-slate-300">
+                Can sign in
+                <?php if ($isMe) : ?><input type="hidden" name="active" value="1"><?php endif; ?>
+              </label>
+              <div class="sm:col-span-2"><button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Save changes</button></div>
+            </form>
+          </details>
+        </li>
+        <?php endforeach; ?>
+      </ul>
       <?php endif; ?>
     </section>
+
+    <div class="flex flex-col gap-6">
+      <form method="post" action="/admin/users" class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5">
+        <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
+        <h2 class="text-sm font-bold text-slate-900">Add a team member</h2>
+        <div>
+          <label for="admin_username" class="mb-1 block text-xs font-semibold text-slate-600">Username</label>
+          <input id="admin_username" name="username" required minlength="3" maxlength="190" pattern="[A-Za-z0-9_.@-]+" autocomplete="off" class="h-9 w-full rounded-lg border-slate-200 text-sm">
+        </div>
+        <div>
+          <label for="admin_password" class="mb-1 block text-xs font-semibold text-slate-600">First password <span class="font-normal text-slate-400">(12+ characters)</span></label>
+          <input id="admin_password" name="password" type="password" required minlength="12" maxlength="1024" autocomplete="new-password" class="h-9 w-full rounded-lg border-slate-200 text-sm">
+          <p class="mt-1 text-xs text-slate-500">Share it privately. They can change it under My account.</p>
+        </div>
+        <fieldset>
+          <legend class="mb-1 text-xs font-semibold text-slate-600">Role</legend>
+          <div class="flex flex-col gap-1.5">
+            <?php foreach (['viewer', 'editor', 'admin', 'super_admin'] as $role) : ?>
+            <label class="flex cursor-pointer items-start gap-2 rounded-lg border border-slate-200 p-2.5 text-sm has-[:checked]:border-slate-900 has-[:checked]:bg-slate-50">
+              <input type="radio" name="role" value="<?= $e($role) ?>" <?= $role === 'editor' ? 'checked' : '' ?> class="mt-0.5">
+              <span><span class="block font-semibold text-slate-900"><?= $e(Ui::roleLabel($role)) ?></span><span class="block text-xs text-slate-500"><?= $e(Ui::roleHelp($role)) ?></span></span>
+            </label>
+            <?php endforeach; ?>
+          </div>
+        </fieldset>
+        <button class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" type="submit">Add person</button>
+      </form>
+    </div>
   </div>
-</section>
+</div>

@@ -83,6 +83,7 @@ header_remove('X-Powered-By');
 SessionManager::start();
 
 $config = require $root . '/config/app.php';
+HaloSec\Admin\Ui::setTimezone((string) ($config['admin_timezone'] ?? 'Asia/Kolkata'));
 $services = require $root . '/config/services.php';
 $audit = require $root . '/config/audit.php';
 
@@ -115,6 +116,10 @@ if ($config['database_dsn'] !== '') {
             $config['database_password'],
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false],
         );
+        if ($database->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql') {
+            // The app stores and compares UTC; make MySQL's CURRENT_TIMESTAMP columns (notes, audit log) UTC too.
+            $database->exec("SET time_zone = '+00:00'");
+        }
 
         $adminRepository = new PdoLeadStorage($database);
         $leadStorage = $adminRepository;
@@ -269,12 +274,13 @@ foreach (['GET', 'POST'] as $m) {
     $router->add($m, '/admin/account', static fn () => $admin->account($method, $post));
 }
 $router->add('GET', '/admin', [$admin, 'dashboard']);
+$router->add('GET', '/admin/analytics', static fn () => $admin->analytics($_GET));
 $router->add('GET', '/admin/leads', static fn () => $admin->leads($_GET));
 $router->add('GET', '/admin/leads/{type}/{number}', [$admin, 'lead']);
 $router->add('GET', '/admin/submissions', static fn () => $admin->submissions($_GET));
 $router->add('GET', '/admin/submissions/export', static fn () => $admin->exportSubmissions($_GET));
 $router->add('POST', '/admin/submissions/bulk', static fn () => $admin->bulkChangeSubmissionStatus($post));
-$router->add('GET', '/admin/submissions/{id}', [$admin, 'submission']);
+$router->add('GET', '/admin/submissions/{id}', static fn (string $id) => $admin->submission($id, $_GET));
 $router->add('POST', '/admin/submissions/{id}/status', static fn (string $id) => $admin->changeSubmissionStatus($id, $post));
 $router->add('POST', '/admin/submissions/{id}/assignment', static fn (string $id) => $admin->assignSubmission($id, $post));
 $router->add('POST', '/admin/submissions/{id}/notes', static fn (string $id) => $admin->addSubmissionNote($id, $post));

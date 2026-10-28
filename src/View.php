@@ -21,6 +21,12 @@ final class View
         $this->shared = array_merge($this->shared, $shared);
     }
 
+    /** A value shared with every template (config, services…), or null. */
+    public function shared(string $key): mixed
+    {
+        return $this->shared[$key] ?? null;
+    }
+
     /**
      * @param array<string, mixed> $data
      */
