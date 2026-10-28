@@ -48,78 +48,34 @@ $jsVersion = is_file($jsFile) ? (string) filemtime($jsFile) : '1';
 <meta property="og:title" content="<?= $e($pageTitle) ?>">
 <meta property="og:description" content="<?= $e($metaDesc) ?>">
 <meta property="og:url" content="<?= $e($canonicalUrl !== '' ? $canonicalUrl : $baseUrl . '/') ?>">
-<meta property="og:image" content="<?= $e($baseUrl) ?>/images/halosec-logo.png">
+<meta property="og:image" content="<?= $e($baseUrl) ?>/images/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="HaloSec: the aura of security for your business">
+<meta property="og:locale" content="en_IN">
 
 <!-- Twitter Cards -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<?= $e($pageTitle) ?>">
 <meta name="twitter:description" content="<?= $e($metaDesc) ?>">
-<meta name="twitter:image" content="<?= $e($baseUrl) ?>/images/halosec-logo.png">
+<meta name="twitter:image" content="<?= $e($baseUrl) ?>/images/og-default.png">
 
-<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/images/favicon-48.png" type="image/png" sizes="48x48">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
 
 <?php if (!($isAdmin ?? false)) : ?>
-<!-- Structured Data: Organization & ProfessionalService Schema -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "<?= $e($baseUrl) ?>/#organization",
-      "name": "HaloSec",
-      "url": "<?= $e($baseUrl) ?>",
-      "logo": "<?= $e($baseUrl) ?>/images/halosec-logo.png",
-      "slogan": "The Aura of Security for Your Business",
-      "description": "Enterprise cybersecurity services, 24/7 SOC surveillance, endpoint defense, and offensive penetration testing.",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "<?= $e($config['emergency_phone'] ?? '+917356543520') ?>",
-        "contactType": "Emergency Cyber Incident Response",
-        "availableLanguage": "English"
-      }
-    },
-    {
-      "@type": "ProfessionalService",
-      "@id": "<?= $e($baseUrl) ?>/#service",
-      "name": "HaloSec Cybersecurity",
-      "image": "<?= $e($baseUrl) ?>/images/halosec-logo.png",
-      "url": "<?= $e($baseUrl) ?>",
-      "telephone": "<?= $e($config['emergency_phone'] ?? '+917356543520') ?>",
-      "priceRange": "$$",
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "HaloSec Core Cybersecurity Services",
-        "itemListElement": [
-          <?php
-          $catalog = [];
-          foreach ($services as $sSlug => $sData) {
-              $catalog[] = json_encode([
-                  '@type' => 'Offer',
-                  'itemOffered' => [
-                      '@type' => 'Service',
-                      'name' => $sData['title'] ?? '',
-                      'description' => $sData['short'] ?? '',
-                      'url' => $baseUrl . '/services/' . $sSlug,
-                  ],
-              ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-          }
-          echo implode(",\n          ", $catalog);
-          ?>
-        ]
-      }
-    },
-    {
-      "@type": "WebSite",
-      "@id": "<?= $e($baseUrl) ?>/#website",
-      "url": "<?= $e($baseUrl) ?>",
-      "name": "HaloSec",
-      "publisher": {
-        "@id": "<?= $e($baseUrl) ?>/#organization"
-      }
-    }
-  ]
-}
+<?= HaloSec\Seo\StructuredData::toJson(HaloSec\Seo\StructuredData::build(
+    $baseUrl,
+    $path === '' ? '/' : $path,
+    isset($title) && $title !== '' ? (string) $title : $pageTitle,
+    $metaDesc,
+    is_array($config ?? null) ? $config : [],
+    $services,
+    isset($service) && is_array($service) && str_starts_with($path, '/services/') ? $service : null,
+)) ?>
+
 </script>
 <?php endif; ?>
 
@@ -281,7 +237,7 @@ $navItems = [
       </div>
     </div>
     <div class="flex flex-wrap justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-slate-400">
-      <p>© <?= $e(date('Y')) ?> HaloSec. All rights reserved.</p>
+      <p>© <?= $e(date('Y')) ?> HaloSec. All rights reserved.<?php if (!empty($config['privacy_ready'])) : ?> · <a class="text-slate-400 hover:text-white" href="/privacy">Privacy policy</a><?php endif; ?></p>
       <p>The aura of security for your business.</p>
     </div>
   </div>

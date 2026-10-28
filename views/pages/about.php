@@ -3,7 +3,7 @@
   <?= $this->include('partials/halo', ['size' => 1000, 'class' => '-top-[300px]']) ?>
   <div class="relative mx-auto flex max-w-4xl animate-rise flex-col items-center gap-6">
     <span class="chip chip-mist">About HaloSec</span>
-    <h1 class="display text-[56px] md:text-8xl">We are <span class="text-brand-blue">Secur</span><span class="marker">ious</span>.</h1>
+    <h1 class="display text-[56px] md:text-8xl"><span class="sr-only">About HaloSec: </span>We are <span class="text-brand-blue">Secur</span><span class="marker">ious</span>.</h1>
     <p class="lead max-w-2xl"><strong class="text-brand-ink">Curious about security</strong>, so you can fearlessly scale your business.</p>
   </div>
 </section>

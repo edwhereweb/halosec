@@ -100,6 +100,36 @@ final class SeoMetaTest extends TestCase
         $this->assertFileExists(__DIR__ . '/../../public/css/app.css');
     }
 
+    public function testEveryPublicPageEmitsValidJsonLd(): void
+    {
+        $pages = new PageController($this->view);
+        $html = [$pages->home(), $pages->about(), $pages->services(), $this->servicePage('endpoint-security'), $this->servicePage('soc-setup')];
+        foreach ($html as $page) {
+            $this->assertSame(1, preg_match('#<script type="application/ld\+json">(.*?)</script>#s', $page, $m));
+            $data = json_decode($m[1] ?? '', true);
+            $this->assertIsArray($data);
+            $this->assertSame('https://schema.org', $data['@context']);
+        }
+    }
+
+    public function testServicePagesLinkToRelatedServices(): void
+    {
+        $html = $this->servicePage('security-testing');
+
+        foreach ($this->services['security-testing']['related'] as $slug) {
+            $this->assertStringContainsString('href="/services/' . $slug . '"', $html);
+        }
+        $this->assertStringContainsString('Related services.', $html);
+    }
+
+    public function testPrivacyPageIsNoindexUntilReady(): void
+    {
+        $pages = new PageController($this->view);
+
+        $this->assertStringContainsString('content="noindex, nofollow"', $pages->privacy());
+        $this->assertStringContainsString('content="index, follow', $pages->privacy(true));
+    }
+
     private function servicePage(string $slug): string
     {
         $html = $this->forms()->handle('enquiry', '/services/' . $slug, 'Service', 'pages/service', 'GET', [], $slug);

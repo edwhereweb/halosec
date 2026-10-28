@@ -42,6 +42,20 @@ final class PageController
         ]);
     }
 
+    /**
+     * Stays noindexed until config 'privacy_ready' is true (the page still has placeholders to fill in).
+     */
+    public function privacy(bool $ready = false): string
+    {
+        return $this->view->render('pages/privacy', [
+            'title' => 'Privacy Policy',
+            'path' => '/privacy',
+            'description' => 'How HaloSec collects, uses, stores and protects the personal data you share through '
+                . 'our website forms, and how to exercise your rights.',
+            'noindex' => !$ready,
+        ]);
+    }
+
     public function notFound(): string
     {
         return $this->view->render('pages/404', ['title' => 'Page not found', 'path' => '']);

@@ -9,7 +9,7 @@ $phone = (string) ($config['emergency_phone'] ?? '+917356543520');
         <span class="dot-live"><span class="ping bg-red-500"></span><span class="relative h-2 w-2 rounded-full bg-red-600"></span></span>
         Emergency · Responders on duty 24/7
       </span>
-      <h1 class="display text-[52px] md:text-7xl lg:text-[80px]">Under attack?<br>We’re here.</h1>
+      <h1 class="display text-[52px] md:text-7xl lg:text-[80px]"><span class="sr-only">Cyber attack incident response: </span>Under attack? <br>We’re here.</h1>
       <p class="lead max-w-xl">Call first. A responder picks up, triages with you and starts isolating the threat.</p>
     </div>
     <div class="flex flex-[1_1_340px] flex-col gap-3">

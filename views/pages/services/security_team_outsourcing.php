@@ -16,8 +16,8 @@ $tiers = [
   <div class="relative mx-auto flex max-w-4xl animate-rise flex-col items-center gap-6">
     <span class="eyebrow">For small &amp; mid-sized businesses</span>
     <h1 class="display text-[44px] md:text-6xl lg:text-[80px]">
-      <span class="sr-only"><?= $e($service['title'] ?? 'Security Team Outsourcing') ?>: </span>
-      A security team,<br><span class="marker">without the payroll.</span>
+      <span class="sr-only"><?= $e($service['nav_label'] ?? 'Security Team Outsourcing') ?>: </span>
+      A security team, <br><span class="marker">without the payroll.</span>
     </h1>
     <p class="lead max-w-2xl">A full-time in-house security team is too expensive for most growing businesses. Hire certified HaloSec experts by the hour or month, tailored to your scope and budget.</p>
     <div class="flex flex-wrap justify-center gap-3">
@@ -181,3 +181,5 @@ $tiers = [
     ]) ?>
   </div>
 </section>
+
+<?= $this->include('partials/related_services', ['services' => $services, 'related' => $service['related'] ?? []]) ?>
