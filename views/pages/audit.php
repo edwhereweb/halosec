@@ -10,7 +10,7 @@ $optClass = ['yes' => 'opt-yes', 'no' => 'opt-no'];
   <div class="mx-auto flex max-w-3xl flex-col gap-8">
     <div class="flex animate-rise flex-col items-center gap-4 text-center">
       <span class="chip chip-lime">Free · No obligation · About 5 minutes</span>
-      <h1 class="display text-[44px] md:text-6xl">How exposed is your business?</h1>
+      <h1 class="display text-[44px] md:text-6xl"><span class="sr-only">Free cybersecurity audit: </span>How exposed is your business?</h1>
       <p class="lead max-w-xl">Answer a few questions and certified Zoho &amp; Sophos architects send you a plain-language report.</p>
     </div>
 

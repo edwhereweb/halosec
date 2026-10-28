@@ -9,6 +9,20 @@ return [
     'app_url' => getenv('APP_URL') ?: 'https://halosec.in',
     'emergency_phone' => getenv('EMERGENCY_PHONE') ?: '+917356543520',
     'contact_email' => getenv('CONTACT_EMAIL') ?: 'hello@halosec.in',
+    // Public business details for search engines (structured data). Leave unset until they are real.
+    'address' => [
+        'street' => (string) (getenv('BUSINESS_STREET') ?: ''),
+        'locality' => (string) (getenv('BUSINESS_CITY') ?: ''),
+        'region' => (string) (getenv('BUSINESS_REGION') ?: ''),
+        'postal_code' => (string) (getenv('BUSINESS_POSTAL_CODE') ?: ''),
+        'country' => (string) (getenv('BUSINESS_COUNTRY') ?: ''),
+    ],
+    'area_served' => (string) (getenv('BUSINESS_AREA_SERVED') ?: ''),
+    // Comma-separated profile URLs, e.g. LinkedIn company page.
+    'social_links' => array_values(array_filter(array_map('trim', explode(',', (string) (getenv('SOCIAL_LINKS') ?: ''))))),
+    // Flip to true once views/pages/privacy.php has been completed and reviewed.
+    // Until then /privacy is noindexed and not linked from the footer or sitemap.
+    'privacy_ready' => false,
     'storage_path' => dirname(__DIR__) . '/storage/leads',
     'auth_path' => dirname(__DIR__) . '/storage/auth',
     'logs_path' => dirname(__DIR__) . '/storage/logs',

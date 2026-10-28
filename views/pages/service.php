@@ -15,7 +15,7 @@ $tileColors = ['tile-white', 'tile-sky', 'tile-white', 'tile-lime', 'tile-white'
   <?= $this->include('partials/halo', ['size' => 1000, 'class' => '-top-[300px]']) ?>
   <div class="relative mx-auto flex max-w-4xl animate-rise flex-col items-center gap-6">
     <span class="eyebrow">HaloSec service</span>
-    <h1 class="display text-[44px] md:text-6xl lg:text-7xl"><?= $e($service['title']) ?></h1>
+    <h1 class="display text-[44px] md:text-6xl lg:text-7xl"><?= $e($service['h1'] ?? $service['title']) ?></h1>
     <p class="lead max-w-2xl"><?= $e($service['short']) ?></p>
     <div class="flex flex-wrap justify-center gap-3">
       <a class="btn btn-lg btn-cta" href="#enquiry">Get a quote</a>
@@ -71,3 +71,5 @@ $tileColors = ['tile-white', 'tile-sky', 'tile-white', 'tile-lime', 'tile-white'
     ]) ?>
   </div>
 </section>
+
+<?= $this->include('partials/related_services', ['services' => $services, 'related' => $service['related'] ?? []]) ?>

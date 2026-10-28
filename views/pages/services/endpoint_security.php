@@ -11,7 +11,7 @@ $e = static fn (mixed $v): string => HaloSec\View::e($v);
     <span class="eyebrow">For teams of 5 to 500+ devices</span>
     <h1 class="display text-[48px] md:text-7xl lg:text-[88px]">
       <span class="sr-only"><?= $e($service['title'] ?? 'Endpoint Security Solutions for Your Business') ?>: </span>
-      Every device.<br><span class="marker">One dashboard.</span>
+      Every device. <br><span class="marker">One dashboard.</span>
     </h1>
     <p class="lead max-w-2xl">Secure your company’s devices and data without managing each system by hand. Total control, strong protection, real peace of mind.</p>
     <div class="flex flex-wrap justify-center gap-3">
@@ -111,11 +111,7 @@ $e = static fn (mixed $v): string => HaloSec\View::e($v);
   <div class="wrap flex flex-wrap gap-14">
     <div id="faq" class="flex flex-[1_1_380px] flex-col">
       <h2 class="mb-6 font-display text-4xl font-bold tracking-[-0.03em]">Questions</h2>
-      <?php foreach ([
-          ['How many systems do I need to get started?', 'A minimum of 5 systems.'],
-          ['How is this different from normal antivirus?', 'Normal antivirus works alone on single PCs. Endpoint Security gives you central control over all systems, ransomware rollback and strict policy management from one place.'],
-          ['Can I block USB drives and external devices?', 'Yes. You can centrally block USB ports, web access, cameras and unapproved software across your company.'],
-      ] as $i => [$q, $a]) : ?>
+      <?php foreach ($service['faqs'] ?? [] as $i => [$q, $a]) : ?>
       <details class="group border-b border-slate-300 py-5"<?= $i === 0 ? ' open' : '' ?>>
         <summary class="flex items-center justify-between gap-4 text-lg font-bold">
           <?= $e($q) ?>
@@ -144,3 +140,5 @@ $e = static fn (mixed $v): string => HaloSec\View::e($v);
     </div>
   </div>
 </section>
+
+<?= $this->include('partials/related_services', ['services' => $services, 'related' => $service['related'] ?? []]) ?>

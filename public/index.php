@@ -22,6 +22,7 @@ use HaloSec\Controllers\FormController;
 use HaloSec\Controllers\PageController;
 use HaloSec\Models\Lead;
 use HaloSec\Router;
+use HaloSec\Seo\Sitemap;
 use HaloSec\Security\AdminAuth;
 use HaloSec\Security\CsrfManager;
 use HaloSec\Security\LoginThrottle;
@@ -213,10 +214,11 @@ $router->add('GET', '/robots.txt', static function (): string {
     header('Content-Type: text/plain; charset=utf-8');
     return (string) file_get_contents(__DIR__ . '/robots.txt');
 });
-$router->add('GET', '/sitemap.xml', static function (): string {
+$router->add('GET', '/sitemap.xml', static function () use ($config, $services, $root): string {
     header('Content-Type: application/xml; charset=utf-8');
-    return (string) file_get_contents(__DIR__ . '/sitemap.xml');
+    return Sitemap::xml(rtrim((string) $config['app_url'], '/'), $root, $services, (bool) $config['privacy_ready']);
 });
+$router->add('GET', '/privacy', static fn () => $pages->privacy((bool) $config['privacy_ready']));
 foreach (['GET', 'POST'] as $m) {
     $router->add($m, '/free-audit', $form(
         Lead::TYPE_AUDIT,

@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 return [
     'endpoint-security' => [
+        'faqs' => [
+            ['How many systems do I need to get started?', 'A minimum of 5 systems.'],
+            ['How is this different from normal antivirus?', 'Normal antivirus works alone on single PCs. Endpoint Security gives you central control over all systems, ransomware rollback and strict policy management from one place.'],
+            ['Can I block USB drives and external devices?', 'Yes. You can centrally block USB ports, web access, cameras and unapproved software across your company.'],
+        ],
+        'related' => ['dlp-implementation', 'network-security', 'security-team-outsourcing'],
         'nav_label' => 'Endpoint Security',
         'meta_description' => 'Centrally managed endpoint security for 5 to hundreds of devices: ransomware rollback, USB and web control, zero-day protection and custom group policies.',
         'title' => 'Endpoint Security Solutions for Your Business',
@@ -19,6 +25,7 @@ return [
         ],
     ],
     'dlp-implementation' => [
+        'related' => ['endpoint-security', 'security-audits', 'network-security'],
         'nav_label' => 'Data Loss Prevention',
         'meta_description' => 'Data Loss Prevention implementation: discover and classify sensitive data, then enforce DLP policies across endpoints, email, USB, web and cloud.',
         'title' => 'DLP Implementation (Data Loss Prevention)',
@@ -29,6 +36,8 @@ return [
         'points' => ['Data discovery and classification', 'Policy design for email, USB, web and cloud', 'Incident workflow and reporting', 'Regulatory alignment'],
     ],
     'network-security' => [
+        'h1' => 'Network Security Services',
+        'related' => ['endpoint-security', 'soc-setup', 'security-testing'],
         'nav_label' => 'Network Security',
         'seo_title' => 'Network Security Services: Firewalls & Zero Trust',
         'meta_description' => 'Firewall and UTM deployment, network segmentation, VPN and zero trust access, Wi-Fi and branch security, with traffic monitoring and alerting.',
@@ -40,8 +49,10 @@ return [
         'points' => ['Firewall and UTM deployment', 'Network segmentation and VPN / zero trust access', 'Wi-Fi and branch security', 'Traffic monitoring and alerting'],
     ],
     'security-testing' => [
+        'h1' => 'Penetration Testing & Security Testing',
+        'related' => ['digital-vulnerability-assessments', 'security-audits', 'network-security'],
         'nav_label' => 'Security Testing',
-        'seo_title' => 'Penetration Testing & Security Testing Services',
+        'seo_title' => 'VAPT & Penetration Testing Services',
         'meta_description' => 'Web application, API, mobile and network penetration testing (OWASP Top 10) with prioritised, reproducible findings, remediation guidance and retests.',
         'title' => 'Security Testing',
         'short' => 'Web application penetration testing and offensive assessments with actionable fixes.',
@@ -51,6 +62,8 @@ return [
         'points' => ['Web application penetration testing (OWASP Top 10)', 'API and mobile app testing', 'Internal / external network testing', 'Retest and remediation guidance'],
     ],
     'soc-setup' => [
+        'h1' => 'SOC Setup: Build Your Security Operations Center',
+        'related' => ['security-team-outsourcing', 'network-security', 'endpoint-security'],
         'nav_label' => 'SOC Setup',
         'seo_title' => 'SOC Setup: Build Your Security Operations Center',
         'meta_description' => 'End-to-end Security Operations Center setup: SIEM / XDR onboarding, detection use cases, alert tuning, incident response playbooks and analyst training.',
@@ -62,6 +75,7 @@ return [
         'points' => ['SIEM / XDR design and onboarding', 'Detection use cases and alert tuning', 'Incident response playbooks', 'Analyst enablement and handover'],
     ],
     'digital-vulnerability-assessments' => [
+        'related' => ['security-testing', 'security-audits', 'endpoint-security'],
         'nav_label' => 'Vulnerability Assessments',
         'meta_description' => 'Digital vulnerability assessments that rank your exposure with a P-risk score, with executive and technical reports showing what to fix first.',
         'title' => 'Digital Vulnerability Assessments',
@@ -72,6 +86,7 @@ return [
         'points' => ['Asset and exposure discovery', 'P-risk score with severity ranking', 'Executive and technical reports', 'Re-assessment to track improvement'],
     ],
     'security-audits' => [
+        'related' => ['digital-vulnerability-assessments', 'security-testing', 'dlp-implementation'],
         'nav_label' => 'Security Audits',
         'seo_title' => 'Security Audits & Domain Vulnerability Research',
         'meta_description' => 'Independent security audits plus research into your domains, DNS and email for leaked credentials, spoofing risks and misconfigurations.',
@@ -83,6 +98,7 @@ return [
         'points' => ['Control and policy audit', 'Domain, DNS and email security research', 'Leaked credential and exposure checks', 'Gap report with remediation roadmap'],
     ],
     'security-team-outsourcing' => [
+        'related' => ['soc-setup', 'endpoint-security', 'digital-vulnerability-assessments'],
         'nav_label' => 'Security Team Outsourcing',
         'seo_title' => 'Outsourced Security Team: Hire a Security Expert',
         'meta_description' => 'Hire certified cybersecurity experts (CEH, CompTIA, Sophos) hourly or monthly. Flexible outsourced security team support for SMBs without a full-time hire.',
