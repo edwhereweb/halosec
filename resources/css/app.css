@@ -76,8 +76,18 @@
 @keyframes hs-ping { 75%, 100% { transform: scale(2.6); opacity: 0; } }
 .ping { position: absolute; inset: 0; border-radius: 9999px; animation: hs-ping 1.6s cubic-bezier(0, 0, .2, 1) infinite; }
 
-/* Stepped audit form: JS adds .is-stepped; without JS every step shows. */
-.is-stepped [data-step]:not(.is-active) { display: none; }
+/* Free audit check-up: JS adds .is-quiz and shows one card at a time; without JS everything shows. */
+.is-quiz .audit-q:not(.is-current) { display: none; }
+.is-quiz [data-details]:not(.is-current) { display: none; }
+.audit-q.is-current { animation: audit-in .38s cubic-bezier(.2, .8, .2, 1); }
+.audit-q.is-current.is-back { animation-name: audit-back; }
+[data-audit-results]:not([hidden]) { animation: audit-up .5s cubic-bezier(.2, .8, .2, 1); }
+.is-quiz [data-details].is-current { animation: audit-up .4s cubic-bezier(.2, .8, .2, 1); }
+.audit-pop { animation: audit-pop .45s cubic-bezier(.2, .8, .2, 1); }
+@keyframes audit-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes audit-back { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+@keyframes audit-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes audit-pop { 0% { opacity: 0; transform: translateY(6px) scale(.98); } 100% { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }

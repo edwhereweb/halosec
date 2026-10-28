@@ -168,7 +168,7 @@ $navItems = [
 </main>
 
 <!-- Thumb-reach actions on phones -->
-<?php if ($path !== '/under-attack') : ?>
+<?php if (!in_array($path, ['/under-attack', '/free-audit'], true)) : ?>
 <div class="fixed inset-x-3 bottom-4 z-40 flex gap-2 rounded-full border border-slate-200 bg-white/95 p-2 shadow-float backdrop-blur-xl sm:hidden">
   <a class="btn btn-danger shrink-0 px-4" href="tel:<?= $e($phone) ?>" aria-label="Call the 24/7 emergency line">
     <svg class="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linejoin="round" d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"></path></svg>
