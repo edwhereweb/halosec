@@ -125,6 +125,6 @@ Custom shadow tokens registered in Tailwind:
 * Branching: Branch from `main`, prefix with `feat/`, `fix/`, or `hotfix/`.
 * Commits: Conventional commit format (e.g., `feat: implement secure password reset flow`).
 * CI Pipeline: GitHub Actions runs PHPUnit, PHPStan, and linting on every pull request. PRs require a passing CI to merge.
-* Deployment: Merging to `main` triggers an automated GitHub Action (via FTP/SSH) or Hostinger Git Webhook directly to the shared hosting environment.
+* Deployment: Merging to `main` triggers Hostinger's Git auto-deployment (webhook), which pulls the repo into `public_html`; the root `.htaccess` routes requests into `public/`. Hostinger runs no build step, so new database migrations are applied by `php bin/admin.php migrate` (cron or SSH). See `docs/deploy-hostinger.md`.
 * Environment: Never commit `.env` to version control. Maintain an updated `.env.example`. Production secrets are injected directly via Hostinger's File Manager or SSH.
-* Build Steps: Post-deployment scripts must execute `composer install --no-dev --optimize-autoloader` to ensure a lightweight, fast production vendor directory.
+* Build Steps: There are no runtime Composer packages; production runs without `vendor/` using the fallback autoloader in `public/index.php`. Do not add runtime dependencies without adding a build/upload step.

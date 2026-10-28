@@ -23,7 +23,7 @@ See [deploy-hostinger.md](deploy-hostinger.md) for the full setup. In short:
 
 1. Back up the database before applying changes.
 2. Configure the `DB_*` settings in `.env` (outside the web root, `chmod 600`).
-3. Run `php bin/admin.php migrate`. It applies `database/migrations/*.sql` in order and records them in `schema_migrations`. The deploy workflow runs it automatically. Web requests never change the schema.
+3. Run `php bin/admin.php migrate`. It applies `database/migrations/*.sql` in order and records them in `schema_migrations`. A cron job runs it every 15 minutes as a safety net. Web requests never change the schema.
 4. Create the first administrator: `php bin/admin.php create <username> '<password>' super_admin` (12+ characters). There is no default account. Accounts that still use the old published `admin123` seed are refused at login until reset.
 5. Each admin turns on two-factor authentication under **My Account & 2FA** (`/admin/account`). Set `ADMIN_REQUIRE_2FA=true` to make it mandatory.
 6. Keep `storage/` writable and outside the public web root. No queue worker is required.
