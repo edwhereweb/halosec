@@ -26,17 +26,29 @@ $heightClasses = match ($size) {
 ?>
 <div class="inline-flex flex-col <?= HaloSec\View::e($class) ?>">
   <?php if ($variant === 'dark') : ?>
-    <div class="inline-flex items-center bg-white/95 backdrop-blur-sm rounded-xl px-3 py-1.5 shadow-md w-fit">
+    <?php /* Dark backgrounds (footer): light shield mark + light wordmark, no white box. */ ?>
+    <span class="inline-flex items-center gap-3">
       <img
-        src="/images/halosec-logo.png"
-        alt="HaloSec – The Aura of Security for Your Business"
-        class="<?= $heightClasses ?> w-auto object-contain select-none transition-transform duration-200 group-hover:scale-105"
-        width="300"
-        height="86"
-        style="aspect-ratio: 300 / 86;"
-        loading="eager"
+        src="/images/halosec-mark-light.png"
+        alt=""
+        aria-hidden="true"
+        class="h-10 w-10 select-none object-contain transition-transform duration-200 group-hover:-rotate-6"
+        width="128"
+        height="128"
+        loading="lazy"
+        decoding="async"
       />
-    </div>
+      <img
+        src="/images/halosec-logo-light.png"
+        alt="HaloSec – The Aura of Security for Your Business"
+        class="h-7 w-auto select-none object-contain"
+        width="230"
+        height="66"
+        style="aspect-ratio: 230 / 66;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
   <?php else : ?>
     <img
       src="/images/halosec-logo.png"

@@ -60,9 +60,14 @@ $jsVersion = is_file($jsFile) ? (string) filemtime($jsFile) : '1';
 <meta name="twitter:description" content="<?= $e($metaDesc) ?>">
 <meta name="twitter:image" content="<?= $e($baseUrl) ?>/images/og-default.png">
 
+<!-- Icons: HaloSec shield mark. The SVG switches to a light colour on dark browser tabs. -->
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/images/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="/images/favicon-48.png" type="image/png" sizes="48x48">
 <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#ffffff">
 
 <?php if (!($isAdmin ?? false)) : ?>
 <script type="application/ld+json">
