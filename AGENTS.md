@@ -87,7 +87,7 @@ Calm, product-led design inspired by Apple and Google (large type, generous whit
 * **Under attack** stays one tap away on every page. Red is reserved for emergency UI.
 * **Heroes**: white with `partials/halo`, chip, `.display` headline, `.lead`, CTA pair. Emergency hero uses `bg-red-50`.
 * **Sections** alternate white and `bg-brand-mist`. Service grids are bento tiles with mixed tile colours.
-* **Forms**: `.card-form`, chips instead of selects where options are short, one primary full-width button. The free audit is a 3-step form (`form[data-stepper]`).
+* **Forms**: `.card-form`, chips instead of selects where options are short, one primary full-width button. The free audit (`views/pages/audit.php` + `public/js/audit.js`) is a one-question-at-a-time check-up: illustrated cards (`partials/audit_art`), instant feedback, a live score ring, a results screen (score, strengths, gaps), then the contact form. Visitor wording lives in `config/audit.php` → `details`; without JS it is a normal long form and the server validates and scores the same fields.
 * **Motion**: halo spin, float, marquee, rise, grow; all disabled under `prefers-reduced-motion`.
 
 ### Editable content blocks (admin → Content & Settings)

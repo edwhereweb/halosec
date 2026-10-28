@@ -32,61 +32,6 @@
     });
   });
 
-  // Stepped forms (free audit): one step at a time with a progress bar.
-  document.querySelectorAll('form[data-stepper]').forEach(function (form) {
-    var steps = Array.prototype.slice.call(form.querySelectorAll('[data-step]'));
-    if (steps.length < 2) return;
-    var label = document.querySelector('[data-step-label]');
-    var bar = document.querySelector('[data-step-bar]');
-    // After a failed submit, open the first step that has an error.
-    var current = 0;
-    for (var s = 0; s < steps.length; s++) {
-      if (steps[s].querySelector('[aria-invalid="true"], [data-has-error]')) { current = s; break; }
-    }
-
-    function show(i) {
-      current = i;
-      steps.forEach(function (s, n) { s.classList.toggle('is-active', n === i); });
-      if (label) label.textContent = 'Step ' + (i + 1) + ' of ' + steps.length + ' · ' + steps[i].getAttribute('data-step');
-      if (bar) bar.style.width = Math.round(((i + 1) / steps.length) * 100) + '%';
-    }
-
-    function valid(step) {
-      var ok = true;
-      var seen = {};
-      step.querySelectorAll('[required]').forEach(function (input) {
-        if (input.type === 'radio') {
-          if (seen[input.name]) return;
-          seen[input.name] = true;
-          if (!form.querySelector('input[name="' + input.name + '"]:checked')) ok = false;
-        } else if (!input.value.trim()) {
-          ok = false;
-        }
-      });
-      var msg = step.querySelector('[data-step-error]');
-      if (msg) msg.hidden = ok;
-      return ok;
-    }
-
-    form.addEventListener('click', function (event) {
-      var next = event.target.closest('[data-next]');
-      var prev = event.target.closest('[data-prev]');
-      if (next) {
-        event.preventDefault();
-        if (valid(steps[current]) && current < steps.length - 1) {
-          show(current + 1);
-          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      } else if (prev) {
-        event.preventDefault();
-        if (current > 0) show(current - 1);
-      }
-    });
-
-    form.classList.add('is-stepped');
-    show(current);
-  });
-
   // Founder video chapters seek the embedded YouTube player.
   document.querySelectorAll('[data-seek]').forEach(function (btn) {
     btn.addEventListener('click', function () {
