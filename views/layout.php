@@ -23,6 +23,8 @@ $defaultDesc = 'HaloSec delivers enterprise cybersecurity services, 24/7 proacti
 $metaDesc = isset($description) && $description !== '' ? $description : $defaultDesc;
 $cssFile = dirname(__DIR__) . '/public/css/app.css';
 $cssVersion = is_file($cssFile) ? (string) filemtime($cssFile) : '1';
+$jsFile = dirname(__DIR__) . '/public/js/site.js';
+$jsVersion = is_file($jsFile) ? (string) filemtime($jsFile) : '1';
 ?>
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="en">
@@ -123,31 +125,11 @@ $cssVersion = is_file($cssFile) ? (string) filemtime($cssFile) : '1';
 
 <link href="https://fonts.googleapis.com" rel="preconnect">
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/app.css?v=<?= $e($cssVersion) ?>">
-<style>
-/* Daytime sky gradient with rich upper saturation for maximum text contrast */
-.sky-hero-backdrop{background:radial-gradient(circle at 50% 10%, #1e88e5 0%, #0d5cb6 45%, #083b7e 100%);position:relative;overflow:hidden}
-.cloud-layer{position:absolute;bottom:0;left:0;right:0;height:220px;pointer-events:none;background:radial-gradient(ellipse 70% 50% at 50% 100%,rgba(255,255,255,.98) 20%,rgba(255,255,255,.75) 60%,rgba(255,255,255,0) 100%)}
-.cloud-puff-left{position:absolute;bottom:-40px;left:-140px;width:550px;height:260px;background:radial-gradient(circle,rgba(255,255,255,.75) 0%,rgba(255,255,255,0) 70%);filter:blur(24px);pointer-events:none}
-.cloud-puff-right{position:absolute;bottom:-20px;right:-120px;width:650px;height:280px;background:radial-gradient(circle,rgba(255,255,255,.8) 0%,rgba(255,255,255,0) 70%);filter:blur(28px);pointer-events:none}
-.hero-title{text-shadow:0 3px 20px rgba(1,18,48,.5)}
-.hero-lead{text-shadow:0 1px 8px rgba(1,18,48,.4)}
-/* 3D Arc and angled perspective cards */
-.perspective-container{perspective:1200px}
-.tilt-left-far{transform:rotateY(20deg) rotateZ(-3deg) scale(0.9);transition:all .3s cubic-bezier(.16,1,.3,1)}
-.tilt-left{transform:rotateY(12deg) rotateZ(-1.5deg) scale(0.96);transition:all .3s cubic-bezier(.16,1,.3,1)}
-.tilt-center{transform:translateY(-8px) scale(1.03);transition:all .3s cubic-bezier(.16,1,.3,1)}
-.tilt-right{transform:rotateY(-12deg) rotateZ(1.5deg) scale(0.96);transition:all .3s cubic-bezier(.16,1,.3,1)}
-.tilt-right-far{transform:rotateY(-20deg) rotateZ(3deg) scale(0.9);transition:all .3s cubic-bezier(.16,1,.3,1)}
-.tilt-card:hover{transform:translateY(-14px) scale(1.05) rotateY(0deg) rotateZ(0deg)!important;z-index:30}
-@keyframes pulseSoft{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
-.status-pulse{animation:pulseSoft 3s ease-in-out infinite}
-:focus-visible{outline:3px solid #0369a1;outline-offset:3px}
-.hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
-</style>
+
 </head>
-<body class="<?= ($isAdmin ?? false) ? 'bg-slate-100 text-slate-800 antialiased font-sans' : 'bg-[#fcfdfd] text-slate-800 antialiased selection:bg-[#ccff00] selection:text-slate-900 font-sans' ?>">
+<body class="<?= ($isAdmin ?? false) ? 'bg-slate-100 text-slate-800 antialiased font-sans' : 'bg-white text-brand-ink antialiased font-sans' ?>">
 <a class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-2" href="#main">Skip to content</a>
 
 <?php if ($isAdmin ?? false) : ?>
@@ -186,87 +168,67 @@ $cssVersion = is_file($cssFile) ? (string) filemtime($cssFile) : '1';
   </div>
 </div>
 <?php else : ?>
-<!-- Redesigned High-Fidelity Header -->
-<header class="absolute top-0 left-0 right-0 z-50 pt-4 px-4 sm:px-6 lg:px-8">
-  <!-- Top Utility Bar: Emergency Alert & Live Status -->
-  <div class="max-w-7xl mx-auto mb-3 flex items-center justify-between text-xs text-white/80 border-b border-white/10 pb-2.5 px-2">
+<?php
+$phone = (string) ($config['emergency_phone'] ?? '+917356543520');
+$navItems = [
+    '/services' => 'Services',
+    '/free-audit' => 'Free audit',
+    '/consultation' => 'Consultation',
+    '/about' => 'About',
+    '/contact' => 'Contact',
+];
+?>
+<!-- Utility bar -->
+<div class="border-b border-slate-200 bg-brand-mist text-[12px] font-semibold text-brand-body">
+  <div class="wrap flex min-h-[34px] items-center justify-between gap-4">
     <div class="flex items-center gap-4">
       <?php if ($showEmergencyBanner) : ?>
-      <span class="inline-flex items-center gap-1.5 font-medium text-lime-300">
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-lime-400"></span>
-        </span>
+      <span class="hidden items-center gap-2 sm:inline-flex">
+        <span class="dot-live"><span class="ping bg-emerald-500"></span><span class="relative h-2 w-2 rounded-full bg-emerald-500"></span></span>
         SOC Monitoring 24/7 Active
       </span>
       <?php endif; ?>
-      <?php if ($showEmergencyBanner) : ?>
-      <span class="hidden md:inline-block text-white/40">|</span>
-      <?php endif; ?>
-      <span class="hidden md:flex items-center gap-2 text-white/70">
-        <span>Certified Partners:</span>
-        <span class="bg-white/10 px-2 py-0.5 rounded text-[11px] font-semibold text-white">Zoho Certified</span>
-        <span class="bg-white/10 px-2 py-0.5 rounded text-[11px] font-semibold text-sky-200">Sophos Silver</span>
-      </span>
+      <span class="hidden md:inline">Zoho Partner · Sophos Silver Partner</span>
     </div>
-    <div class="flex items-center gap-4 text-xs font-medium">
-      <a href="tel:<?= $e($config['emergency_phone'] ?? '+917356543520') ?>" class="hover:text-white transition-colors flex items-center gap-1.5 text-white/90">
-        <svg class="w-3.5 h-3.5 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-        <span class="hidden sm:inline">Emergency Hotline:</span> <?= $e($config['emergency_phone'] ?? '+91 73565 43520') ?>
-      </a>
-    </div>
+    <a class="inline-flex items-center gap-1.5 text-brand-red no-underline hover:underline" href="tel:<?= $e($phone) ?>">
+      <svg class="h-3.5 w-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linejoin="round" d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"></path></svg>
+      <span>Emergency Hotline: <?= $e($phone) ?></span>
+    </a>
   </div>
+</div>
 
-  <!-- Primary Floating Island Navigation Header -->
-  <div class="max-w-7xl mx-auto bg-white/90 backdrop-blur-xl border border-white/80 rounded-2xl shadow-xl shadow-black/20 p-2.5 sm:px-4 flex items-center justify-between gap-4">
-    <!-- Brand Logo -->
-    <a class="flex items-center group py-0.5" href="/" aria-label="HaloSec Home">
-      <?= $this->include('partials/brand_logo', ['variant' => 'light', 'size' => 'md', 'showTagline' => true]) ?>
+<!-- Global navigation -->
+<header class="sticky top-0 z-40 border-b border-slate-200 bg-white/85 backdrop-blur-xl backdrop-saturate-150">
+  <div class="wrap flex min-h-[64px] items-center gap-6">
+    <a class="flex shrink-0 items-center no-underline group" href="/" aria-label="HaloSec home">
+      <?= $this->include('partials/brand_logo', ['variant' => 'light', 'size' => 'md']) ?>
     </a>
 
-    <!-- Main Navigation Links with Light Pill Styling -->
-    <nav aria-label="Main Navigation" class="hidden lg:flex items-center gap-1 bg-slate-100/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 text-[13px] font-semibold tracking-wide">
-      <a class="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-white transition-all duration-150 <?= $navPath === '/services' ? 'bg-white text-slate-900 shadow-sm' : '' ?>" href="/services" <?= $path === '/services' ? 'aria-current="page"' : '' ?>>Services</a>
-      <a class="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-white transition-all duration-150 flex items-center gap-1.5 <?= $path === '/free-audit' ? 'bg-white text-slate-900 shadow-sm' : '' ?>" href="/free-audit" <?= $path === '/free-audit' ? 'aria-current="page"' : '' ?>>
-        Free Audit
-        <span class="px-1.5 py-0.2 text-[10px] bg-lime-400/20 text-lime-700 rounded font-bold uppercase tracking-wider">Free</span>
-      </a>
-      <a class="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-white transition-all duration-150 <?= $path === '/consultation' ? 'bg-white text-slate-900 shadow-sm' : '' ?>" href="/consultation" <?= $path === '/consultation' ? 'aria-current="page"' : '' ?>>Consultation</a>
-      <a class="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-white transition-all duration-150 <?= $path === '/about' ? 'bg-white text-slate-900 shadow-sm' : '' ?>" href="/about" <?= $path === '/about' ? 'aria-current="page"' : '' ?>>About &amp; Founders</a>
-      <a class="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-white transition-all duration-150 <?= $path === '/contact' ? 'bg-white text-slate-900 shadow-sm' : '' ?>" href="/contact" <?= $path === '/contact' ? 'aria-current="page"' : '' ?>>Contact</a>
+    <nav aria-label="Main navigation" class="hidden flex-1 items-center gap-1 text-sm font-medium lg:flex">
+      <?php foreach ($navItems as $href => $label) : ?>
+      <?php $active = $navPath === $href; ?>
+      <a class="rounded-full px-3.5 py-2 no-underline transition hover:bg-slate-100 <?= $active ? 'font-bold text-brand-ink' : 'text-brand-body hover:text-brand-ink' ?>" href="<?= $e($href) ?>"<?= $active ? ' aria-current="page"' : '' ?>><?= $e($label) ?></a>
+      <?php endforeach; ?>
     </nav>
 
-    <!-- Header Actions / CTAs -->
-    <div class="flex items-center gap-2.5">
-      <a class="hidden sm:inline-flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase px-4 py-2.5 rounded-xl shadow-md border border-red-500 transition-all hover:scale-105 active:scale-95" href="/under-attack">
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-90"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-        </span>
-        Under Attack?
+    <div class="ml-auto flex items-center gap-2">
+      <a class="btn btn-sm btn-danger-soft hidden sm:inline-flex" href="/under-attack">
+        <span class="dot-live"><span class="ping bg-red-500"></span><span class="relative h-2 w-2 rounded-full bg-red-600"></span></span>
+        Under attack?
       </a>
-      <a class="bg-gradient-to-r from-lime-300 via-lime-200 to-lime-300 hover:from-lime-400 hover:to-lime-200 text-slate-950 font-extrabold text-xs uppercase px-5 py-2.5 rounded-xl shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5 border border-lime-200/50" href="/free-audit">
-        <span>Get Free Audit</span>
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" x2="17" y1="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-      </a>
+      <a class="btn btn-sm btn-dark hidden sm:inline-flex" href="/free-audit">Free audit</a>
 
-      <!-- Mobile Dropdown Navigation -->
-      <details class="lg:hidden relative">
-        <summary class="list-none cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold transition-colors">Menu</summary>
-        <div class="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-2xl border border-slate-200 rounded-2xl shadow-2xl p-3 flex flex-col text-sm font-semibold text-slate-800 divide-y divide-slate-100">
-          <div class="space-y-1 pb-2">
-            <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $path === '/' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/">Home</a>
-            <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $navPath === '/services' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/services">Services</a>
-            <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 text-sky-700 font-bold <?= $path === '/free-audit' ? 'bg-sky-50' : '' ?>" href="/free-audit">Free Audit</a>
-            <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $path === '/consultation' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/consultation">Consultation</a>
-            <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $path === '/about' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/about">About &amp; Founders</a>
-            <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $path === '/contact' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/contact">Contact</a>
-          </div>
-          <div class="pt-2">
-            <a class="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-red-600 text-white font-bold text-xs uppercase shadow-sm" href="/under-attack">
-              Emergency: Under Attack?
-            </a>
-          </div>
+      <details class="relative lg:hidden" data-mobile-menu>
+        <summary class="inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-slate-100" aria-label="Open menu">
+          <svg class="h-6 w-6" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"></path></svg>
+        </summary>
+        <div class="absolute right-0 mt-3 flex w-72 flex-col gap-1 rounded-3xl border border-slate-200 bg-white p-3 text-[15px] font-semibold shadow-float">
+          <a class="rounded-2xl px-4 py-3 no-underline hover:bg-slate-100 <?= $path === '/' ? 'bg-brand-mist' : '' ?>" href="/"<?= $path === '/' ? ' aria-current="page"' : '' ?>>Home</a>
+          <?php foreach ($navItems as $href => $label) : ?>
+          <?php $active = $navPath === $href; ?>
+          <a class="rounded-2xl px-4 py-3 no-underline hover:bg-slate-100 <?= $active ? 'bg-brand-mist' : '' ?>" href="<?= $e($href) ?>"<?= $active ? ' aria-current="page"' : '' ?>><?= $e($label) ?></a>
+          <?php endforeach; ?>
+          <a class="btn btn-danger mt-2" href="/under-attack">Under attack? Get help now</a>
         </div>
       </details>
     </div>
@@ -277,37 +239,54 @@ $cssVersion = is_file($cssFile) ? (string) filemtime($cssFile) : '1';
 <?= $content ?>
 </main>
 
-<footer class="bg-slate-950 text-slate-400 text-xs mt-20 border-t border-slate-800">
-  <div class="max-w-7xl mx-auto px-4 py-14 grid gap-10 md:grid-cols-4">
-    <div class="md:col-span-2">
-      <a href="/" class="inline-block group mb-3" aria-label="HaloSec Home">
-        <?= $this->include('partials/brand_logo', ['variant' => 'dark', 'size' => 'lg', 'showTagline' => true]) ?>
-      </a>
-      <p class="mt-2 text-sm max-w-md leading-relaxed text-slate-300"><?= $e($config['tagline'] ?? 'The Aura of Security for Your Business') ?>. We are Securious — we are curious about security.</p>
-      <p class="mt-4 text-xs font-bold uppercase tracking-widest text-slate-400">Zoho Partners · Sophos Silver Partners</p>
-    </div>
-    <div>
-      <p class="text-white font-bold text-sm mb-3">Services</p>
-      <ul class="space-y-2 text-sm">
+<!-- Thumb-reach actions on phones -->
+<?php if ($path !== '/under-attack') : ?>
+<div class="fixed inset-x-3 bottom-4 z-40 flex gap-2 rounded-full border border-slate-200 bg-white/95 p-2 shadow-float backdrop-blur-xl sm:hidden">
+  <a class="btn btn-danger shrink-0 px-4" href="tel:<?= $e($phone) ?>" aria-label="Call the 24/7 emergency line">
+    <svg class="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linejoin="round" d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"></path></svg>
+    24/7
+  </a>
+  <a class="btn btn-cta flex-1" href="/free-audit">Get a free audit</a>
+</div>
+<?php endif; ?>
+
+<footer class="bg-brand-ink pb-28 pt-16 text-slate-300 sm:pb-8">
+  <div class="wrap flex flex-col gap-12">
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="flex flex-col gap-4">
+        <a href="/" class="w-fit no-underline group" aria-label="HaloSec home">
+          <?= $this->include('partials/brand_logo', ['variant' => 'dark', 'size' => 'md']) ?>
+        </a>
+        <p class="text-sm leading-relaxed">We are Securious: curious about security, so you can fearlessly scale your business.</p>
+        <p class="text-[13px] font-semibold text-slate-400">Zoho Partner · Sophos Silver Partner</p>
+      </div>
+      <div class="flex flex-col gap-2.5 text-sm">
+        <p class="mb-1 font-bold text-white">Services</p>
         <?php foreach ($services as $slug => $s) : ?>
-        <li><a class="hover:text-lime-300 transition-colors" href="/services/<?= $e($slug) ?>"><?= $e($s['title']) ?></a></li>
+        <a class="text-slate-300 no-underline hover:text-white" href="/services/<?= $e($slug) ?>"><?= $e($s['nav_label'] ?? $s['title']) ?></a>
         <?php endforeach; ?>
-      </ul>
+      </div>
+      <div class="flex flex-col gap-2.5 text-sm">
+        <p class="mb-1 font-bold text-white">Company</p>
+        <a class="text-slate-300 no-underline hover:text-white" href="/about">About &amp; Founders</a>
+        <a class="text-slate-300 no-underline hover:text-white" href="/free-audit">Free cybersecurity audit</a>
+        <a class="text-slate-300 no-underline hover:text-white" href="/consultation">Book a consultation</a>
+        <a class="text-slate-300 no-underline hover:text-white" href="/contact">Contact</a>
+      </div>
+      <div class="flex flex-col gap-2.5 text-sm">
+        <p class="mb-1 font-bold text-white">Get in touch</p>
+        <a class="text-slate-300 no-underline hover:text-white" href="mailto:<?= $e($config['contact_email'] ?? 'hello@halosec.in') ?>"><?= $e($config['contact_email'] ?? 'hello@halosec.in') ?></a>
+        <a class="font-bold text-red-300 no-underline hover:text-red-200" href="/under-attack">Under a cyber attack?</a>
+        <a class="font-bold text-red-300 no-underline hover:text-red-200" href="tel:<?= $e($phone) ?>">24/7: <?= $e($phone) ?></a>
+      </div>
     </div>
-    <div>
-      <p class="text-white font-bold text-sm mb-3">Get in touch</p>
-      <ul class="space-y-2 text-sm">
-        <li><a class="hover:text-lime-300 transition-colors" href="/free-audit">Free Cybersecurity Audit</a></li>
-        <li><a class="hover:text-lime-300 transition-colors" href="/consultation">Need a Consultation</a></li>
-        <li><a class="text-red-400 hover:text-red-300 transition-colors" href="/under-attack">Under a Cyber Attack</a></li>
-        <li><a class="hover:text-lime-300 transition-colors" href="/about">About &amp; Founders Note</a></li>
-        <li><a class="hover:text-lime-300 transition-colors" href="/contact">Contact</a></li>
-        <li><a class="hover:text-lime-300 transition-colors" href="tel:<?= $e($config['emergency_phone'] ?? '+917356543520') ?>"><?= $e($config['emergency_phone'] ?? '+917356543520') ?></a></li>
-      </ul>
+    <div class="flex flex-wrap justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-slate-400">
+      <p>© <?= $e(date('Y')) ?> HaloSec. All rights reserved.</p>
+      <p>The aura of security for your business.</p>
     </div>
   </div>
-  <p class="border-t border-slate-800/80 text-center text-xs py-6 text-slate-500">© <?= $e(date('Y')) ?> HaloSec. All rights reserved.</p>
 </footer>
+<script src="/js/site.js?v=<?= $e($jsVersion) ?>" defer></script>
 <?php endif; ?>
 </body>
 </html>

@@ -1,56 +1,59 @@
-<?php $e = static fn (mixed $v): string => HaloSec\View::e($v); ?>
-<section class="relative pt-44 pb-20 md:pt-52 md:pb-24 rounded-b-[48px] overflow-hidden shadow-2xl bg-gradient-to-b from-red-950 via-[#3a060d] to-[#1c0205] border-b border-red-500/20 text-center">
-  <!-- Ambient Emergency Radar Background Elements -->
-  <div class="absolute inset-0 pointer-events-none overflow-hidden">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-red-600/15 rounded-full blur-3xl"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[620px] h-[620px] rounded-full border border-red-500/20 animate-pulse"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[880px] h-[880px] rounded-full border border-red-500/10"></div>
-    <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#f87171_1px,transparent_1px)] [background-size:24px_24px]"></div>
-  </div>
-
-  <div class="max-w-4xl mx-auto px-4 relative z-10">
-    <div class="inline-flex items-center gap-2 bg-red-950/80 backdrop-blur-xl border border-red-400/30 px-4 py-1.5 rounded-full mb-6 text-red-200 text-xs font-semibold shadow-lg shadow-black/40">
-      <span class="relative flex h-2 w-2 mr-1">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-90"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-400"></span>
+<?php
+$e = static fn (mixed $v): string => HaloSec\View::e($v);
+$phone = (string) ($config['emergency_phone'] ?? '+917356543520');
+?>
+<section class="bg-red-50 px-4 pb-16 pt-16 md:pb-20 md:pt-24">
+  <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-12">
+    <div class="flex min-w-0 flex-[999_1_480px] animate-rise flex-col gap-5">
+      <span class="chip chip-red w-fit bg-white">
+        <span class="dot-live"><span class="ping bg-red-500"></span><span class="relative h-2 w-2 rounded-full bg-red-600"></span></span>
+        Emergency · Responders on duty 24/7
       </span>
-      Emergency Incident Response · 24/7 Priority Hotline
+      <h1 class="display text-[52px] md:text-7xl lg:text-[80px]">Under attack?<br>We’re here.</h1>
+      <p class="lead max-w-xl">Call first. A responder picks up, triages with you and starts isolating the threat.</p>
     </div>
-
-    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight font-sans drop-shadow-sm">
-      Under a Cyber Attack?
-    </h1>
-    <p class="mt-4 text-base md:text-lg text-red-100/90 font-medium max-w-2xl mx-auto leading-relaxed">
-      Disconnect affected machines immediately. Do not pay ransoms or reply to attackers. Contact our rapid triage and isolation dispatch unit now.
-    </p>
-
-    <div class="mt-8">
-      <a class="inline-flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white font-extrabold text-base md:text-lg px-8 py-4 rounded-xl shadow-xl shadow-red-950/50 transition-all hover:scale-105 active:scale-95 border border-red-400/40" href="tel:<?= $e($config['emergency_phone'] ?? '+917356543520') ?>">
-        <span class="relative flex h-3 w-3">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-90"></span>
-          <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+    <div class="flex flex-[1_1_340px] flex-col gap-3">
+      <a class="flex items-center gap-4 rounded-3xl bg-brand-red px-7 py-6 text-white no-underline shadow-[0_20px_40px_-20px_rgba(180,35,24,.6)] transition hover:bg-red-800" href="tel:<?= $e($phone) ?>">
+        <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/20">
+          <svg class="h-6 w-6" aria-hidden="true" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
         </span>
-        <span>Call Emergency Line: <?= $e($config['emergency_phone'] ?? '+917356543520') ?></span>
+        <span class="flex flex-col">
+          <span class="text-sm font-semibold text-red-100">Call the emergency line</span>
+          <span class="font-display text-[28px] font-bold tracking-[-0.02em]"><?= $e($phone) ?></span>
+        </span>
       </a>
+      <a class="btn btn-lg border-[1.5px] border-brand-red bg-white text-brand-red hover:bg-red-50" href="#report">Can’t call? Report online</a>
     </div>
   </div>
 </section>
 
-<section class="max-w-3xl mx-auto px-4 py-16">
-  <div class="rounded-3xl bg-white border border-red-200 shadow-2xl p-8 md:p-10 ring-4 ring-red-50">
-    <div class="mb-6 pb-4 border-b border-slate-100">
-      <span class="text-[11px] font-bold uppercase tracking-widest text-red-600">Immediate Triage</span>
-      <h2 class="text-2xl font-extrabold text-slate-900 mt-1">Report the incident online</h2>
-      <p class="text-sm text-slate-600 mt-1">If you are unable to call immediately, provide the incident details below. Our on-duty security incident command will be alerted immediately.</p>
-    </div>
+<section aria-labelledby="now" class="wrap py-16 md:py-20">
+  <h2 id="now" class="mb-8 text-[28px] font-extrabold tracking-[-0.02em]">While you wait, do these three things.</h2>
+  <ol class="grid gap-4 md:grid-cols-3">
+    <?php foreach ([
+        ['Disconnect', 'Unplug affected machines from the network and Wi-Fi. Don’t switch them off.'],
+        ['Don’t pay', 'Don’t pay a ransom or reply to the attackers.'],
+        ['Write it down', 'Note what you saw and when. Photograph any ransom screen.'],
+    ] as $i => [$t, $d]) : ?>
+    <li class="flex gap-4 rounded-3xl bg-brand-mist p-7">
+      <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-ink font-display font-bold text-white"><?= $i + 1 ?></span>
+      <span class="flex flex-col gap-1.5"><span class="text-lg font-extrabold"><?= $e($t) ?></span><span class="tile-text"><?= $e($d) ?></span></span>
+    </li>
+    <?php endforeach; ?>
+  </ol>
+</section>
 
-    <div class="mt-5">
-      <?= $this->include('partials/flash', ['flash' => $flash]) ?>
-      <?= $this->include('partials/form_open', ['formAction' => $formAction]) ?>
-      <?= $this->include('partials/contact_fields', ['old' => $old, 'errors' => $errors, 'phoneRequired' => true]) ?>
-      <?= $this->include('partials/field', ['name' => 'attack_type', 'label' => 'Type of attack', 'type' => 'select', 'required' => true, 'options' => $config['attack_types'], 'old' => $old, 'errors' => $errors]) ?>
-      <?= $this->include('partials/field', ['name' => 'message', 'label' => 'What is happening?', 'type' => 'textarea', 'required' => true, 'old' => $old, 'errors' => $errors]) ?>
-      <?= $this->include('partials/submit', ['btnLabel' => 'Dispatch Incident Report Now', 'btnClass' => 'bg-red-600 hover:bg-red-700 text-white']) ?>
+<section id="report" class="px-4 pb-24">
+  <div class="card-form mx-auto max-w-3xl">
+    <div class="mb-6 flex flex-col gap-2">
+      <h2 class="text-[28px] font-extrabold tracking-[-0.02em]">Report the incident</h2>
+      <p class="text-[15px] text-brand-body">This alerts our on-duty incident command right away. Only the essentials.</p>
     </div>
+    <?= $this->include('partials/flash', ['flash' => $flash]) ?>
+    <?= $this->include('partials/form_open', ['formAction' => $formAction]) ?>
+      <?= $this->include('partials/field', ['name' => 'attack_type', 'label' => 'What’s happening?', 'type' => 'chips', 'chipClass' => 'opt-danger', 'required' => true, 'options' => $config['attack_types'], 'old' => $old, 'errors' => $errors]) ?>
+      <?= $this->include('partials/contact_fields', ['old' => $old, 'errors' => $errors, 'phoneRequired' => true]) ?>
+      <?= $this->include('partials/field', ['name' => 'message', 'label' => 'What do you see?', 'hint' => 'A sentence or two is enough.', 'type' => 'textarea', 'required' => true, 'old' => $old, 'errors' => $errors]) ?>
+    <?= $this->include('partials/submit', ['btnLabel' => 'Send to incident command', 'btnClass' => 'btn-danger']) ?>
   </div>
 </section>

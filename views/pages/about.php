@@ -1,46 +1,49 @@
 <?php $e = static fn (mixed $v): string => HaloSec\View::e($v); ?>
-<?= $this->include('partials/page_header', ['eyebrow' => 'About HaloSec', 'heading' => 'We are Securious', 'lead' => 'S E C U R I O U S – We are curious about security so you can fearlessly scale your business.']) ?>
-<section class="max-w-4xl mx-auto px-4 py-16" id="founders-note">
-  <div class="rounded-3xl bg-white border border-slate-200 shadow-xl p-8 md:p-12">
-    <div class="flex items-center gap-2 mb-3">
-      <span class="w-1.5 h-1.5 rounded-full bg-lime-400"></span>
-      <p class="text-xs font-bold uppercase tracking-widest text-sky-700">Founders note</p>
-    </div>
-    <h2 class="text-3xl font-extrabold text-slate-900">Our foundation: the aura of security</h2>
-    <div class="mt-6 space-y-5 text-slate-700 leading-relaxed text-base">
-      <p>HaloSec was founded on a simple belief: every business, large or small, deserves security that surrounds it quietly and constantly — like a halo — without slowing people down.</p>
-      <p><strong>Our vision</strong> is a world where growing organisations can innovate confidently because their people, data and infrastructure are protected by honest, expert and accessible security.</p>
-      <p><strong>Our values</strong> are what we hold ourselves to:</p>
-      <ul class="list-disc pl-6 space-y-2">
-        <li><strong>Curiosity</strong> — we are Securious. We keep asking how things can break so yours do not.</li>
-        <li><strong>Integrity</strong> — plain-language findings, honest advice, no fear-selling.</li>
-        <li><strong>Partnership</strong> — we work as an extension of your team, from audit to incident response.</li>
-        <li><strong>Accessibility</strong> — enterprise-grade protection that fits SMB budgets, including part-time security team members.</li>
-      </ul>
-      <p class="font-semibold text-slate-900 pt-2">— The HaloSec Founders</p>
-    </div>
+<section class="relative overflow-hidden px-4 pb-20 pt-20 text-center md:pt-28">
+  <?= $this->include('partials/halo', ['size' => 1000, 'class' => '-top-[300px]']) ?>
+  <div class="relative mx-auto flex max-w-4xl animate-rise flex-col items-center gap-6">
+    <span class="chip chip-mist">About HaloSec</span>
+    <h1 class="display text-[56px] md:text-8xl">We are <span class="text-brand-blue">Secur</span><span class="marker">ious</span>.</h1>
+    <p class="lead max-w-2xl"><strong class="text-brand-ink">Curious about security</strong>, so you can fearlessly scale your business.</p>
+  </div>
+</section>
 
-    <!-- Accredited Partnerships cards -->
-    <div class="mt-10 grid sm:grid-cols-2 gap-5">
-      <div class="flex items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:border-sky-300 hover:shadow-md transition-all duration-200">
-        <span class="font-display text-2xl font-bold text-red-600">Zoho</span>
-        <span class="font-bold text-slate-900">Zoho Partners</span>
-      </div>
-      <div class="flex items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:border-sky-300 hover:shadow-md transition-all duration-200">
-        <span class="font-display text-2xl font-bold text-sky-700">Sophos</span>
-        <span class="font-bold text-slate-900">Sophos Silver Partners</span>
-      </div>
+<section id="founders-note" class="section bg-brand-mist">
+  <div class="wrap flex flex-wrap gap-14">
+    <div class="flex flex-[1_1_320px] flex-col gap-4">
+      <span class="eyebrow">Founders note</span>
+      <h2 class="h-section">Our foundation: the aura of security.</h2>
     </div>
-
-    <div class="mt-10 flex flex-wrap gap-4">
-      <a class="bg-gradient-to-r from-lime-300 via-lime-200 to-lime-300 hover:from-lime-400 hover:to-lime-200 text-slate-950 font-extrabold text-xs uppercase px-7 py-3.5 rounded-xl shadow-md transition-all hover:scale-105 active:scale-95 border border-lime-200/50 inline-flex items-center gap-2" href="/free-audit">
-        <span>Get a Free Audit</span>
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" x2="17" y1="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-      </a>
-      <a class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase px-7 py-3.5 rounded-xl shadow-md transition-all hover:scale-105 active:scale-95 inline-flex items-center gap-2" href="/contact">
-        <span>Contact Us</span>
-        <span>→</span>
-      </a>
+    <div class="flex flex-[2_1_480px] flex-col gap-6 text-lg leading-relaxed text-brand-body">
+      <p class="text-2xl font-semibold leading-snug text-brand-ink">HaloSec was founded on a simple belief: every business, large or small, deserves security that surrounds it quietly and constantly, like a halo, without slowing people down.</p>
+      <p><strong class="text-brand-ink">Our vision</strong> is a world where growing organisations can innovate confidently because their people, data and infrastructure are protected by honest, expert and accessible security.</p>
+      <p class="font-semibold text-brand-ink">— The HaloSec Founders</p>
     </div>
   </div>
 </section>
+
+<section aria-labelledby="values" class="wrap section flex flex-col gap-12">
+  <h2 id="values" class="h-section">What we hold ourselves to.</h2>
+  <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <?php foreach ([
+        ['Curiosity', 'We are Securious. We keep asking how things can break so yours don’t.', 'tile-ink'],
+        ['Integrity', 'Plain-language findings, honest advice, no fear-selling.', 'tile-sky'],
+        ['Partnership', 'An extension of your team, from audit to incident response.', 'tile-white border border-slate-200'],
+        ['Accessibility', 'Enterprise-grade protection that fits SMB budgets, including part-time security team members.', 'tile-lime'],
+    ] as [$t, $d, $tile]) : ?>
+    <li class="tile tile-hover min-h-[220px] <?= $tile ?>">
+      <h3 class="font-display text-[28px] font-bold tracking-[-0.03em] <?= $tile === 'tile-ink' ? 'text-brand-neon' : '' ?>"><?= $e($t) ?></h3>
+      <p class="text-[15px] leading-relaxed <?= $tile === 'tile-ink' ? 'text-slate-300' : 'text-brand-body' ?>"><?= $e($d) ?></p>
+    </li>
+    <?php endforeach; ?>
+  </ul>
+</section>
+
+<section aria-label="Accredited partnerships" class="section bg-brand-mist text-center">
+  <div class="wrap flex flex-col items-center gap-8">
+    <h2 class="font-display text-3xl font-bold tracking-[-0.03em] md:text-4xl">Accredited partnerships</h2>
+    <?= $this->include('partials/partners', ['variant' => 'cards']) ?>
+  </div>
+</section>
+
+<?= $this->include('partials/cta_band', ['heading' => 'Let’s talk about your security.', 'lead' => 'Start with a free audit, or send us a message.', 'btnLabel' => 'Get a free audit']) ?>

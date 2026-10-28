@@ -1,3 +1,84 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* HaloSec design system ("Quiet Halo"). Tokens live in tailwind.config.js; reusable pieces live here. */
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-white font-sans text-brand-ink antialiased; }
+  ::selection { background: #ccff00; color: #0b0f17; }
+  :focus-visible { outline: 3px solid #0369a1; outline-offset: 3px; }
+  [id] { scroll-margin-top: 136px; }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+}
+
+@layer components {
+  /* Layout */
+  .wrap { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
+  .section { @apply py-20 md:py-28; }
+  .display { @apply font-display font-bold leading-[0.98] tracking-[-0.04em]; }
+  .h-section { @apply font-display text-4xl font-bold leading-[1.02] tracking-[-0.035em] md:text-5xl lg:text-[56px]; }
+  .lead { @apply text-lg leading-relaxed text-brand-body md:text-xl; }
+  .eyebrow { @apply text-sm font-bold text-brand-blue; }
+  .marker { background: linear-gradient(transparent 62%, #d4f844 62%, #d4f844 92%, transparent 92%); @apply px-1.5; }
+
+  /* Buttons */
+  .btn { @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full px-6 text-[15px] font-bold no-underline transition duration-200 active:scale-[.98]; }
+  .btn-lg { @apply min-h-[56px] px-8 text-base; }
+  .btn-sm { @apply min-h-[40px] px-4 text-[13px]; }
+  .btn-cta { @apply bg-brand-cta text-brand-ink hover:bg-brand-cta-hover; }
+  .btn-dark { @apply bg-brand-ink text-white hover:bg-slate-800; }
+  .btn-blue { @apply bg-brand-blue text-white hover:bg-sky-800; }
+  .btn-outline { @apply border-[1.5px] border-slate-300 bg-transparent text-brand-ink hover:border-brand-ink; }
+  .btn-white { @apply bg-white text-brand-ink hover:bg-slate-100; }
+  .btn-danger { @apply bg-brand-red text-white hover:bg-red-800; }
+  .btn-danger-soft { @apply bg-red-50 text-brand-red hover:bg-red-100; }
+  .link { @apply font-bold text-brand-blue no-underline hover:underline; }
+
+  /* Chips and badges */
+  .chip { @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold; }
+  .chip-mist { @apply bg-slate-100 text-brand-body; }
+  .chip-lime { @apply bg-lime-100 text-lime-800; }
+  .chip-red { @apply bg-red-50 text-brand-red; }
+  .dot-live { @apply relative inline-flex h-2 w-2; }
+
+  /* Tiles and cards */
+  .tile { @apply flex flex-col gap-3 rounded-tile p-8 no-underline transition duration-300; }
+  .tile-hover { @apply hover:-translate-y-1 hover:shadow-lift; }
+  .tile-white { @apply bg-white text-brand-ink; }
+  .tile-mist { @apply bg-brand-mist text-brand-ink; }
+  .tile-ink { @apply bg-brand-ink text-white; }
+  .tile-blue { @apply bg-brand-blue text-white; }
+  .tile-sky { @apply bg-sky-100 text-brand-ink; }
+  .tile-lime { @apply bg-lime-100 text-brand-ink; }
+  .tile-cta { @apply bg-brand-cta text-brand-ink; }
+  .tile-title { @apply text-[22px] font-extrabold tracking-[-0.02em]; }
+  .tile-text { @apply text-[15px] leading-relaxed text-brand-body; }
+  .card-form { @apply rounded-tile border border-slate-100 bg-white p-6 shadow-form sm:p-10; }
+
+  /* Forms */
+  .label { @apply block text-sm font-bold text-brand-ink; }
+  .input { @apply mt-1.5 block min-h-[52px] w-full rounded-2xl border-[1.5px] border-slate-300 bg-white px-4 py-3 text-[15px] text-brand-ink placeholder:text-slate-400 focus:border-brand-blue focus:ring-4 focus:ring-sky-700/15; }
+  .input-error { @apply border-red-500; }
+  .opt { @apply inline-flex min-h-[44px] cursor-pointer select-none items-center rounded-full border-[1.5px] border-slate-300 bg-white px-4 text-sm font-semibold text-brand-ink transition hover:border-slate-500 has-[:checked]:border-brand-ink has-[:checked]:bg-brand-ink has-[:checked]:text-white has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-sky-700/30; }
+  .opt[aria-pressed="true"] { @apply border-brand-ink bg-brand-ink text-white; }
+  .opt-danger { @apply has-[:checked]:border-brand-red has-[:checked]:bg-brand-red; }
+  .opt-yes { @apply has-[:checked]:border-emerald-700 has-[:checked]:bg-emerald-700; }
+  .opt-no { @apply has-[:checked]:border-brand-red has-[:checked]:bg-brand-red; }
+}
+
+/* Honeypot: hidden from people, still in the DOM for bots. */
+.hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* Live status ping (used inside .dot-live) */
+@keyframes hs-ping { 75%, 100% { transform: scale(2.6); opacity: 0; } }
+.ping { position: absolute; inset: 0; border-radius: 9999px; animation: hs-ping 1.6s cubic-bezier(0, 0, .2, 1) infinite; }
+
+/* Stepped audit form: JS adds .is-stepped; without JS every step shows. */
+.is-stepped [data-step]:not(.is-active) { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

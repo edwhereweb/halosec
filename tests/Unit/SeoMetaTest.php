@@ -57,7 +57,7 @@ final class SeoMetaTest extends TestCase
     {
         $html = $this->servicePage('soc-setup');
 
-        $this->assertMatchesRegularExpression('#class="[^"]*bg-white text-slate-900 shadow-sm[^"]*" href="/services"#', $html);
+        $this->assertMatchesRegularExpression('#href="/services" aria-current="page"#', $html);
     }
 
     public function testCorePagesHaveDistinctTitlesAndDescriptions(): void
