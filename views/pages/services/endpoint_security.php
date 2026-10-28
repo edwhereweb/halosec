@@ -3,450 +3,144 @@ declare(strict_types=1);
 
 /** @var HaloSec\View $this */
 $e = static fn (mixed $v): string => HaloSec\View::e($v);
-
-$title = $service['title'] ?? 'Endpoint Security Solutions for Your Business';
-$lead = 'Looking to secure your company’s devices and data without the headache of managing each system manually? Our Endpoint Security Services give you total control, strong protection, and total peace of mind—whether you have 5 systems or hundreds.';
 ?>
+<?= $this->include('partials/service_subnav', ['name' => 'Endpoint Security', 'links' => ['features' => 'Features', 'stories' => 'Client stories', 'faq' => 'FAQ']]) ?>
 
-<?= $this->include('partials/page_header', [
-    'eyebrow' => 'Specialized Practice · Centralized Endpoint Defense',
-    'heading' => $title,
-    'lead' => $lead,
-]) ?>
-
-<!-- Top Split Layout: Core Proposition & Direct Enquiry -->
-<section class="max-w-6xl mx-auto px-4 pt-14 pb-12 grid gap-10 lg:grid-cols-5 items-start">
-  <!-- Left Column: Core Value & Capability Details -->
-  <div class="lg:col-span-3 space-y-8">
-    
-    <!-- Practice Overview & Value Proposition -->
-    <div class="rounded-3xl bg-white border border-slate-200 shadow-sm p-8 md:p-10 relative overflow-hidden">
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-800 text-xs font-bold uppercase tracking-wider">
-          <svg class="w-3.5 h-3.5 text-sky-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd"></path></svg>
-          Enterprise Endpoint Defense
-        </span>
-        <span class="text-xs font-bold text-slate-500">Works for 5+ to 500+ systems</span>
-      </div>
-
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
-        Total Control, Strong Protection &amp; Complete Peace of Mind
-      </h2>
-      <p class="mt-4 text-slate-700 leading-relaxed text-base md:text-lg font-medium">
-        Looking to secure your company’s devices and data without the headache of managing each system manually? Our Endpoint Security Services give you total control, strong protection, and total peace of mind—whether you have 5 systems or hundreds.
-      </p>
-      <!-- Accreditation & Partner Pills -->
-      <div class="mt-6 flex flex-wrap items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
-          <svg class="w-3.5 h-3.5 text-sky-700" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-          Sophos Silver Partner
-        </span>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
-          <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-          Automated Ransomware Rollback
-        </span>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
-          <svg class="w-3.5 h-3.5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" clip-rule="evenodd"></path></svg>
-          Zoho Certified Partner
-        </span>
-        <a href="#enquiry" class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 hover:text-sky-900 bg-sky-50 hover:bg-sky-100 border border-sky-200 px-3 py-1 rounded-full transition-all ml-auto">
-          <span>Jump to Enquiry Form</span>
-          <span>↓</span>
-        </a>
-      </div>
-
-      <!-- Built for Teams of Any Size Highlight Grid -->
-      <div class="mt-8 pt-8 border-t border-slate-100">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="w-2 h-2 rounded-full bg-lime-400"></span>
-          <h3 class="text-xs font-bold uppercase tracking-widest text-sky-800">Built for Teams of Any Size</h3>
-        </div>
-
-        <div class="grid sm:grid-cols-3 gap-4">
-          <div class="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4 transition-all hover:bg-white hover:border-sky-300 hover:shadow-sm">
-            <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 font-extrabold text-xs flex items-center justify-center mb-3">5+</div>
-            <h4 class="text-sm font-extrabold text-slate-900">Works for 5+ Systems</h4>
-            <p class="mt-1.5 text-xs text-slate-600 leading-relaxed">Designed for businesses starting from 5 computers up to large companies with hundreds of devices.</p>
-          </div>
-
-          <div class="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4 transition-all hover:bg-white hover:border-sky-300 hover:shadow-sm">
-            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 font-extrabold text-xs flex items-center justify-center mb-3">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-            </div>
-            <h4 class="text-sm font-extrabold text-slate-900">Easy to Manage</h4>
-            <p class="mt-1.5 text-xs text-slate-600 leading-relaxed">No need to configure each employee's computer separately. Everything is orchestrated centrally.</p>
-          </div>
-
-          <div class="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4 transition-all hover:bg-white hover:border-sky-300 hover:shadow-sm">
-            <div class="w-9 h-9 rounded-xl bg-lime-100 text-slate-900 font-extrabold text-xs flex items-center justify-center mb-3">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-            </div>
-            <h4 class="text-sm font-extrabold text-slate-900">Peace of Mind</h4>
-            <p class="mt-1.5 text-xs text-slate-600 leading-relaxed">Keep your company data safe from hackers and data leaks without slowing down daily work.</p>
-          </div>
-        </div>
-      </div>
+<section class="relative overflow-hidden px-4 pb-16 pt-20 text-center md:pt-28">
+  <div class="relative mx-auto flex max-w-4xl animate-rise flex-col items-center gap-6">
+    <span class="eyebrow">For teams of 5 to 500+ devices</span>
+    <h1 class="display text-[48px] md:text-7xl lg:text-[88px]">
+      <span class="sr-only"><?= $e($service['title'] ?? 'Endpoint Security Solutions for Your Business') ?>: </span>
+      Every device.<br><span class="marker">One dashboard.</span>
+    </h1>
+    <p class="lead max-w-2xl">Secure your company’s devices and data without managing each system by hand. Total control, strong protection, real peace of mind.</p>
+    <div class="flex flex-wrap justify-center gap-3">
+      <a class="btn btn-lg btn-cta" href="#enquiry">Get a quote</a>
+      <a class="btn btn-lg btn-outline" href="/consultation">Book a consultation</a>
     </div>
-
-    <!-- Why Move Beyond Traditional Antivirus Section -->
-    <div class="rounded-3xl bg-white border border-slate-200 shadow-sm p-8 md:p-10">
-      <div class="mb-6">
-        <span class="text-xs font-bold uppercase tracking-widest text-sky-700">Next-Gen Architecture</span>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Why Move Beyond Traditional Antivirus?</h2>
-        <p class="mt-3 text-slate-700 font-medium leading-relaxed">
-          The days of standalone antivirus software are over. Today’s threats need a centralized, smart security system that covers every endpoint in your network.
-        </p>
-      </div>
-
-      <div class="space-y-4">
-        <!-- Feature 1 -->
-        <div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:border-sky-300 transition-all duration-200">
-          <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0 mt-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-slate-900">Centrally Managed</h3>
-            <p class="text-sm text-slate-600 mt-1 leading-relaxed">
-              Set up policies and control every system from one single dashboard instead of going to each PC individually.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 2 -->
-        <div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:border-sky-300 transition-all duration-200">
-          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-slate-900">Ransomware Protection &amp; Rollback</h3>
-            <p class="text-sm text-slate-600 mt-1 leading-relaxed">
-              If a ransomware attack tries to encrypt your files, our system stops the process, blocks its communication, and rolls your files back to safety automatically.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 3 -->
-        <div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:border-sky-300 transition-all duration-200">
-          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-slate-900">Total Device &amp; Web Control</h3>
-            <p class="text-sm text-slate-600 mt-1 leading-relaxed">
-              Block USB drives, web access, cameras, or risky tools like PowerShell centrally whenever needed to stop unauthorized data egress.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 4 -->
-        <div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:border-sky-300 transition-all duration-200">
-          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-slate-900">Protection Against New Threats</h3>
-            <p class="text-sm text-slate-600 mt-1 leading-relaxed">
-              Stay safe from zero-day threats and unpatched vulnerabilities automatically using behavioral intelligence and exploit prevention.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 5 -->
-        <div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:bg-white hover:border-sky-300 transition-all duration-200">
-          <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 mt-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-slate-900">Custom Group Policies</h3>
-            <p class="text-sm text-slate-600 mt-1 leading-relaxed">
-              Easily set different access levels and confidentiality rules for different teams or departments across your organization.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-8 pt-6 border-t border-slate-100 text-sm text-slate-500 flex flex-wrap gap-4 items-center">
-        <span>Need custom scope or compliance mapping?</span>
-        <a class="text-sky-700 font-bold hover:underline" href="/consultation">Book a Consultation →</a>
-        <span>·</span>
-        <a class="text-slate-700 font-bold hover:underline" href="/services">Browse All Services →</a>
-      </div>
-    </div>
-
   </div>
+</section>
 
-  <!-- Right Column: Sticky Direct Enquiry Form -->
-  <div class="lg:col-span-2 lg:sticky lg:top-28 rounded-3xl bg-white border border-slate-200 shadow-xl p-8" id="enquiry">
-    <div class="mb-5 pb-4 border-b border-slate-100">
-      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-lime-400/20 text-lime-800 text-[11px] font-bold uppercase tracking-wider mb-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-lime-500"></span>
-        Direct Enquiry
+<!-- Dashboard preview -->
+<section aria-label="Product preview" class="px-4 pb-28">
+  <div class="mx-auto max-w-5xl rounded-[32px] bg-brand-ink p-4 sm:p-8 lg:p-12">
+    <div aria-hidden="true" class="flex flex-col gap-5 rounded-[20px] border border-slate-700/60 bg-[#141a26] p-5 text-white sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="text-[15px] font-bold">All devices</span>
+        <span class="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs font-bold text-emerald-300">
+          <span class="dot-live"><span class="ping bg-emerald-500"></span><span class="relative h-2 w-2 rounded-full bg-emerald-500"></span></span>Protected
+        </span>
       </div>
-      <h2 class="text-xl font-extrabold text-slate-900">Enquire about this service</h2>
-      <p class="text-xs text-slate-600 mt-1">Our Endpoint Security specialists will review your requirements and respond within 24 hours.</p>
-    </div>
-
-    <?= $this->include('partials/flash', ['flash' => $flash]) ?>
-    <?= $this->include('partials/form_open', ['formAction' => $formAction]) ?>
-    <div class="space-y-5">
-      <?= $this->include('partials/contact_fields', ['old' => $old, 'errors' => $errors]) ?>
-
-      <!-- Quick Endpoint Scale Qualification Selector -->
-      <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-          Number of Systems / Endpoints
-        </label>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="endpoint-scale-pills">
-          <button type="button" data-scope="5–20 systems" class="endpoint-pill text-xs font-bold py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
-            5–20
-          </button>
-          <button type="button" data-scope="20–50 systems" class="endpoint-pill text-xs font-bold py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
-            20–50
-          </button>
-          <button type="button" data-scope="50–150 systems" class="endpoint-pill text-xs font-bold py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
-            50–150
-          </button>
-          <button type="button" data-scope="150+ systems" class="endpoint-pill text-xs font-bold py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:border-sky-300 hover:bg-sky-50 transition-all text-center">
-            150+
-          </button>
+      <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <?php foreach ([['Management', 'Central'], ['Ransomware', 'Rollback'], ['USB policy', 'Blocked'], ['Zero-day', 'Guarded']] as $i => [$k, $v]) : ?>
+        <div class="flex flex-col gap-1.5 rounded-2xl bg-[#1a2130] p-4">
+          <span class="text-xs text-slate-400"><?= $e($k) ?></span>
+          <span class="font-display text-2xl font-bold <?= $i === 2 ? 'text-brand-neon' : '' ?>"><?= $e($v) ?></span>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex h-40 min-w-0 flex-[999_1_380px] items-end gap-1.5 rounded-2xl bg-[#1a2130] p-4">
+          <?php foreach ([30, 45, 38, 62, 50, 88, 44, 36, 58, 40, 33, 47] as $i => $h) : ?>
+          <span class="flex-1 origin-bottom animate-grow rounded <?= $h === 88 ? 'bg-brand-neon' : ($i % 6 === 2 ? 'bg-sky-400' : 'bg-slate-700') ?>" style="height: <?= $h ?>%; animation-delay: <?= $i * 50 ?>ms"></span>
+          <?php endforeach; ?>
+        </div>
+        <div class="flex flex-[1_1_260px] flex-col gap-3 rounded-2xl bg-[#1a2130] p-4 text-[13px]">
+          <span class="text-xs font-bold text-slate-400">Recent events</span>
+          <?php foreach ([['bg-brand-neon', 'Encrypted files rolled back', 'now'], ['bg-red-500', 'USB drive blocked', '2m'], ['bg-sky-400', 'Policy synced to Sales', '9m'], ['bg-emerald-500', 'Exploit attempt stopped', '1h']] as $i => [$dot, $text, $when]) : ?>
+          <span class="flex animate-slide items-center gap-2.5" style="animation-delay: <?= 600 + $i * 200 ?>ms"><span class="h-3.5 w-3.5 shrink-0 rounded-full <?= $dot ?>"></span><span class="flex-1"><?= $e($text) ?></span><span class="text-slate-400"><?= $e($when) ?></span></span>
+          <?php endforeach; ?>
         </div>
       </div>
+    </div>
+  </div>
+</section>
 
-      <?= $this->include('partials/field', [
-          'name' => 'message',
-          'label' => 'How can we help? (Number of endpoints, OS types, current antivirus)',
-          'type' => 'textarea',
-          'required' => true,
+<!-- Features -->
+<section id="features" class="section bg-brand-mist">
+  <div class="wrap flex flex-col gap-12">
+    <div class="flex max-w-3xl flex-col gap-4">
+      <h2 class="h-section">Antivirus guards one PC. This guards the company.</h2>
+      <p class="lead">The days of standalone antivirus are over. Today’s threats need a central, smart system that covers every endpoint in your network.</p>
+    </div>
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="tile tile-ink md:row-span-2">
+        <svg class="h-9 w-9 text-brand-neon" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" viewBox="0 0 36 36"><path d="M28 18a10 10 0 1 1-3-7.1M28 6v6h-6"/></svg>
+        <h3 class="font-display text-[34px] font-bold leading-tight tracking-[-0.03em]">Ransomware protection &amp; rollback</h3>
+        <p class="text-base leading-relaxed text-slate-300">If ransomware tries to encrypt your files, we stop the process, block its communication and roll your files back to safety, automatically.</p>
+      </div>
+      <div class="tile tile-sky tile-hover"><h3 class="tile-title">Centrally managed</h3><p class="tile-text">Set policies and control every system from one dashboard, not one PC at a time.</p></div>
+      <div class="tile tile-white tile-hover"><h3 class="tile-title">Device &amp; web control</h3><p class="tile-text">Block USB drives, cameras, web access or PowerShell whenever you need to, to stop data leaving.</p></div>
+      <div class="tile tile-lime tile-hover"><h3 class="tile-title">Zero-day defense</h3><p class="tile-text">Behavioural intelligence and exploit prevention against new, unpatched threats.</p></div>
+      <div class="tile tile-white tile-hover"><h3 class="tile-title">Custom group policies</h3><p class="tile-text">Different access levels and confidentiality rules per team or department.</p></div>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <?php foreach ([['5+', 'Works from 5 systems', 'From 5 computers up to hundreds of devices.'], ['1', 'One console for every device', 'No configuring each employee’s computer separately.'], ['0', 'Zero slowdown for your team', 'Protection without getting in the way of daily work.']] as [$num, $t, $d]) : ?>
+      <div class="flex items-start gap-4 rounded-3xl border border-slate-200 bg-white p-6">
+        <span class="font-display text-3xl font-bold text-brand-blue"><?= $e($num) ?></span>
+        <span class="flex flex-col gap-1"><span class="font-extrabold"><?= $e($t) ?></span><span class="text-sm text-brand-body"><?= $e($d) ?></span></span>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+
+<!-- Stories -->
+<section id="stories" class="wrap section flex flex-col gap-12">
+  <h2 class="h-section">Stories from our clients.</h2>
+  <div class="grid gap-5 md:grid-cols-2">
+    <?php foreach ([
+        ['GCC tourism firm', 'Zero attacks since.', 'Hackers got in and booked fraudulent tickets, costing lakhs of rupees.', 'Installed Endpoint Security with strict access policies across their systems.', 'Full visibility over every device, and zero cyber attacks since.'],
+        ['Accounting & tax practice', 'Client data, sealed.', 'A firm handling confidential client financial data needed total data protection.', 'Endpoint Security plus Data Loss Prevention, with USB and device access blocked.', 'Client data stays protected, with no risk of unauthorised transfers.'],
+    ] as [$who, $headline, $problem, $did, $result]) : ?>
+    <article class="flex flex-col gap-5 rounded-tile border border-slate-200 p-8 sm:p-9">
+      <span class="text-[13px] font-bold text-brand-muted"><?= $e($who) ?></span>
+      <h3 class="font-display text-4xl font-bold leading-none tracking-[-0.03em]"><?= $e($headline) ?></h3>
+      <dl class="grid grid-cols-[110px_1fr] gap-x-4 gap-y-3 text-[15px] leading-relaxed">
+        <dt class="font-bold">Problem</dt><dd class="text-brand-body"><?= $e($problem) ?></dd>
+        <dt class="font-bold">What we did</dt><dd class="text-brand-body"><?= $e($did) ?></dd>
+        <dt class="font-bold">Result</dt><dd class="text-brand-body"><?= $e($result) ?></dd>
+      </dl>
+    </article>
+    <?php endforeach; ?>
+  </div>
+</section>
+
+<!-- FAQ + enquiry -->
+<section class="section bg-brand-mist">
+  <div class="wrap flex flex-wrap gap-14">
+    <div id="faq" class="flex flex-[1_1_380px] flex-col">
+      <h2 class="mb-6 font-display text-4xl font-bold tracking-[-0.03em]">Questions</h2>
+      <?php foreach ([
+          ['How many systems do I need to get started?', 'A minimum of 5 systems.'],
+          ['How is this different from normal antivirus?', 'Normal antivirus works alone on single PCs. Endpoint Security gives you central control over all systems, ransomware rollback and strict policy management from one place.'],
+          ['Can I block USB drives and external devices?', 'Yes. You can centrally block USB ports, web access, cameras and unapproved software across your company.'],
+      ] as $i => [$q, $a]) : ?>
+      <details class="group border-b border-slate-300 py-5"<?= $i === 0 ? ' open' : '' ?>>
+        <summary class="flex items-center justify-between gap-4 text-lg font-bold">
+          <?= $e($q) ?>
+          <span aria-hidden="true" class="text-2xl font-normal text-brand-muted transition group-open:rotate-45">+</span>
+        </summary>
+        <p class="mt-3 tile-text"><?= $e($a) ?></p>
+      </details>
+      <?php endforeach; ?>
+    </div>
+    <div class="min-w-0 flex-[1_1_440px]">
+      <?= $this->include('partials/enquiry_card', [
+          'heading' => 'Get a quote',
+          'sub' => 'Our Endpoint Security specialists reply within 24 hours.',
+          'chips' => ['5–20', '20–50', '50–150', '150+'],
+          'chipsLegend' => 'How many devices?',
+          'chipsPrefix' => 'Approx. systems',
+          'messageLabel' => 'How can we help?',
+          'messageHint' => 'Operating systems, current antivirus, anything we should know.',
+          'btnLabel' => 'Send enquiry',
+          'notes' => ['Minimum 5 systems to deploy', 'Certified Sophos Silver & Zoho Partner', 'No disruption to employee productivity'],
+          'flash' => $flash,
+          'formAction' => $formAction,
           'old' => $old,
           'errors' => $errors,
       ]) ?>
-      <div class="pt-2">
-        <?= $this->include('partials/submit', ['btnLabel' => 'Send Service Enquiry']) ?>
-      </div>
-    </div>
-
-    <div class="mt-6 pt-5 border-t border-slate-100 space-y-2 text-xs text-slate-500 font-medium">
-      <div class="flex items-center gap-2">
-        <span class="text-emerald-600 font-bold">✓</span>
-        <span>Minimum requirement: <strong>5 systems</strong> to deploy</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="text-emerald-600 font-bold">✓</span>
-        <span>Certified Sophos Silver &amp; Zoho Partner</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="text-emerald-600 font-bold">✓</span>
-        <span>Zero disruption to employee productivity</span>
-      </div>
     </div>
   </div>
 </section>
-
-<!-- Real Stories: How We Helped Our Clients -->
-<section class="max-w-6xl mx-auto px-4 py-12" aria-label="Client case studies">
-  <div class="text-center max-w-3xl mx-auto mb-10">
-    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-800 text-xs font-bold uppercase tracking-wider mb-3">
-      <span class="relative flex h-2 w-2">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-      </span>
-      Proven Track Record
-    </div>
-    <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Real Stories: How We Helped Our Clients</h2>
-    <p class="mt-3 text-slate-600 text-base">
-      See how organizations stopped active attacks and sealed data leaks with HaloSec's endpoint security deployment.
-    </p>
-  </div>
-
-  <div class="grid md:grid-cols-2 gap-8">
-    <!-- Story 1 -->
-    <article class="rounded-3xl bg-white border border-slate-200 p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-sky-300 transition-all duration-200 flex flex-col relative overflow-hidden">
-      <div class="flex items-center justify-between gap-3 mb-4">
-        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-          GCC Tourism Firm
-        </span>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          Zero Cyber Attacks Since
-        </span>
-      </div>
-
-      <h3 class="text-xl font-extrabold text-slate-900 mb-5">
-        1. Stopping Cyber Fraud for a Tourism Company
-      </h3>
-
-      <div class="space-y-4 flex-1 text-sm">
-        <div class="p-4 rounded-2xl bg-rose-50/70 border border-rose-100">
-          <p class="font-bold text-rose-900 text-xs uppercase tracking-wide mb-1">The Problem</p>
-          <p class="text-rose-950 font-medium leading-relaxed">
-            A GCC-based tourism firm lost lakhs of rupees when hackers got in and booked fraudulent tickets.
-          </p>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-sky-50/70 border border-sky-100">
-          <p class="font-bold text-sky-900 text-xs uppercase tracking-wide mb-1">What We Did</p>
-          <p class="text-sky-950 font-medium leading-relaxed">
-            We installed our Endpoint Security solution and set up strict access policies across their systems.
-          </p>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100">
-          <p class="font-bold text-emerald-900 text-xs uppercase tracking-wide mb-1">The Result</p>
-          <p class="text-emerald-950 font-bold leading-relaxed">
-            They now have full visibility over every device, and <span class="underline decoration-emerald-500 decoration-2">zero cyber attacks</span> since.
-          </p>
-        </div>
-      </div>
-    </article>
-
-    <!-- Story 2 -->
-    <article class="rounded-3xl bg-white border border-slate-200 p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-sky-300 transition-all duration-200 flex flex-col relative overflow-hidden">
-      <div class="flex items-center justify-between gap-3 mb-4">
-        <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-          Accounting &amp; Tax Practice
-        </span>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-xs font-bold">
-          <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-          100% Client Data Protected
-        </span>
-      </div>
-
-      <h3 class="text-xl font-extrabold text-slate-900 mb-5">
-        2. Protecting Sensitive Data for an Accounting Firm
-      </h3>
-
-      <div class="space-y-4 flex-1 text-sm">
-        <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-100">
-          <p class="font-bold text-amber-900 text-xs uppercase tracking-wide mb-1">The Problem</p>
-          <p class="text-amber-950 font-medium leading-relaxed">
-            An accounting and tax firm handling confidential client financial data needed total data protection.
-          </p>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-sky-50/70 border border-sky-100">
-          <p class="font-bold text-sky-900 text-xs uppercase tracking-wide mb-1">What We Did</p>
-          <p class="text-sky-950 font-medium leading-relaxed">
-            We deployed Endpoint Security along with Data Loss Prevention (DLP) and blocked unauthorized USB/device access.
-          </p>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100">
-          <p class="font-bold text-emerald-900 text-xs uppercase tracking-wide mb-1">The Result</p>
-          <p class="text-emerald-950 font-bold leading-relaxed">
-            Their client data remains <span class="underline decoration-emerald-500 decoration-2">100% protected</span>, with no risk of unauthorized data transfers.
-          </p>
-        </div>
-      </div>
-    </article>
-  </div>
-</section>
-
-<!-- Quick FAQ Section -->
-<section class="max-w-4xl mx-auto px-4 py-12" aria-label="Frequently Asked Questions">
-  <div class="text-center mb-10">
-    <span class="text-xs font-bold uppercase tracking-widest text-sky-700">Clear Answers</span>
-    <h2 class="text-3xl font-extrabold text-slate-900 mt-1">Quick FAQ</h2>
-    <p class="mt-2 text-slate-600 text-sm">Key details about implementing HaloSec endpoint security in your business.</p>
-  </div>
-
-  <div class="space-y-4">
-    <!-- Question 1 -->
-    <details class="group rounded-2xl bg-white border border-slate-200 p-6 shadow-sm hover:border-sky-300 transition-all open:shadow-md open:border-sky-400">
-      <summary class="flex items-center justify-between cursor-pointer list-none select-none font-extrabold text-slate-900 text-base md:text-lg">
-        <span>How many systems do I need to get started?</span>
-        <span class="w-7 h-7 rounded-full bg-slate-100 group-open:bg-sky-100 group-open:text-sky-700 flex items-center justify-center text-slate-500 transition-transform group-open:rotate-180 shrink-0 ml-3">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-        </span>
-      </summary>
-      <div class="mt-4 pt-4 border-t border-slate-100 text-slate-600 leading-relaxed text-sm font-medium">
-        You need a minimum of <strong>5 systems</strong> to implement our endpoint security solution.
-      </div>
-    </details>
-
-    <!-- Question 2 -->
-    <details class="group rounded-2xl bg-white border border-slate-200 p-6 shadow-sm hover:border-sky-300 transition-all open:shadow-md open:border-sky-400">
-      <summary class="flex items-center justify-between cursor-pointer list-none select-none font-extrabold text-slate-900 text-base md:text-lg">
-        <span>How is this different from normal antivirus?</span>
-        <span class="w-7 h-7 rounded-full bg-slate-100 group-open:bg-sky-100 group-open:text-sky-700 flex items-center justify-center text-slate-500 transition-transform group-open:rotate-180 shrink-0 ml-3">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-        </span>
-      </summary>
-      <div class="mt-4 pt-4 border-t border-slate-100 text-slate-600 leading-relaxed text-sm font-medium">
-        Normal antivirus works standalone on single PCs. Endpoint Security gives you central control over all systems, ransomware rollback, and strict policy management from one place.
-      </div>
-    </details>
-
-    <!-- Question 3 -->
-    <details class="group rounded-2xl bg-white border border-slate-200 p-6 shadow-sm hover:border-sky-300 transition-all open:shadow-md open:border-sky-400">
-      <summary class="flex items-center justify-between cursor-pointer list-none select-none font-extrabold text-slate-900 text-base md:text-lg">
-        <span>Can I block USB drives and external devices?</span>
-        <span class="w-7 h-7 rounded-full bg-slate-100 group-open:bg-sky-100 group-open:text-sky-700 flex items-center justify-center text-slate-500 transition-transform group-open:rotate-180 shrink-0 ml-3">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-        </span>
-      </summary>
-      <div class="mt-4 pt-4 border-t border-slate-100 text-slate-600 leading-relaxed text-sm font-medium">
-        Yes! You can centrally block USB ports, web access, cameras, and unauthorized software across your company.
-      </div>
-    </details>
-  </div>
-</section>
-
-<!-- Ready to Secure Your Systems? High-Impact CTA Banner -->
-<section class="max-w-6xl mx-auto px-4 pt-4 pb-20">
-  <div class="rounded-3xl bg-slate-900 border border-slate-800 text-white p-8 md:p-12 relative overflow-hidden shadow-2xl">
-    <!-- Ambient Blur Aura -->
-    <div class="absolute -right-20 -top-20 w-96 h-96 bg-sky-500/15 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-lime-400/10 rounded-full blur-3xl pointer-events-none"></div>
-
-    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-      <div class="max-w-2xl text-center md:text-left">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-400/10 border border-lime-400/20 text-lime-300 text-xs font-bold uppercase tracking-wider mb-3">
-          <span class="w-2 h-2 rounded-full bg-lime-400"></span>
-          Get Started in 24 Hours
-        </div>
-        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
-          Ready to Secure Your Systems?
-        </h2>
-        <p class="mt-3 text-slate-300 text-base md:text-lg leading-relaxed">
-          Don't wait for a security breach to happen. Contact our team today and let's get your business endpoints secured!
-        </p>
-      </div>
-
-      <div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full sm:w-auto">
-        <a href="#enquiry" class="w-full sm:w-auto text-center bg-gradient-to-r from-lime-300 via-lime-200 to-lime-300 hover:from-lime-400 hover:to-lime-200 text-slate-950 font-extrabold text-xs uppercase px-7 py-3.5 rounded-xl shadow-md transition-all hover:scale-105 active:scale-95 border border-lime-200/50 inline-flex items-center justify-center gap-2">
-          <span>Contact Our Team Today</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" x2="17" y1="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-        </a>
-        <a href="/consultation" class="w-full sm:w-auto text-center bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase px-6 py-3.5 rounded-xl border border-white/20 transition-all hover:scale-105 active:scale-95">
-          Book Consultation
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  var pills = document.querySelectorAll('.endpoint-pill');
-  var textarea = document.querySelector('textarea[name="message"]');
-  if (!pills.length || !textarea) return;
-
-  pills.forEach(function (pill) {
-    pill.addEventListener('click', function () {
-      pills.forEach(function (p) {
-        p.classList.remove('bg-slate-900', 'text-white', 'border-slate-900', 'shadow-sm');
-        p.classList.add('bg-slate-50', 'text-slate-700', 'border-slate-200');
-      });
-      pill.classList.remove('bg-slate-50', 'text-slate-700', 'border-slate-200');
-      pill.classList.add('bg-slate-900', 'text-white', 'border-slate-900', 'shadow-sm');
-
-      var scope = pill.getAttribute('data-scope');
-      var prefix = '[Approx. Systems: ' + scope + '] ';
-      var current = textarea.value.replace(/\[Approx\. Systems: [^\]]+\]\s*/g, '');
-      textarea.value = prefix + current.trim();
-      textarea.focus();
-    });
-  });
-});
-</script>
-

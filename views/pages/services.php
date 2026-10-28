@@ -1,15 +1,17 @@
 <?php $e = static fn (mixed $v): string => HaloSec\View::e($v); ?>
-<?= $this->include('partials/page_header', ['eyebrow' => 'Defensive & Offensive Capabilities', 'heading' => 'Cybersecurity Services', 'lead' => 'Eight comprehensive cybersecurity disciplines, each backed by certified practitioners and rapid deployment playbooks.']) ?>
-<section class="max-w-7xl mx-auto px-4 py-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-  <?php foreach ($services as $slug => $s) : ?>
-  <article class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-sky-300 transition-all duration-200 flex flex-col">
-    <span class="inline-flex w-12 h-12 items-center justify-center rounded-xl bg-sky-100 text-sky-700 text-xs font-bold shadow-sm"><?= $e($s['icon'] ?? 'SEC') ?></span>
-    <h2 class="mt-4 text-lg font-bold text-slate-900 leading-snug"><?= $e($s['title']) ?></h2>
-    <p class="mt-2 text-slate-600 text-sm flex-1 leading-relaxed"><?= $e($s['short']) ?></p>
-    <a class="mt-6 self-start bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs uppercase px-5 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 inline-flex items-center gap-1.5" href="/services/<?= $e($slug) ?>">
-      <span>View &amp; Enquire</span>
-      <span>→</span>
+<?= $this->include('partials/page_header', ['eyebrow' => 'Defensive & offensive capabilities', 'heading' => 'Cybersecurity services', 'lead' => 'Eight disciplines, each backed by certified practitioners and proven deployment playbooks.']) ?>
+<?php $colors = ['tile-ink', 'tile-white', 'tile-white', 'tile-sky', 'tile-blue', 'tile-lime', 'tile-white', 'tile-cta']; ?>
+<section class="section bg-brand-mist">
+  <div class="wrap grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <?php $i = 0; foreach ($services as $slug => $s) : ?>
+    <?php $tile = $colors[$i++ % count($colors)]; $dark = in_array($tile, ['tile-ink', 'tile-blue'], true); ?>
+    <a class="tile tile-hover min-h-[280px] <?= $tile ?>" href="/services/<?= $e($slug) ?>">
+      <span class="font-display text-sm font-bold <?= $dark ? 'text-brand-neon' : 'text-brand-muted' ?>">0<?= $i ?></span>
+      <h2 class="font-display text-[28px] font-bold leading-tight tracking-[-0.03em]"><?= $e($s['nav_label'] ?? $s['title']) ?></h2>
+      <p class="text-[15px] leading-relaxed <?= $dark ? 'text-slate-200' : 'text-brand-body' ?>"><?= $e($s['short']) ?></p>
+      <span class="mt-auto pt-4 text-sm font-bold <?= $dark ? 'text-white' : 'text-brand-blue' ?>">Learn more &amp; enquire →</span>
     </a>
-  </article>
-  <?php endforeach; ?>
+    <?php endforeach; ?>
+  </div>
 </section>
+<?= $this->include('partials/cta_band') ?>
