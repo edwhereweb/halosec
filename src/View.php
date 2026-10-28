@@ -27,7 +27,8 @@ final class View
     public function render(string $template, array $data = [], string $layout = 'layout'): string
     {
         $content = $this->include($template, $data);
-        $isAdmin = str_starts_with($template, 'pages/admin_') && $template !== 'pages/admin_login';
+        $isAdmin = str_starts_with($template, 'pages/admin_')
+            && !in_array($template, ['pages/admin_login', 'pages/admin_login_2fa'], true);
 
         return $this->include($layout, array_merge($data, [
             'content' => $content,

@@ -20,7 +20,7 @@ final class AdminDatabaseAuthTest extends TestCase
         $pdo->exec("INSERT INTO admin_roles VALUES (1, 'editor')");
         $pdo->exec('INSERT INTO admin_user_roles VALUES (1, 1)');
         $session = [];
-        $auth = new AdminAuth($session, '', '', 'super_admin', $pdo);
+        $auth = new AdminAuth($session, $pdo);
 
         $this->assertFalse($auth->attempt('editor1', 'wrong-password'));
         $this->assertTrue($auth->attempt('editor1', 'very-long-password'));

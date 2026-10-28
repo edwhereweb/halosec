@@ -29,7 +29,126 @@ final class AdminController
         private string $clientId,
         private ?AdminSubmissionRepositoryInterface $repository = null,
         private ?string $dbError = null,
+        private bool $requireTwoFactor = false,
+        private string $issuer = 'HaloSec',
     ) {
+    }
+
+    /**
+     * Second login step for users with two-factor authentication enabled.
+     *
+     * @param array<string, mixed> $post
+     */
+    public function loginTwoFactor(string $method, array $post): string
+    {
+        $this->noCache();
+        if ($this->auth->check()) {
+            return $this->redirect('/admin');
+        }
+        if (!$this->auth->awaitingTwoFactor()) {
+            return $this->redirect('/admin/login');
+        }
+        $flash = null;
+        if ($method === 'POST') {
+            $code = is_string($post['code'] ?? null) ? $post['code'] : '';
+            if (!$this->csrf->isValid($post[CsrfManager::FIELD] ?? null)) {
+                http_response_code(419);
+                $flash = 'Your session expired. Please try again.';
+            } elseif ($this->throttle->isLocked($this->clientId)) {
+                http_response_code(429);
+                header('Retry-After: 900');
+                $flash = 'Too many failed attempts. Please try again later.';
+            } elseif ($this->auth->verifyTwoFactor($code)) {
+                $this->throttle->clear($this->clientId);
+                $this->csrf->rotate();
+
+                return $this->redirect('/admin');
+            } else {
+                $this->throttle->recordFailure($this->clientId);
+                if (!$this->auth->awaitingTwoFactor()) {
+                    return $this->redirect('/admin/login');
+                }
+                http_response_code(401);
+                $flash = 'That code is not valid. Enter the current 6-digit code from your authenticator app.';
+            }
+        }
+
+        return $this->view->render('pages/admin_login_2fa', [
+            'title' => 'Two-factor verification',
+            'path' => '/admin/login/2fa',
+            'formAction' => '/admin/login/2fa',
+            'flash' => $flash === null ? null : ['type' => 'error', 'message' => $flash],
+        ]);
+    }
+
+    /**
+     * Signed-in user's own account: change password and manage two-factor authentication.
+     *
+     * @param array<string, mixed> $post
+     */
+    public function account(string $method, array $post): string
+    {
+        if (($denied = $this->guard('account')) !== null) {
+            return $denied;
+        }
+        $message = null;
+        $error = false;
+        if ($method === 'POST') {
+            if (!$this->validCsrf($post)) {
+                return 'Invalid request';
+            }
+            $action = is_string($post['action'] ?? null) ? $post['action'] : '';
+            $str = static fn (string $key): string => is_string($post[$key] ?? null) ? $post[$key] : '';
+            switch ($action) {
+                case 'password':
+                    if ($str('new_password') !== $str('confirm_password')) {
+                        [$error, $message] = [true, 'The new passwords do not match.'];
+                    } elseif ($this->auth->changePassword($str('current_password'), $str('new_password'))) {
+                        $this->csrf->rotate();
+                        $message = 'Password changed.';
+                    } else {
+                        [$error, $message] = [true, 'Password not changed. Check your current password; the new one must be at least 12 characters.'];
+                    }
+                    break;
+                case '2fa_start':
+                    $this->auth->beginTwoFactorEnrollment();
+                    break;
+                case '2fa_confirm':
+                    if ($this->auth->confirmTwoFactorEnrollment($str('code'))) {
+                        $message = 'Two-factor authentication is now on.';
+                    } else {
+                        [$error, $message] = [true, 'That code did not match. Check the time on your phone and try again.'];
+                    }
+                    break;
+                case '2fa_disable':
+                    if ($this->requireTwoFactor) {
+                        [$error, $message] = [true, 'Two-factor authentication is required for all admin accounts.'];
+                    } elseif ($this->auth->disableTwoFactor($str('current_password'), $str('code'))) {
+                        $message = 'Two-factor authentication is now off.';
+                    } else {
+                        [$error, $message] = [true, 'Could not turn off two-factor authentication. Check your password and code.'];
+                    }
+                    break;
+                default:
+                    [$error, $message] = [true, 'Unknown action.'];
+            }
+            if ($error) {
+                http_response_code(422);
+            }
+        }
+        $secret = $this->auth->hasTwoFactor() ? null : $this->auth->pendingEnrollmentSecret();
+
+        return $this->view->render('pages/admin_account', [
+            'title' => 'My Account',
+            'path' => '',
+            'username' => $this->auth->username(),
+            'hasTwoFactor' => $this->auth->hasTwoFactor(),
+            'requireTwoFactor' => $this->requireTwoFactor,
+            'enrollSecret' => $secret,
+            'enrollUri' => $secret === null ? null : \HaloSec\Security\Totp::provisioningUri($secret, $this->auth->username(), $this->issuer),
+            'message' => $message,
+            'messageIsError' => $error,
+        ]);
     }
 
     /**
@@ -53,12 +172,7 @@ final class AdminController
                 http_response_code(419);
                 $flash = 'Your session expired. Please try again.';
             } elseif ($this->throttle->isLocked($this->clientId)) {
-                if ($username !== '' && $password !== '' && $this->auth->attempt($username, $password)) {
-                    $this->throttle->clear($this->clientId);
-                    $this->csrf->rotate();
-
-                    return $this->redirect('/admin');
-                }
+                // Never check passwords while locked, otherwise the lockout does not stop brute force.
                 http_response_code(429);
                 header('Retry-After: 900');
                 $flash = 'Too many failed attempts. Please try again later.';
@@ -66,8 +180,11 @@ final class AdminController
                 http_response_code(422);
                 $flash = 'Enter your username and password.';
             } elseif ($this->auth->attempt($username, $password)) {
-                $this->throttle->clear($this->clientId);
                 $this->csrf->rotate();
+                if ($this->auth->awaitingTwoFactor()) {
+                    return $this->redirect('/admin/login/2fa');
+                }
+                $this->throttle->clear($this->clientId);
 
                 return $this->redirect('/admin');
             } else {
@@ -559,7 +676,10 @@ final class AdminController
         if (!$this->auth->check()) {
             return $this->redirect('/admin/login');
         }
-        if (!RolePolicy::allows($this->auth->role(), $permission)) {
+        if ($this->requireTwoFactor && $permission !== 'account' && !$this->auth->hasTwoFactor()) {
+            return $this->redirect('/admin/account?setup=2fa');
+        }
+        if ($permission !== 'account' && !RolePolicy::allows($this->auth->role(), $permission)) {
             http_response_code(403);
 
             return 'Forbidden';
