@@ -4,11 +4,13 @@
   "description": "Builds public/css/app.css from the Tailwind classes used in views/. Commit the built file: Hostinger runs no build step.",
   "scripts": {
     "build": "tailwindcss -c tailwind.config.js -i resources/css/app.css -o public/css/app.css --minify",
-    "watch": "tailwindcss -c tailwind.config.js -i resources/css/app.css -o public/css/app.css --watch"
+    "watch": "tailwindcss -c tailwind.config.js -i resources/css/app.css -o public/css/app.css --watch",
+    "vendor": "node -e \"require('fs').copyFileSync('node_modules/qrcode-generator/qrcode.js','public/js/vendor/qrcode.js')\""
   },
   "devDependencies": {
     "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/forms": "0.5.10",
+    "qrcode-generator": "1.4.4",
     "tailwindcss": "3.4.17"
   }
 }

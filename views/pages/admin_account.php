@@ -24,14 +24,22 @@
         </form>
         <?php endif; ?>
       <?php elseif ($enrollSecret !== null) : ?>
-        <ol class="mb-4 list-decimal space-y-2 pl-5 text-sm text-slate-700">
-          <li>Open an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password…) and choose <em>Enter a setup key</em>.</li>
-          <li>Account name: <strong><?= $e($username) ?></strong>. Key:
-            <code class="mt-1 block select-all break-all rounded-lg bg-slate-100 p-3 font-mono text-base tracking-wider text-slate-900"><?= $e(trim(chunk_split($enrollSecret, 4, ' '))) ?></code>
-            <span class="text-xs text-slate-500">Time-based, 6 digits. On a phone you can also <a class="text-sky-700 underline" href="<?= $e($enrollUri) ?>">open the setup link</a>.</span>
+        <ol class="mb-4 list-decimal space-y-3 pl-5 text-sm text-slate-700">
+          <li>Open an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password…) and tap <em>+</em> / <em>Add account</em>.</li>
+          <li>
+            <span class="font-semibold">Scan this QR code</span> with the app.
+            <div data-otpauth="<?= $e($enrollUri) ?>" hidden class="my-3 h-48 w-48 rounded-xl border border-slate-200 bg-white p-2"></div>
+            <details data-otpauth-fallback open class="mt-2 rounded-lg border border-slate-200 p-3">
+              <summary class="cursor-pointer font-semibold text-slate-800">Can’t scan? Enter the key instead</summary>
+              <p class="mt-2">Choose <em>Enter a setup key</em>. Account name: <strong><?= $e($username) ?></strong>. Key (time-based, 6 digits):</p>
+              <code class="mt-1 block select-all break-all rounded-lg bg-slate-100 p-3 font-mono text-base tracking-wider text-slate-900"><?= $e(trim(chunk_split($enrollSecret, 4, ' '))) ?></code>
+              <p class="mt-2 text-xs text-slate-500">On this phone? <a class="text-sky-700 underline" href="<?= $e($enrollUri) ?>">Open the setup link</a> instead.</p>
+            </details>
           </li>
           <li>Enter the 6-digit code the app shows to finish.</li>
         </ol>
+        <script src="/js/vendor/qrcode.js?v=1.4.4" defer></script>
+        <script src="/js/admin-2fa.js?v=<?= $e((string) @filemtime(dirname(__DIR__, 2) . '/public/js/admin-2fa.js')) ?>" defer></script>
         <form method="post" action="/admin/account" class="flex flex-wrap items-end gap-3">
           <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>"><input type="hidden" name="action" value="2fa_confirm">
           <div><label for="confirm_code" class="mb-1 block text-sm font-semibold text-slate-700">Code</label>
