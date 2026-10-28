@@ -1,4 +1,6 @@
 # HaloSec Root-Level Security & Routing Wrapper for Shared Hosting
+# Hostinger Git deployment clones the whole repository into public_html, so this file is the
+# front door: it blocks internal folders and serves everything else from public/.
 Options -Indexes -MultiViews
 
 # 1. Deny direct access to dotfiles (.env, .git, etc.)
@@ -28,7 +30,11 @@ Options -Indexes -MultiViews
     RewriteEngine On
 
     # Block direct web access to internal core directories
-    RewriteRule ^(src|config|views|storage|tests|database|bin)/ - [F,L]
+    RewriteRule ^(src|config|views|storage|tests|database|bin|vendor|docs|designref|resources|node_modules|\.git|\.github)(/|$) - [F,L]
+
+    # One host for search engines: send www to the bare domain
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
 
     # Enforce HTTPS
     RewriteCond %{HTTPS} off

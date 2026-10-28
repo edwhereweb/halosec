@@ -44,7 +44,7 @@ php bin/admin.php create yourname 'long-password' super_admin
 - `POST /admin/logout` (CSRF-protected) destroys the session and cookie. Sessions expire after 30 minutes idle.
 
 Every protected admin action re-checks authentication and authorization and responds with `Cache-Control: no-store`.
-Deployment to Hostinger (folder layout, auto-deploy, cron backups): [docs/deploy-hostinger.md](docs/deploy-hostinger.md).
+Deployment to Hostinger via Git auto-deployment (setup, cron, releases, rollback): [docs/deploy-hostinger.md](docs/deploy-hostinger.md).
 See [docs/admin-dashboard.md](docs/admin-dashboard.md) and [docs/admin-submissions.md](docs/admin-submissions.md) for MySQL setup, roles, migration, and form wiring.
 
 ## Layout

@@ -193,8 +193,17 @@ $post = $_POST;
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 
-$form = static fn (string $type, string $route, string $title, string $tpl): callable
-    => static fn () => $forms->handle($type, $route, $title, $tpl, $method, $post);
+// One URL per page: /about/ -> /about. Only plain paths are redirected, and leading slashes are collapsed,
+// so "//host/" or "/\host/" can't become an open redirect.
+if (in_array($method, ['GET', 'HEAD'], true) && $path !== '/' && str_ends_with($path, '/')
+    && preg_match('#^[A-Za-z0-9/_.-]+$#', $path) === 1) {
+    $query = (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_QUERY);
+    header('Location: /' . trim($path, '/') . ($query !== '' ? '?' . $query : ''), true, 301);
+    exit;
+}
+
+$form = static fn (string $type, string $route, string $title, string $tpl, string $description = '', bool $noindex = false): callable
+    => static fn () => $forms->handle($type, $route, $title, $tpl, $method, $post, null, $description, $noindex);
 
 $router = new Router();
 $router->add('GET', '/', [$pages, 'home']);
@@ -209,10 +218,34 @@ $router->add('GET', '/sitemap.xml', static function (): string {
     return (string) file_get_contents(__DIR__ . '/sitemap.xml');
 });
 foreach (['GET', 'POST'] as $m) {
-    $router->add($m, '/free-audit', $form(Lead::TYPE_AUDIT, '/free-audit', 'Free Cybersecurity Audit', 'pages/audit'));
-    $router->add($m, '/consultation', $form(Lead::TYPE_CONSULTATION, '/consultation', 'Book a Consultation', 'pages/consultation'));
-    $router->add($m, '/under-attack', $form(Lead::TYPE_EMERGENCY, '/under-attack', 'Under a Cyber Attack', 'pages/emergency'));
-    $router->add($m, '/contact', $form(Lead::TYPE_CONTACT, '/contact', 'Contact Us', 'pages/contact'));
+    $router->add($m, '/free-audit', $form(
+        Lead::TYPE_AUDIT,
+        '/free-audit',
+        'Free Cybersecurity Audit for Your Business',
+        'pages/audit',
+        'Get a free, no-obligation cybersecurity audit of your network, cloud and endpoints, with an actionable report from Zoho and Sophos certified architects.',
+    ));
+    $router->add($m, '/consultation', $form(
+        Lead::TYPE_CONSULTATION,
+        '/consultation',
+        'Book a Cybersecurity Consultation',
+        'pages/consultation',
+        'Talk to a senior HaloSec security architect about your infrastructure, compliance posture and security roadmap. Book a consultation online.',
+    ));
+    $router->add($m, '/under-attack', $form(
+        Lead::TYPE_EMERGENCY,
+        '/under-attack',
+        'Under Cyber Attack? 24/7 Incident Response',
+        'pages/emergency',
+        'Ransomware, phishing or a data breach? Call the HaloSec 24/7 incident response hotline or report the attack online for immediate triage and isolation.',
+    ));
+    $router->add($m, '/contact', $form(
+        Lead::TYPE_CONTACT,
+        '/contact',
+        'Contact HaloSec Cybersecurity',
+        'pages/contact',
+        'Contact HaloSec about cybersecurity services, partnerships or general enquiries. Email us, call our hotline or send a message and we will reply promptly.',
+    ));
     $router->add($m, '/services/{slug}', static fn (string $slug) => $forms->handle(
         Lead::TYPE_ENQUIRY,
         '/services/' . $slug,
@@ -223,10 +256,10 @@ foreach (['GET', 'POST'] as $m) {
         $slug,
     ));
 }
-$router->add('GET', '/newsletter', $form(Lead::TYPE_NEWSLETTER, '/newsletter', 'Newsletter', 'pages/newsletter'));
-$router->add('POST', '/newsletter', $form(Lead::TYPE_NEWSLETTER, '/newsletter', 'Newsletter', 'pages/newsletter'));
-$router->add('GET', '/security-report', $form(Lead::TYPE_SECURITY_REPORT, '/security-report', 'Security report', 'pages/emergency'));
-$router->add('POST', '/security-report', $form(Lead::TYPE_SECURITY_REPORT, '/security-report', 'Security report', 'pages/emergency'));
+$router->add('GET', '/newsletter', $form(Lead::TYPE_NEWSLETTER, '/newsletter', 'Newsletter', 'pages/newsletter', '', true));
+$router->add('POST', '/newsletter', $form(Lead::TYPE_NEWSLETTER, '/newsletter', 'Newsletter', 'pages/newsletter', '', true));
+$router->add('GET', '/security-report', $form(Lead::TYPE_SECURITY_REPORT, '/security-report', 'Security report', 'pages/emergency', '', true));
+$router->add('POST', '/security-report', $form(Lead::TYPE_SECURITY_REPORT, '/security-report', 'Security report', 'pages/emergency', '', true));
 
 foreach (['GET', 'POST'] as $m) {
     $router->add($m, '/admin/login', static fn () => $admin->login($method, $post));

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'endpoint-security' => [
+        'meta_description' => 'Centrally managed endpoint security for 5 to hundreds of devices: ransomware rollback, USB and web control, zero-day protection and custom group policies.',
         'title' => 'Endpoint Security Solutions for Your Business',
         'short' => 'Centralized endpoint defense, ransomware rollback, and strict policy management from 5 to hundreds of systems.',
         'icon' => 'EDR',
@@ -17,6 +18,7 @@ return [
         ],
     ],
     'dlp-implementation' => [
+        'meta_description' => 'Data Loss Prevention implementation: discover and classify sensitive data, then enforce DLP policies across endpoints, email, USB, web and cloud.',
         'title' => 'DLP Implementation (Data Loss Prevention)',
         'short' => 'Discover, classify and protect sensitive data before it leaves your organisation.',
         'icon' => 'DLP',
@@ -25,6 +27,8 @@ return [
         'points' => ['Data discovery and classification', 'Policy design for email, USB, web and cloud', 'Incident workflow and reporting', 'Regulatory alignment'],
     ],
     'network-security' => [
+        'seo_title' => 'Network Security Services: Firewalls & Zero Trust',
+        'meta_description' => 'Firewall and UTM deployment, network segmentation, VPN and zero trust access, Wi-Fi and branch security, with traffic monitoring and alerting.',
         'title' => 'Network Security',
         'short' => 'Firewalls, segmentation and monitoring that keep your internal network defensible.',
         'icon' => 'NET',
@@ -33,6 +37,8 @@ return [
         'points' => ['Firewall and UTM deployment', 'Network segmentation and VPN / zero trust access', 'Wi-Fi and branch security', 'Traffic monitoring and alerting'],
     ],
     'security-testing' => [
+        'seo_title' => 'Penetration Testing & Security Testing Services',
+        'meta_description' => 'Web application, API, mobile and network penetration testing (OWASP Top 10) with prioritised, reproducible findings, remediation guidance and retests.',
         'title' => 'Security Testing',
         'short' => 'Web application penetration testing and offensive assessments with actionable fixes.',
         'icon' => 'PEN',
@@ -41,6 +47,8 @@ return [
         'points' => ['Web application penetration testing (OWASP Top 10)', 'API and mobile app testing', 'Internal / external network testing', 'Retest and remediation guidance'],
     ],
     'soc-setup' => [
+        'seo_title' => 'SOC Setup: Build Your Security Operations Center',
+        'meta_description' => 'End-to-end Security Operations Center setup: SIEM / XDR onboarding, detection use cases, alert tuning, incident response playbooks and analyst training.',
         'title' => 'SOC Setup',
         'short' => 'Stand up a Security Operations Center with the tooling, playbooks and people to run it.',
         'icon' => 'SOC',
@@ -49,6 +57,7 @@ return [
         'points' => ['SIEM / XDR design and onboarding', 'Detection use cases and alert tuning', 'Incident response playbooks', 'Analyst enablement and handover'],
     ],
     'digital-vulnerability-assessments' => [
+        'meta_description' => 'Digital vulnerability assessments that rank your exposure with a P-risk score, with executive and technical reports showing what to fix first.',
         'title' => 'Digital Vulnerability Assessments',
         'short' => 'P-risk score based assessments that rank exposure and show where to act first.',
         'icon' => 'P-R',
@@ -57,6 +66,8 @@ return [
         'points' => ['Asset and exposure discovery', 'P-risk score with severity ranking', 'Executive and technical reports', 'Re-assessment to track improvement'],
     ],
     'security-audits' => [
+        'seo_title' => 'Security Audits & Domain Vulnerability Research',
+        'meta_description' => 'Independent security audits plus research into your domains, DNS and email for leaked credentials, spoofing risks and misconfigurations.',
         'title' => 'Security Audits & Client Domain Vulnerability Research',
         'short' => 'Independent audits and research into your domains for leaks, spoofing and weak points.',
         'icon' => 'AUD',
@@ -65,6 +76,8 @@ return [
         'points' => ['Control and policy audit', 'Domain, DNS and email security research', 'Leaked credential and exposure checks', 'Gap report with remediation roadmap'],
     ],
     'security-team-outsourcing' => [
+        'seo_title' => 'Outsourced Security Team: Hire a Security Expert',
+        'meta_description' => 'Hire certified cybersecurity experts (CEH, CompTIA, Sophos) hourly or monthly. Flexible outsourced security team support for SMBs without a full-time hire.',
         'title' => 'Security Team Outsourcing (Hire a Security Team Member)',
         'short' => 'Flexible cybersecurity experts for SMBs. Pay hourly or monthly for certified talent without a full-time hire.',
         'icon' => 'HIRE',
