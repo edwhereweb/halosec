@@ -1,0 +1,14 @@
+{
+  "name": "HaloSec Cybersecurity",
+  "short_name": "HaloSec",
+  "description": "Cybersecurity services, 24/7 SOC monitoring and incident response.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/images/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/images/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/images/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

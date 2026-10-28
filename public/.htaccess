@@ -12,6 +12,12 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
+# Web app manifest and icons
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+    AddType image/x-icon .ico
+</IfModule>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
