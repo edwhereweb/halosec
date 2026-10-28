@@ -27,29 +27,47 @@ final class AdminLayoutTest extends TestCase
     {
         $view = new View(__DIR__ . '/../../views');
         $html = $view->render('pages/admin_submissions', [
-            'title' => 'All Inbox',
+            'title' => 'Inbox',
             'path' => '',
-            'type' => null,
-            'status' => null,
-            'fromDate' => null,
-            'toDate' => null,
-            'assigneeId' => null,
-            'assignees' => [],
-            'total' => 0,
-            'rows' => [],
+            'filters' => ['type' => null, 'status' => 'open', 'statusFilter' => 'open', 'assignee' => null, 'assigneeFilter' => null, 'from' => null, 'to' => null, 'q' => null],
+            'statusCounts' => ['open' => 3, 'new' => 2, 'in_review' => 1, 'resolved' => 0, 'spam' => 0, 'archived' => 0, 'all' => 3],
+            'assignees' => [['id' => 1, 'username' => 'anjali', 'is_active' => 1]],
+            'total' => 1,
+            'rows' => [[
+                'submission_id' => 7,
+                'form_key' => 'emergency',
+                'created_at' => gmdate('Y-m-d H:i:s', time() - 3600),
+                'status' => 'new',
+                'assigned_admin_user_id' => 1,
+                'data' => ['name' => 'Asha Nair', 'company' => 'Nila Hospitals', 'message' => 'Files are encrypted'],
+            ]],
             'page' => 1,
             'pages' => 1,
-            'canManage' => false,
+            'canManage' => true,
+            'saved' => null,
             'csrfToken' => 'test-token',
             'config' => ['name' => 'HaloSec'],
+            'nav' => [
+                'active' => 'inbox',
+                'counts' => ['new' => 2, 'open' => 3, 'unassigned' => 0, 'urgent' => 1, 'mine' => 1, 'stale' => 0],
+                'can' => ['dashboard' => true, 'submissions.read' => true, 'settings.manage' => true, 'security.read' => true, 'audit.read' => true, 'users.manage' => true],
+                'username' => 'anjali',
+                'role' => 'admin',
+                'hasTwoFactor' => true,
+            ],
         ]);
 
         $this->assertStringContainsString('Admin navigation', $html);
-        $this->assertStringContainsString('Content &amp; Settings', $html);
-        $this->assertStringContainsString('Failed Logins', $html);
-        $this->assertStringContainsString('Admin Users / Roles', $html);
-        $this->assertStringContainsString('Assignee', $html);
-        $this->assertStringContainsString('Apply filters', $html);
+        foreach (['Dashboard', 'Analytics', 'Emergencies', 'Assigned to me', 'Website content', 'Security log', 'Audit log', 'Team &amp; roles'] as $label) {
+            $this->assertStringContainsString($label, $html);
+        }
+        $this->assertStringContainsString('1 open emergency', $html);
+        $this->assertStringContainsString('Asha Nair', $html);
+        $this->assertStringContainsString('Files are encrypted', $html);
+        $this->assertStringContainsString('href="/admin/submissions/7"', $html);
+        $this->assertStringContainsString('In progress', $html);
+        $this->assertStringContainsString('data-bulk', $html);
         $this->assertStringNotContainsString('SOC Monitoring 24/7 Active', $html);
+        $this->assertStringContainsString('/js/admin.js', $html);
     }
 }

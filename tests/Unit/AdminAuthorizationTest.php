@@ -61,7 +61,13 @@ final class AdminAuthorizationTest extends TestCase
         );
 
         http_response_code(200);
-        $this->assertStringContainsString('All Inbox', $controller->submissions([]));
+        $inbox = $controller->submissions([]);
+        $this->assertStringContainsString('<h1 class="text-[28px] font-bold tracking-tight text-slate-900">Inbox', $inbox);
+        // Viewers get no links to pages they cannot open.
+        $this->assertStringNotContainsString('href="/admin/users"', $inbox);
+        $this->assertStringNotContainsString('href="/admin/settings"', $inbox);
+        $this->assertStringNotContainsString('href="/admin/audit"', $inbox);
+        $this->assertStringContainsString('href="/admin/analytics"', $inbox);
         $this->assertSame('Forbidden', $controller->settings('GET', []));
         $this->assertSame(403, http_response_code());
         http_response_code(200);

@@ -1,6 +1,6 @@
 <?php $e = static fn (mixed $v): string => HaloSec\View::e($v); ?>
 <section class="mx-auto w-full max-w-5xl space-y-6">
-  <div><p class="text-sm font-semibold text-slate-500">Signed in as <?= $e($username) ?></p><h1 class="mt-1 text-3xl font-bold text-slate-950">My Account</h1></div>
+  <div><h1 class="text-[28px] font-bold tracking-tight text-slate-900">My account</h1><p class="mt-1 text-[15px] text-slate-600">Signed in as <strong class="font-semibold text-slate-900"><?= $e($username) ?></strong>. Manage your password and two-factor sign-in.</p></div>
   <?php if ($requireTwoFactor && !$hasTwoFactor) : ?>
   <p role="alert" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">Two-factor authentication is required for admin accounts. Set it up below to continue to the dashboard.</p>
   <?php endif; ?>

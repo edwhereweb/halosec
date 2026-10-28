@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace HaloSec\Services;
 
+use HaloSec\Admin\Ui;
 use HaloSec\Models\Lead;
 use PDO;
 use Throwable;
@@ -104,8 +105,9 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         ?string $fromDate = null,
         ?string $toDate = null,
         ?string $assigneeId = null,
+        ?string $search = null,
     ): array {
-        [$where, $params] = $this->filters($formKey, $status, $fromDate, $toDate, $assigneeId);
+        [$where, $params] = $this->filters($formKey, $status, $fromDate, $toDate, $assigneeId, $search);
         $offset = (max(1, $page) - 1) * max(1, min($perPage, 100));
         $query = $this->pdo->prepare(
             'SELECT id, form_key, submitted_at, status, assigned_admin_user_id FROM form_submissions'
@@ -127,8 +129,9 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         ?string $fromDate = null,
         ?string $toDate = null,
         ?string $assigneeId = null,
+        ?string $search = null,
     ): int {
-        [$where, $params] = $this->filters($formKey, $status, $fromDate, $toDate, $assigneeId);
+        [$where, $params] = $this->filters($formKey, $status, $fromDate, $toDate, $assigneeId, $search);
         $query = $this->pdo->prepare('SELECT COUNT(*) FROM form_submissions' . $where);
         $query->execute($params);
 
@@ -286,8 +289,9 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
     public function auditLogs(int $limit = 50): array
     {
         $query = $this->runQuery(
-            'SELECT actor_user_id, action, entity_type, entity_id, details, created_at FROM admin_audit_logs ORDER BY created_at DESC LIMIT '
-            . max(1, min($limit, 100)),
+            'SELECT a.actor_user_id, u.username AS actor_username, a.action, a.entity_type, a.entity_id, a.details, a.created_at
+             FROM admin_audit_logs a LEFT JOIN admin_users u ON u.id = a.actor_user_id ORDER BY a.created_at DESC, a.id DESC LIMIT '
+            . max(1, min($limit, 200)),
         );
 
         return $query->fetchAll();
@@ -342,8 +346,18 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
              FROM admin_users u
              WHERE u.deleted_at IS NULL ORDER BY u.username",
         );
+        $users = $query->fetchAll();
+        $withTwoFactor = [];
+        try {
+            // totp_secret arrives with migration 002; older databases simply show 2FA as off.
+            $withTwoFactor = array_map('intval', $this->runQuery('SELECT id FROM admin_users WHERE totp_secret IS NOT NULL')->fetchAll(\PDO::FETCH_COLUMN));
+        } catch (\Throwable) {
+        }
+        foreach ($users as $i => $user) {
+            $users[$i]['has_two_factor'] = in_array((int) $user['id'], $withTwoFactor, true);
+        }
 
-        return $query->fetchAll();
+        return $users;
     }
 
     public function createAdminUser(string $username, string $password, string $role, ?int $actorId): bool
@@ -528,6 +542,168 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         return true;
     }
 
+    public function analyticsRows(string $fromUtc): array
+    {
+        $query = $this->pdo->prepare(
+            'SELECT form_key, status, submitted_at, assigned_admin_user_id FROM form_submissions
+             WHERE submitted_at >= :from ORDER BY submitted_at LIMIT 50000',
+        );
+        $query->execute(['from' => $fromUtc]);
+        $rows = [];
+        foreach ($query->fetchAll() as $row) {
+            $rows[] = [
+                'form_key' => (string) $row['form_key'],
+                'status' => (string) $row['status'],
+                'submitted_at' => (string) $row['submitted_at'],
+                'assigned_admin_user_id' => $row['assigned_admin_user_id'] === null ? null : (int) $row['assigned_admin_user_id'],
+            ];
+        }
+
+        return $rows;
+    }
+
+    public function fieldValues(array $formKeys, string $fieldKey, string $fromUtc): array
+    {
+        $formKeys = array_values(array_intersect($formKeys, Lead::TYPES));
+        if ($formKeys === []) {
+            return [];
+        }
+        $placeholders = [];
+        $params = ['field_key' => $fieldKey, 'from' => $fromUtc];
+        foreach ($formKeys as $i => $key) {
+            $placeholders[] = ':form_' . $i;
+            $params['form_' . $i] = $key;
+        }
+        $query = $this->pdo->prepare(
+            "SELECT f.field_value FROM form_submission_fields f JOIN form_submissions s ON s.id = f.submission_id
+             WHERE f.field_key = :field_key AND s.submitted_at >= :from AND s.status <> 'spam'
+             AND s.form_key IN (" . implode(', ', $placeholders) . ') LIMIT 50000',
+        );
+        $query->execute($params);
+        $values = [];
+        foreach ($query->fetchAll(\PDO::FETCH_COLUMN) as $raw) {
+            $decoded = json_decode((string) $raw, true);
+            if (is_scalar($decoded)) {
+                $values[] = (string) $decoded;
+            }
+        }
+
+        return $values;
+    }
+
+    public function firstResponses(string $fromUtc): array
+    {
+        $query = $this->pdo->prepare(
+            "SELECT s.submitted_at, MIN(a.created_at) AS first_action_at
+             FROM form_submissions s
+             JOIN admin_audit_logs a ON a.entity_type = 'form_submission' AND a.entity_id = s.id
+             WHERE s.submitted_at >= :from AND s.form_key <> 'newsletter'
+             GROUP BY s.id, s.submitted_at",
+        );
+        $query->execute(['from' => $fromUtc]);
+        $pairs = [];
+        foreach ($query->fetchAll() as $row) {
+            $pairs[] = ['submitted_at' => (string) $row['submitted_at'], 'first_action_at' => (string) $row['first_action_at']];
+        }
+
+        return $pairs;
+    }
+
+    public function failedLoginCount(string $fromUtc): int
+    {
+        $query = $this->pdo->prepare('SELECT COUNT(*) FROM failed_login_attempts WHERE attempted_at >= :from');
+        $query->execute(['from' => $fromUtc]);
+
+        return (int) $query->fetchColumn();
+    }
+
+    public function navCounts(?int $userId): array
+    {
+        $query = $this->pdo->prepare(
+            "SELECT
+                SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) AS new_count,
+                SUM(CASE WHEN status IN ('new', 'in_review') THEN 1 ELSE 0 END) AS open_count,
+                SUM(CASE WHEN status IN ('new', 'in_review') AND assigned_admin_user_id IS NULL THEN 1 ELSE 0 END) AS unassigned_count,
+                SUM(CASE WHEN status IN ('new', 'in_review') AND form_key IN ('emergency', 'security_report') THEN 1 ELSE 0 END) AS urgent_count,
+                SUM(CASE WHEN status IN ('new', 'in_review') AND assigned_admin_user_id = :me THEN 1 ELSE 0 END) AS mine_count,
+                SUM(CASE WHEN status IN ('new', 'in_review') AND submitted_at < :stale THEN 1 ELSE 0 END) AS stale_count
+             FROM form_submissions",
+        );
+        $query->execute(['me' => $userId ?? 0, 'stale' => gmdate('Y-m-d H:i:s', time() - 86400)]);
+        $row = $query->fetch() ?: [];
+
+        return [
+            'new' => (int) ($row['new_count'] ?? 0),
+            'open' => (int) ($row['open_count'] ?? 0),
+            'unassigned' => (int) ($row['unassigned_count'] ?? 0),
+            'urgent' => (int) ($row['urgent_count'] ?? 0),
+            'mine' => (int) ($row['mine_count'] ?? 0),
+            'stale' => (int) ($row['stale_count'] ?? 0),
+        ];
+    }
+
+    public function statusCounts(?string $formKey, ?string $assigneeId = null, ?string $search = null): array
+    {
+        [$where, $params] = $this->filters($formKey, null, null, null, $assigneeId, $search);
+        $query = $this->pdo->prepare('SELECT status, COUNT(*) AS total FROM form_submissions' . $where . ' GROUP BY status');
+        $query->execute($params);
+        $counts = array_fill_keys(self::STATUSES, 0);
+        foreach ($query->fetchAll() as $row) {
+            if (isset($counts[$row['status']])) {
+                $counts[$row['status']] = (int) $row['total'];
+            }
+        }
+
+        return $counts;
+    }
+
+    public function timeline(int $submissionId): array
+    {
+        $names = [];
+        foreach ($this->adminUsers() as $user) {
+            $names[(int) $user['id']] = (string) $user['username'];
+        }
+        $actor = static fn (mixed $id): string => $id === null ? 'System' : ($names[(int) $id] ?? 'Former team member');
+        $entries = [];
+        $notes = $this->pdo->prepare('SELECT note, actor_user_id, created_at FROM admin_submission_notes WHERE submission_id = :id');
+        $notes->execute(['id' => $submissionId]);
+        foreach ($notes->fetchAll() as $row) {
+            $entries[] = ['kind' => 'note', 'actor' => $actor($row['actor_user_id']), 'text' => (string) $row['note'], 'created_at' => (string) $row['created_at']];
+        }
+        $actions = $this->pdo->prepare(
+            "SELECT action, actor_user_id, details, created_at FROM admin_audit_logs
+             WHERE entity_type = 'form_submission' AND entity_id = :id AND action <> 'submission.note_added'",
+        );
+        $actions->execute(['id' => $submissionId]);
+        foreach ($actions->fetchAll() as $row) {
+            $details = json_decode((string) ($row['details'] ?? ''), true);
+            $details = is_array($details) ? $details : [];
+            $text = match ((string) $row['action']) {
+                'submission.status_changed' => 'Status → ' . Ui::statusLabel((string) ($details['status'] ?? '')),
+                'submission.assigned' => ($details['assignee_id'] ?? null) === null
+                    ? 'Unassigned'
+                    : 'Assigned to ' . ($names[(int) $details['assignee_id']] ?? 'a former team member'),
+                default => Ui::actionLabel((string) $row['action']),
+            };
+            $entries[] = ['kind' => 'event', 'actor' => $actor($row['actor_user_id']), 'text' => $text, 'created_at' => (string) $row['created_at']];
+        }
+        usort($entries, static fn (array $a, array $b): int => strcmp($b['created_at'], $a['created_at']));
+
+        return $entries;
+    }
+
+    public function neighbours(int $submissionId): array
+    {
+        $older = $this->pdo->prepare('SELECT id FROM form_submissions WHERE id < :id ORDER BY id DESC LIMIT 1');
+        $older->execute(['id' => $submissionId]);
+        $newer = $this->pdo->prepare('SELECT id FROM form_submissions WHERE id > :id ORDER BY id ASC LIMIT 1');
+        $newer->execute(['id' => $submissionId]);
+        $o = $older->fetchColumn();
+        $n = $newer->fetchColumn();
+
+        return ['older' => $o === false ? null : (int) $o, 'newer' => $n === false ? null : (int) $n];
+    }
+
     /**
      * @param array<string, mixed> $row
      * @return array<string, mixed>
@@ -556,23 +732,40 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         ];
     }
 
-    /** @return array{string, array<string, string>} */
+    /** @return array{string, array<string, int|string>} */
     private function filters(
         ?string $formKey,
         ?string $status,
         ?string $fromDate,
         ?string $toDate,
         ?string $assigneeId = null,
+        ?string $search = null,
     ): array {
         $where = [];
         $params = [];
-        if ($formKey !== null && in_array($formKey, Lead::TYPES, true)) {
+        if ($formKey === 'urgent') {
+            $where[] = "form_key IN ('emergency', 'security_report')";
+        } elseif ($formKey !== null && in_array($formKey, Lead::TYPES, true)) {
             $where[] = 'form_key = :form_key';
             $params['form_key'] = $formKey;
         }
-        if ($status !== null && in_array($status, self::STATUSES, true)) {
+        if ($status === 'open') {
+            $where[] = "status IN ('new', 'in_review')";
+        } elseif ($status !== null && in_array($status, self::STATUSES, true)) {
             $where[] = 'status = :status';
             $params['status'] = $status;
+        }
+        $search = $search === null ? '' : trim($search);
+        if ($search !== '') {
+            if (preg_match('/^#?(\d{1,12})$/', $search, $m) === 1) {
+                $where[] = 'id = :search_id';
+                $params['search_id'] = (int) $m[1];
+            } else {
+                // Field values are stored JSON-encoded, so a plain LIKE matches inside them.
+                $like = '%' . strtr(mb_substr($search, 0, 100), ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+                $where[] = "id IN (SELECT submission_id FROM form_submission_fields WHERE field_value LIKE :search ESCAPE '!')";
+                $params['search'] = $like;
+            }
         }
         if ($this->isDate($fromDate)) {
             $where[] = 'submitted_at >= :from_date';

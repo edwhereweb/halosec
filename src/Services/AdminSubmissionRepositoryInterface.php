@@ -15,6 +15,7 @@ interface AdminSubmissionRepositoryInterface extends LeadStorageInterface, LeadR
         ?string $fromDate = null,
         ?string $toDate = null,
         ?string $assigneeId = null,
+        ?string $search = null,
     ): array;
 
     public function submissionCount(
@@ -23,6 +24,7 @@ interface AdminSubmissionRepositoryInterface extends LeadStorageInterface, LeadR
         ?string $fromDate = null,
         ?string $toDate = null,
         ?string $assigneeId = null,
+        ?string $search = null,
     ): int;
 
     /** @return array<string, mixed>|null */
@@ -67,4 +69,37 @@ interface AdminSubmissionRepositoryInterface extends LeadStorageInterface, LeadR
     public function contentBlocks(): array;
 
     public function updateContentBlock(string $key, string $content, bool $active, ?int $actorId): bool;
+
+    /**
+     * Lightweight rows for analytics since a UTC time.
+     *
+     * @return list<array{form_key: string, status: string, submitted_at: string, assigned_admin_user_id: int|null}>
+     */
+    public function analyticsRows(string $fromUtc): array;
+
+    /**
+     * Decoded scalar values of one field (e.g. "industry") on non-spam submissions of the given forms.
+     *
+     * @param list<string> $formKeys
+     *
+     * @return list<string>
+     */
+    public function fieldValues(array $formKeys, string $fieldKey, string $fromUtc): array;
+
+    /** @return list<array{submitted_at: string, first_action_at: string}> */
+    public function firstResponses(string $fromUtc): array;
+
+    public function failedLoginCount(string $fromUtc): int;
+
+    /** @return array{new: int, open: int, unassigned: int, urgent: int, mine: int, stale: int} */
+    public function navCounts(?int $userId): array;
+
+    /** @return array<string, int> status => count for the given filters */
+    public function statusCounts(?string $formKey, ?string $assigneeId = null, ?string $search = null): array;
+
+    /** @return list<array{kind: string, actor: string, text: string, created_at: string}> newest first */
+    public function timeline(int $submissionId): array;
+
+    /** @return array{older: int|null, newer: int|null} */
+    public function neighbours(int $submissionId): array;
 }

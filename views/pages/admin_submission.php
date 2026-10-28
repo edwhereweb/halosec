@@ -1,56 +1,206 @@
-<?php $e = static fn (mixed $v): string => HaloSec\View::e($v); ?>
-<?php $statusStyles = ['new' => 'bg-sky-50 text-sky-800', 'in_review' => 'bg-amber-50 text-amber-800', 'resolved' => 'bg-emerald-50 text-emerald-800', 'spam' => 'bg-slate-100 text-slate-700', 'archived' => 'bg-slate-100 text-slate-600']; ?>
-<section class="mx-auto w-full max-w-7xl space-y-5">
-  <a class="inline-flex rounded text-sm font-semibold text-sky-800 hover:underline" href="/admin/submissions">← All Inbox</a>
-  <div class="mt-4 grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
-    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div><span class="text-xs font-bold uppercase tracking-widest text-sky-700"><?= $e($submission['form_key']) ?></span><h1 class="mt-1 text-2xl font-bold text-slate-900">Submission #<?= $e($submission['submission_id']) ?></h1></div>
-        <span class="rounded-full px-3 py-1.5 text-xs font-bold capitalize <?= $e($statusStyles[$submission['status']] ?? 'bg-slate-100 text-slate-700') ?>"><?= $e(str_replace('_', ' ', $submission['status'])) ?></span>
-      </div>
-      <p class="mt-2 text-sm text-slate-500">Received <?= $e($submission['created_at']) ?> UTC</p>
-      <dl class="mt-7 space-y-5">
-        <?php foreach ($submission['data'] as $key => $value) : ?>
-        <div><dt class="text-xs font-semibold uppercase tracking-wider text-slate-500"><?= $e(str_replace('_', ' ', (string) $key)) ?></dt><dd class="mt-1 break-words whitespace-pre-wrap text-sm text-slate-900"><?= $e(is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value) ?></dd></div>
-        <?php endforeach; ?>
-      </dl>
-    </article>
-    <aside class="space-y-5">
-      <?php if ($canManage) : ?><form method="post" action="/admin/submissions/<?= $e($submission['submission_id']) ?>/status" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
-        <label for="submission_status" class="mb-2 block text-sm font-bold text-slate-900">Update status</label>
-        <select id="submission_status" name="status" class="mb-3 w-full rounded-xl border-slate-300 text-sm">
-          <?php foreach (['new', 'in_review', 'resolved', 'spam', 'archived'] as $status) : ?>
-          <option value="<?= $e($status) ?>" <?= $submission['status'] === $status ? 'selected' : '' ?>><?= $e(str_replace('_', ' ', ucfirst($status))) ?></option>
-          <?php endforeach; ?>
-        </select>
-        <button class="w-full rounded-full bg-slate-900 px-4 py-2.5 text-xs font-bold uppercase text-white" type="submit">Save status</button>
-      </form>
+<?php
+use HaloSec\Admin\Ui;
+
+$e = static fn (mixed $v): string => HaloSec\View::e($v);
+$data = is_array($submission['data'] ?? null) ? $submission['data'] : [];
+$id = (int) $submission['submission_id'];
+$formKey = (string) $submission['form_key'];
+$status = (string) $submission['status'];
+$urgent = Ui::isUrgent($formKey, $status);
+$str = static fn (string $key): string => is_scalar($data[$key] ?? null) ? trim((string) $data[$key]) : '';
+$email = $str('email');
+$phone = $str('phone');
+$website = $str('company_website');
+$name = Ui::contactName($data);
+$owner = null;
+foreach ($users as $user) {
+    if ((int) $user['id'] === (int) ($submission['assigned_admin_user_id'] ?? 0)) {
+        $owner = $user;
+    }
+}
+$subject = 'Re: your ' . strtolower(Ui::formLabel($formKey)) . ' request to HaloSec';
+$serviceName = static function (string $slug) use ($services): string {
+    $service = $services[$slug] ?? null;
+
+    return is_array($service) ? (string) ($service['nav_label'] ?? $service['title'] ?? $slug) : $slug;
+};
+$details = [];
+foreach ($data as $key => $value) {
+    if (in_array($key, ['name', 'email', 'phone', 'company', 'message', 'answers', 'score', 'company_website'], true) || !is_scalar($value) || trim((string) $value) === '') {
+        continue;
+    }
+    $details[Ui::fieldLabel((string) $key)] = $key === 'service' ? $serviceName((string) $value) : (string) $value;
+}
+$answers = is_array($data['answers'] ?? null) ? $data['answers'] : [];
+$score = is_numeric($data['score'] ?? null) ? (int) $data['score'] : null;
+$answerStyle = static fn (string $a): string => match ($a) {
+    'yes' => 'bg-emerald-100 text-emerald-900',
+    'partial' => 'bg-amber-100 text-amber-900',
+    'no' => 'bg-red-100 text-red-900',
+    default => 'bg-slate-100 text-slate-700',
+};
+$statusButtons = ['new' => 'New', 'in_review' => 'In progress', 'resolved' => 'Done', 'archived' => 'Archived', 'spam' => 'Spam'];
+?>
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
+  <div class="flex items-center justify-between gap-3">
+    <a class="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 no-underline hover:text-slate-900" href="/admin/submissions">← Inbox</a>
+    <div class="flex items-center gap-1 text-sm">
+      <span class="mr-2 text-slate-400">#<?= $e($id) ?></span>
+      <?php if ($neighbours['newer'] !== null) : ?><a class="rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-semibold text-slate-600 no-underline hover:bg-slate-50" href="/admin/submissions/<?= $e($neighbours['newer']) ?>" title="Newer request">↑ Newer</a><?php endif; ?>
+      <?php if ($neighbours['older'] !== null) : ?><a class="rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-semibold text-slate-600 no-underline hover:bg-slate-50" href="/admin/submissions/<?= $e($neighbours['older']) ?>" title="Older request">↓ Older</a><?php endif; ?>
+    </div>
+  </div>
+
+  <?php if ($flashMessage !== null) : ?>
+  <p role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">✓ <?= $e($flashMessage) ?></p>
+  <?php endif; ?>
+
+  <?php if ($urgent) : ?>
+  <div class="flex flex-wrap items-center gap-3 rounded-2xl bg-red-600 px-5 py-4 text-white">
+    <svg aria-hidden="true" class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg>
+    <p class="flex-1 text-sm font-semibold"><?= $status === 'new'
+        ? 'Live incident. Call ' . $e($name) . ' back now, then set the status to In progress so the team knows it’s being handled.'
+        : 'Incident in progress. Keep ' . $e($name) . ' updated and mark it Done once they are safe.' ?></p>
+    <?php if ($phone !== '') : ?><a href="tel:<?= $e(preg_replace('/[^0-9+]/', '', $phone)) ?>" class="rounded-lg bg-white px-4 py-2 text-sm font-bold text-red-700 no-underline hover:bg-red-50">Call <?= $e($phone) ?></a><?php endif; ?>
+  </div>
+  <?php endif; ?>
+
+  <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div class="flex min-w-0 flex-col gap-5">
+      <section class="rounded-2xl border border-slate-200 bg-white p-6">
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+          <span class="inline-flex items-center gap-1.5 font-semibold text-slate-700"><span class="h-2 w-2 rounded-full <?= Ui::formDot($formKey) ?>" aria-hidden="true"></span><?= $e(Ui::formLabel($formKey)) ?></span>
+          <span class="text-slate-300">·</span>
+          <time class="text-slate-500" datetime="<?= $e($submission['created_at']) ?>"><?= $e(Ui::dateTime((string) $submission['created_at'])) ?> <?= $e(Ui::zoneAbbr()) ?> (<?= $e(Ui::ago((string) $submission['created_at'])) ?>)</time>
+          <span class="ml-auto rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset <?= Ui::statusClass($status) ?>"><?= $e(Ui::statusLabel($status)) ?></span>
+        </div>
+        <h1 class="mt-3 text-[26px] font-bold tracking-tight text-slate-900"><?= $e($name) ?></h1>
+        <?php if ($str('company') !== '' && $str('company') !== $name) : ?><p class="text-[15px] text-slate-600"><?= $e($str('company')) ?></p><?php endif; ?>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <?php if ($email !== '') : ?>
+          <a href="mailto:<?= $e($email) ?>?subject=<?= $e(rawurlencode($subject)) ?>" class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white no-underline hover:bg-slate-700">
+            <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>Reply by email
+          </a>
+          <?php endif; ?>
+          <?php if ($phone !== '') : ?>
+          <a href="tel:<?= $e(preg_replace('/[^0-9+]/', '', $phone)) ?>" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-700 no-underline hover:bg-slate-50">
+            <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>Call <?= $e($phone) ?>
+          </a>
+          <?php endif; ?>
+          <?php if ($email !== '') : ?><button type="button" data-copy="<?= $e($email) ?>" class="rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Copy email</button><?php endif; ?>
+          <?php if ($website !== '' && preg_match('#^https?://#i', $website) === 1) : ?><a href="<?= $e($website) ?>" target="_blank" rel="noopener noreferrer nofollow" class="rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-700 no-underline hover:bg-slate-50">Visit website ↗</a><?php endif; ?>
+        </div>
+
+        <dl class="mt-6 grid gap-x-6 gap-y-3 border-t border-slate-100 pt-5 text-sm sm:grid-cols-2">
+          <?php if ($email !== '') : ?><div><dt class="text-xs font-semibold text-slate-500">Email</dt><dd class="break-all text-slate-900"><?= $e($email) ?></dd></div><?php endif; ?>
+          <?php if ($phone !== '') : ?><div><dt class="text-xs font-semibold text-slate-500">Phone</dt><dd class="text-slate-900"><?= $e($phone) ?></dd></div><?php endif; ?>
+          <?php if ($website !== '') : ?><div><dt class="text-xs font-semibold text-slate-500">Website</dt><dd class="break-all text-slate-900"><?= $e($website) ?></dd></div><?php endif; ?>
+          <?php foreach ($details as $label => $value) : ?><div><dt class="text-xs font-semibold text-slate-500"><?= $e($label) ?></dt><dd class="whitespace-pre-wrap break-words text-slate-900"><?= $e($value) ?></dd></div><?php endforeach; ?>
+        </dl>
+      </section>
+
+      <?php if ($str('message') !== '') : ?>
+      <section class="rounded-2xl border border-slate-200 bg-white p-6" aria-labelledby="msg">
+        <h2 id="msg" class="text-sm font-bold text-slate-900">Message</h2>
+        <p class="mt-3 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-slate-800"><?= $e($str('message')) ?></p>
+      </section>
       <?php endif; ?>
-      <?php if ($canAssign) : ?><form method="post" action="/admin/submissions/<?= $e($submission['submission_id']) ?>/assignment" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
-        <label for="assignee" class="mb-2 block text-sm font-bold text-slate-900">Assigned admin</label>
-        <select id="assignee" name="assigned_admin_user_id" class="mb-3 w-full rounded-xl border-slate-300 text-sm">
-          <option value="">Unassigned</option><?php foreach ($users as $user) : if ((int) $user['is_active'] === 1) : ?>
-          <option value="<?= $e($user['id']) ?>" <?= (int) $submission['assigned_admin_user_id'] === (int) $user['id'] ? 'selected' : '' ?>><?= $e($user['username']) ?></option>
-          <?php endif; endforeach; ?>
-        </select>
-        <button class="w-full rounded-full border border-slate-300 px-4 py-2.5 text-xs font-bold uppercase text-slate-800" type="submit">Update assignment</button>
-      </form>
-      <?php endif; ?>
-      <?php if ($canManage) : ?><form method="post" action="/admin/submissions/<?= $e($submission['submission_id']) ?>/notes" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
-        <label for="internal_note" class="mb-2 block text-sm font-bold text-slate-900">Internal note</label>
-        <textarea id="internal_note" name="note" rows="3" maxlength="4000" required class="mb-3 w-full rounded-xl border-slate-300 text-sm"></textarea>
-        <button class="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700" type="submit">Add note</button>
-      </form>
-      <?php endif; ?>
-      <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 class="font-bold text-slate-900">Internal history</h2>
-        <?php if ($notes === []) : ?><p class="mt-3 text-sm text-slate-500">No notes yet.</p><?php else : ?>
-        <ol class="mt-3 space-y-3"><?php foreach ($notes as $note) : ?><li class="border-t border-slate-100 pt-3"><p class="whitespace-pre-wrap break-words text-sm text-slate-800"><?= $e($note['note']) ?></p><time class="mt-1 block text-xs text-slate-500"><?= $e($note['created_at']) ?></time></li><?php endforeach; ?></ol>
+
+      <?php if ($score !== null || $answers !== []) : ?>
+      <section class="rounded-2xl border border-slate-200 bg-white p-6" aria-labelledby="auditres">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <h2 id="auditres" class="text-sm font-bold text-slate-900">Audit answers</h2>
+          <?php if ($score !== null) : ?>
+          <?php $band = $score < 40 ? ['Weak', 'bg-red-600', 'text-red-800'] : ($score < 70 ? ['Fair', 'bg-amber-500', 'text-amber-900'] : ['Strong', 'bg-emerald-600', 'text-emerald-800']); ?>
+          <p class="text-sm"><span class="text-2xl font-bold text-slate-900"><?= $e($score) ?></span><span class="text-slate-500">/100</span> <span class="ml-1 font-semibold <?= $band[2] ?>"><?= $e($band[0]) ?></span></p>
+          <?php endif; ?>
+        </div>
+        <?php if ($score !== null) : ?>
+        <div class="mt-3 h-2 rounded-full bg-slate-100" role="img" aria-label="Security score <?= $e($score) ?> out of 100"><div class="h-2 rounded-full <?= $band[1] ?>" style="width: <?= max(2, $score) ?>%"></div></div>
         <?php endif; ?>
+        <?php if ($answers !== []) : ?>
+        <ul class="mt-5 divide-y divide-slate-100">
+          <?php foreach ($answers as $key => $answer) : ?>
+          <li class="flex items-start justify-between gap-4 py-2.5 text-sm">
+            <span class="text-slate-700"><?= $e($auditQuestions[$key] ?? Ui::fieldLabel((string) $key)) ?></span>
+            <span class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold <?= $answerStyle((string) $answer) ?>"><?= $e($auditOptions[$answer] ?? ucfirst((string) $answer)) ?></span>
+          </li>
+          <?php endforeach; ?>
+        </ul>
+        <?php endif; ?>
+      </section>
+      <?php endif; ?>
+    </div>
+
+    <aside class="flex flex-col gap-5">
+      <section class="rounded-2xl border border-slate-200 bg-white p-5" aria-labelledby="st">
+        <h2 id="st" class="text-sm font-bold text-slate-900">Status</h2>
+        <?php if ($canManage) : ?>
+        <form method="post" action="/admin/submissions/<?= $e($id) ?>/status" class="mt-3 flex flex-wrap gap-1.5">
+          <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
+          <?php foreach ($statusButtons as $key => $label) : ?>
+          <button type="submit" name="status" value="<?= $e($key) ?>" <?= $key === $status ? 'aria-pressed="true" disabled' : 'aria-pressed="false"' ?> <?= $key === 'spam' ? 'data-confirm="Mark this request as spam?"' : '' ?>
+            class="rounded-lg px-3 py-1.5 text-sm font-semibold <?= $key === $status ? 'bg-slate-900 text-white' : ($key === 'spam' ? 'border border-slate-200 text-red-700 hover:bg-red-50' : 'border border-slate-200 text-slate-700 hover:bg-slate-50') ?>"><?= $e($label) ?></button>
+          <?php endforeach; ?>
+        </form>
+        <?php else : ?>
+        <p class="mt-2"><span class="rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset <?= Ui::statusClass($status) ?>"><?= $e(Ui::statusLabel($status)) ?></span></p>
+        <?php endif; ?>
+      </section>
+
+      <section class="rounded-2xl border border-slate-200 bg-white p-5" aria-labelledby="own">
+        <h2 id="own" class="text-sm font-bold text-slate-900">Owner</h2>
+        <p class="mt-2 text-sm text-slate-700"><?= $owner === null ? '<span class="text-slate-500">Nobody yet</span>' : $e($owner['username']) ?></p>
+        <?php if ($canAssign) : ?>
+        <form method="post" action="/admin/submissions/<?= $e($id) ?>/assignment" class="mt-3 flex flex-col gap-2">
+          <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
+          <?php if ((int) ($submission['assigned_admin_user_id'] ?? 0) !== (int) $me) : ?>
+          <button type="submit" name="assigned_admin_user_id" value="me" class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700">Assign to me</button>
+          <?php endif; ?>
+          <div class="flex gap-2">
+            <label for="assignee" class="sr-only">Assign to</label>
+            <select id="assignee" name="assigned_admin_user_id" class="h-9 min-w-0 flex-1 rounded-lg border-slate-200 text-sm">
+              <option value="">Nobody</option>
+              <?php foreach ($users as $user) : if ((int) $user['is_active'] !== 1) { continue; } ?>
+              <option value="<?= $e($user['id']) ?>" <?= (int) ($submission['assigned_admin_user_id'] ?? 0) === (int) $user['id'] ? 'selected' : '' ?>><?= $e($user['username']) ?></option>
+              <?php endforeach; ?>
+            </select>
+            <button type="submit" class="rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Save</button>
+          </div>
+        </form>
+        <?php endif; ?>
+      </section>
+
+      <section class="rounded-2xl border border-slate-200 bg-white p-5" aria-labelledby="act">
+        <h2 id="act" class="text-sm font-bold text-slate-900">Activity</h2>
+        <?php if ($canManage) : ?>
+        <form method="post" action="/admin/submissions/<?= $e($id) ?>/notes" class="mt-3 flex flex-col gap-2">
+          <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
+          <label for="internal_note" class="sr-only">Add an internal note</label>
+          <textarea id="internal_note" name="note" rows="3" maxlength="4000" required placeholder="Add a note for the team (not sent to the customer)" class="w-full rounded-lg border-slate-200 text-sm placeholder:text-slate-400"></textarea>
+          <button class="self-end rounded-lg bg-slate-900 px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-slate-700" type="submit">Add note</button>
+        </form>
+        <?php endif; ?>
+        <ol class="mt-4 flex flex-col gap-4 border-l-2 border-slate-100 pl-4">
+          <?php foreach ($timeline as $entry) : ?>
+          <li class="relative">
+            <span class="absolute -left-[23px] top-1 h-3 w-3 rounded-full border-2 border-white <?= $entry['kind'] === 'note' ? 'bg-sky-500' : 'bg-slate-300' ?>" aria-hidden="true"></span>
+            <p class="text-xs text-slate-500"><strong class="font-semibold text-slate-700"><?= $e($entry['actor']) ?></strong> · <time datetime="<?= $e($entry['created_at']) ?>" title="<?= $e(Ui::dateTime($entry['created_at'])) ?>"><?= $e(Ui::ago($entry['created_at'])) ?></time></p>
+            <?php if ($entry['kind'] === 'note') : ?>
+            <p class="mt-1 whitespace-pre-wrap break-words rounded-lg bg-sky-50 px-3 py-2 text-sm text-slate-800"><?= $e($entry['text']) ?></p>
+            <?php else : ?>
+            <p class="mt-0.5 text-sm text-slate-700"><?= $e($entry['text']) ?></p>
+            <?php endif; ?>
+          </li>
+          <?php endforeach; ?>
+          <li class="relative">
+            <span class="absolute -left-[23px] top-1 h-3 w-3 rounded-full border-2 border-white bg-lime-500" aria-hidden="true"></span>
+            <p class="text-xs text-slate-500"><strong class="font-semibold text-slate-700">Website form</strong> · <?= $e(Ui::ago((string) $submission['created_at'])) ?></p>
+            <p class="mt-0.5 text-sm text-slate-700">Request received</p>
+          </li>
+        </ol>
       </section>
     </aside>
   </div>
-</section>
+</div>

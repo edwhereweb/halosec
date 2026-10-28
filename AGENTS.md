@@ -93,6 +93,15 @@ Calm, product-led design inspired by Apple and Google (large type, generous whit
 ### Editable content blocks (admin → Content & Settings)
 `home.hero_headline_1` / `_2` / `_3` (hero lines, `_2` gets the marker), `home.hero_prefix` + `home.hero_title` (Securious tagline), `home.audit_cta_label`, `home.emergency_banner_enabled`.
 
+## Admin area
+
+* **Shell & navigation**: `views/partials/admin/shell.php` (sidebar grouped Overview / Inbox / Website / Security, top-bar search, live counts). Every admin page is rendered through `AdminController::render($template, $activeNavKey, $data)` so the shell gets the signed-in user, permissions and counts. Links a role cannot use are hidden.
+* **Pages**: Dashboard (`/admin`: needs-attention, last 30 days), Analytics (`/admin/analytics?range=7|30|90|365`), Inbox (`/admin/submissions`: status tabs, search `q`, `type=urgent`, `assignee=me|unassigned|<id>`, bulk actions), submission detail (one-click status, assign to me, notes + activity timeline), Website content (`/admin/settings`: labelled editor for every home-page content block), Security log, Audit log, Team & roles, My account.
+* **Numbers**: `src/Services/AdminAnalytics.php` (pure PHP, unit-tested) turns rows from `PdoLeadStorage::analyticsRows()` into trends, breakdowns and comparisons. Percent changes are hidden when the earlier period has fewer than 5.
+* **Charts**: `views/partials/admin/chart_columns.php`, `bar_list.php`, `heatmap.php`, `stat.php`. One colour per chart (`#2a78d6`), sequential blue ramp for the heatmap, hover tooltips via `[data-tip]`, and a table view for every chart. No chart library.
+* **Labels & time**: `src/Admin/Ui.php` maps keys to human labels ("In progress", "Security report") and shows UTC times in `ADMIN_TIMEZONE` (default Asia/Kolkata).
+* **Behaviour**: `public/js/admin.js` (tooltips, `/` to search, auto-applying filters, bulk selection, copy buttons, confirmations). Progressive enhancement only.
+
 ## SEO
 
 * Page `<title>`, meta description, canonical and robots tags are set in `views/layout.php` from the `title`, `description`, `path` and `noindex` values each controller passes. Every indexable page needs its own description (160 characters or fewer).
