@@ -42,8 +42,7 @@ final class FormController
         ?string $slug = null,
         string $description = '',
         bool $noindex = false,
-    ): string|int
-    {
+    ): string|int {
         $data = [
             'title' => $title,
             'path' => $path,
