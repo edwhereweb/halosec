@@ -131,7 +131,7 @@ $e = static fn (mixed $v): string => HaloSec\View::e($v);
           'messageLabel' => 'How can we help?',
           'messageHint' => 'Operating systems, current antivirus, anything we should know.',
           'btnLabel' => 'Send enquiry',
-          'notes' => ['Minimum 5 systems to deploy', 'Certified Sophos Silver & Zoho Partner', 'No disruption to employee productivity'],
+          'notes' => ['Minimum 5 systems to deploy', 'Accredited Sophos Endpoint & XDR Partner', 'No disruption to employee productivity'],
           'flash' => $flash,
           'formAction' => $formAction,
           'old' => $old,

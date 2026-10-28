@@ -19,7 +19,7 @@ $pageTitle = isset($title) && $title !== '' && $title !== $siteName
     ? $title . ' | ' . $siteName
     : $defaultTitle;
 
-$defaultDesc = 'HaloSec delivers enterprise cybersecurity services, 24/7 proactive SOC surveillance, endpoint defense, and offensive penetration testing. Certified Zoho & Sophos Silver Partners.';
+$defaultDesc = 'HaloSec delivers enterprise cybersecurity services, 24/7 proactive SOC surveillance, endpoint defense, and offensive penetration testing. Zoho Partner and Sophos Authorized Partner.';
 $metaDesc = isset($description) && $description !== '' ? $description : $defaultDesc;
 $cssFile = dirname(__DIR__) . '/public/css/app.css';
 $cssVersion = is_file($cssFile) ? (string) filemtime($cssFile) : '1';
@@ -144,7 +144,7 @@ $navItems = [
         SOC Monitoring 24/7 Active
       </span>
       <?php endif; ?>
-      <span class="hidden md:inline">Zoho Partner · Sophos Silver Partner</span>
+      <span class="hidden md:inline">Zoho Partner · Sophos Authorized Partner</span>
     </div>
     <a class="inline-flex items-center gap-1.5 text-brand-red no-underline hover:underline" href="tel:<?= $e($phone) ?>">
       <svg class="h-3.5 w-3.5" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linejoin="round" d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"></path></svg>
@@ -214,7 +214,7 @@ $navItems = [
           <?= $this->include('partials/brand_logo', ['variant' => 'dark', 'size' => 'md']) ?>
         </a>
         <p class="text-sm leading-relaxed">We are Securious: curious about security, so you can fearlessly scale your business.</p>
-        <p class="text-[13px] font-semibold text-slate-400">Zoho Partner · Sophos Silver Partner</p>
+        <p class="text-[13px] font-semibold text-slate-400">Zoho Partner · Sophos Authorized Partner · Sophos Endpoint &amp; XDR Partner</p>
       </div>
       <div class="flex flex-col gap-2.5 text-sm">
         <p class="mb-1 font-bold text-white">Services</p>
