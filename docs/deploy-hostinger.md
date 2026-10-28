@@ -74,10 +74,11 @@ The `migrate` cron is a safety net. When nothing is pending it does nothing, and
 
 ## 6. Every release
 
-1. Open a PR and wait for CI to pass, then merge into `main`.
-2. Hostinger pulls the new code within seconds. Check hPanel → Git for the latest commit.
-3. If the PR added a file in `database/migrations/`, run `php bin/admin.php migrate` over SSH straight away, or wait for the cron.
-4. Open the site and `/admin` to check it.
+1. If you changed Tailwind classes in `views/`, run `npm run build` and commit `public/css/app.css`. CI fails if you forget.
+2. Open a PR and wait for CI to pass, then merge into `main`.
+3. Hostinger pulls the new code within seconds. Check hPanel → Git for the latest commit.
+4. If the PR added a file in `database/migrations/`, run `php bin/admin.php migrate` over SSH straight away, or wait for the cron.
+5. Open the site and `/admin` to check it.
 
 ## 7. Verify after the first deploy
 

@@ -32,7 +32,17 @@ final class FormController
     /**
      * @param array<string, mixed> $post
      */
-    public function handle(string $type, string $path, string $title, string $template, string $method, array $post, ?string $slug = null): string|int
+    public function handle(
+        string $type,
+        string $path,
+        string $title,
+        string $template,
+        string $method,
+        array $post,
+        ?string $slug = null,
+        string $description = '',
+        bool $noindex = false,
+    ): string|int
     {
         $data = [
             'title' => $title,
@@ -44,6 +54,8 @@ final class FormController
             'flash' => null,
             'service' => null,
             'slug' => $slug,
+            'description' => $description,
+            'noindex' => $noindex,
         ];
 
         if ($slug !== null) {
@@ -52,8 +64,10 @@ final class FormController
                 return 404;
             }
             $data['service'] = $service;
-            $data['title'] = (string) $service['title'];
-            $data['path'] = '/services';
+            $data['title'] = (string) ($service['seo_title'] ?? $service['title']);
+            $data['description'] = (string) ($service['meta_description'] ?? $service['short'] ?? '');
+            // The canonical URL must be the service page itself, never /services.
+            $data['path'] = '/services/' . $slug;
         }
 
         if ($method === 'POST') {

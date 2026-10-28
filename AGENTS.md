@@ -8,7 +8,7 @@
 * Test all: `vendor/bin/phpunit`
 * Test single file: `vendor/bin/phpunit tests/Unit/SpecificTest.php`
 * Dev server: `php -S localhost:8000 -t public/` (local development only) — PHP binary may need full path, e.g. `& "C:\Users\...\php.exe" -S localhost:8000 -t public/`
-* Frontend Build (if mixing JS/CSS): `npm run build`
+* CSS Build: `npm install` once, then `npm run build` after changing Tailwind classes in `views/` (writes `public/css/app.css`, which is committed; CI fails if it is stale)
 
 ## Testing
 
@@ -127,4 +127,4 @@ Custom shadow tokens registered in Tailwind:
 * CI Pipeline: GitHub Actions runs PHPUnit, PHPStan, and linting on every pull request. PRs require a passing CI to merge.
 * Deployment: Merging to `main` triggers Hostinger's Git auto-deployment (webhook), which pulls the repo into `public_html`; the root `.htaccess` routes requests into `public/`. Hostinger runs no build step, so new database migrations are applied by `php bin/admin.php migrate` (cron or SSH). See `docs/deploy-hostinger.md`.
 * Environment: Never commit `.env` to version control. Maintain an updated `.env.example`. Production secrets are injected directly via Hostinger's File Manager or SSH.
-* Build Steps: There are no runtime Composer packages; production runs without `vendor/` using the fallback autoloader in `public/index.php`. Do not add runtime dependencies without adding a build/upload step.
+* Build Steps: There are no runtime Composer packages; production runs without `vendor/` using the fallback autoloader in `public/index.php`. Do not add runtime dependencies without adding a build/upload step. Tailwind CSS is compiled locally (`npm run build`) and the output `public/css/app.css` is committed, because Hostinger cannot build it. Never load Tailwind from its CDN.

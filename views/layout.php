@@ -7,16 +7,22 @@ $contentBlocks = $contentBlocks ?? [];
 $showEmergencyBanner = ($contentBlocks['home.emergency_banner_enabled'] ?? '1') !== '0';
 
 $baseUrl = rtrim((string) (getenv('APP_URL') ?: (isset($_SERVER['HTTP_HOST']) ? ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']) : 'https://halosec.in')), '/');
-$canonicalUrl = $baseUrl . ($path === '/' ? '' : $path);
+// Pages without a path (404, 500) get no canonical tag.
+$canonicalUrl = $path === '' ? '' : $baseUrl . $path;
+// Nav highlighting: /services/foo still highlights "Services".
+$navPath = str_starts_with($path, '/services') ? '/services' : $path;
+$noindex = ($noindex ?? false) || $path === '' || ($isAdmin ?? false) || str_starts_with($path, '/admin');
 
 $siteName = $config['name'] ?? 'HaloSec';
-$defaultTitle = $siteName . ' – Impenetrable Cybersecurity, 24/7 SOC & Penetration Testing';
-$pageTitle = isset($title) && $title !== '' && $title !== 'HaloSec'
+$defaultTitle = 'Cybersecurity Services, 24/7 SOC & Penetration Testing | ' . $siteName;
+$pageTitle = isset($title) && $title !== '' && $title !== $siteName
     ? $title . ' | ' . $siteName
     : $defaultTitle;
 
 $defaultDesc = 'HaloSec delivers enterprise cybersecurity services, 24/7 proactive SOC surveillance, endpoint defense, and offensive penetration testing. Certified Zoho & Sophos Silver Partners.';
-$metaDesc = $description ?? $defaultDesc;
+$metaDesc = isset($description) && $description !== '' ? $description : $defaultDesc;
+$cssFile = dirname(__DIR__) . '/public/css/app.css';
+$cssVersion = is_file($cssFile) ? (string) filemtime($cssFile) : '1';
 ?>
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="en">
@@ -25,8 +31,10 @@ $metaDesc = $description ?? $defaultDesc;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= $e($pageTitle) ?></title>
 <meta name="description" content="<?= $e($metaDesc) ?>">
+<?php if ($canonicalUrl !== '') : ?>
 <link rel="canonical" href="<?= $e($canonicalUrl) ?>">
-<?php if (($isAdmin ?? false) || str_starts_with($path, '/admin')) : ?>
+<?php endif; ?>
+<?php if ($noindex) : ?>
 <meta name="robots" content="noindex, nofollow">
 <?php else : ?>
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
@@ -37,7 +45,7 @@ $metaDesc = $description ?? $defaultDesc;
 <meta property="og:site_name" content="<?= $e($siteName) ?>">
 <meta property="og:title" content="<?= $e($pageTitle) ?>">
 <meta property="og:description" content="<?= $e($metaDesc) ?>">
-<meta property="og:url" content="<?= $e($canonicalUrl) ?>">
+<meta property="og:url" content="<?= $e($canonicalUrl !== '' ? $canonicalUrl : $baseUrl . '/') ?>">
 <meta property="og:image" content="<?= $e($baseUrl) ?>/images/halosec-logo.png">
 
 <!-- Twitter Cards -->
@@ -116,33 +124,7 @@ $metaDesc = $description ?? $defaultDesc;
 <link href="https://fonts.googleapis.com" rel="preconnect">
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-        display: ['"Space Grotesk"', 'sans-serif'],
-      },
-      colors: {
-        brand: {
-          blue: '#0369a1',
-          sky: '#0ea5e9',
-          dark: '#090e17',
-          lime: '#d9f99d',
-          neon: '#ccff00',
-          accent: '#84cc16'
-        }
-      },
-      boxShadow: {
-        'card-glass': '0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(255, 255, 255, 0.8)',
-        'floating-sky': '0 25px 50px -12px rgba(14, 116, 144, 0.25)',
-      }
-    }
-  }
-};
-</script>
+<link rel="stylesheet" href="/css/app.css?v=<?= $e($cssVersion) ?>">
 <style>
 /* Daytime sky gradient with rich upper saturation for maximum text contrast */
 .sky-hero-backdrop{background:radial-gradient(circle at 50% 10%, #1e88e5 0%, #0d5cb6 45%, #083b7e 100%);position:relative;overflow:hidden}
@@ -244,7 +226,7 @@ tailwind.config = {
 
     <!-- Main Navigation Links with Light Pill Styling -->
     <nav aria-label="Main Navigation" class="hidden lg:flex items-center gap-1 bg-slate-100/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 text-[13px] font-semibold tracking-wide">
-      <a class="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-white transition-all duration-150 <?= $path === '/services' ? 'bg-white text-slate-900 shadow-sm' : '' ?>" href="/services" <?= $path === '/services' ? 'aria-current="page"' : '' ?>>Services</a>
+      <a class="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-white transition-all duration-150 <?= $navPath === '/services' ? 'bg-white text-slate-900 shadow-sm' : '' ?>" href="/services" <?= $path === '/services' ? 'aria-current="page"' : '' ?>>Services</a>
       <a class="px-3.5 py-1.5 rounded-lg hover:text-slate-900 hover:bg-white transition-all duration-150 flex items-center gap-1.5 <?= $path === '/free-audit' ? 'bg-white text-slate-900 shadow-sm' : '' ?>" href="/free-audit" <?= $path === '/free-audit' ? 'aria-current="page"' : '' ?>>
         Free Audit
         <span class="px-1.5 py-0.2 text-[10px] bg-lime-400/20 text-lime-700 rounded font-bold uppercase tracking-wider">Free</span>
@@ -274,7 +256,7 @@ tailwind.config = {
         <div class="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-2xl border border-slate-200 rounded-2xl shadow-2xl p-3 flex flex-col text-sm font-semibold text-slate-800 divide-y divide-slate-100">
           <div class="space-y-1 pb-2">
             <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $path === '/' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/">Home</a>
-            <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $path === '/services' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/services">Services</a>
+            <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $navPath === '/services' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/services">Services</a>
             <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 text-sky-700 font-bold <?= $path === '/free-audit' ? 'bg-sky-50' : '' ?>" href="/free-audit">Free Audit</a>
             <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $path === '/consultation' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/consultation">Consultation</a>
             <a class="block px-3 py-2 rounded-lg hover:bg-slate-100 <?= $path === '/about' ? 'bg-sky-50 text-sky-800 font-bold' : '' ?>" href="/about">About &amp; Founders</a>

@@ -33,3 +33,6 @@
 *.sqlite
 *.sqlite3
 *.db
+
+# Frontend build tooling (public/css/app.css is committed)
+/node_modules/
