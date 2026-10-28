@@ -45,7 +45,7 @@ Calm, product-led design inspired by Apple and Google (large type, generous whit
 * **Components**: `resources/css/app.css` (`@layer components`), compiled into `public/css/app.css` by `npm run build`
 * **Behaviour**: `public/js/site.js` (progressive enhancement only; every page works without JS)
 * `views/layout.php` holds no inline `<style>`.
-* **Brand marks**: wordmark `public/images/halosec-logo.png`; secondary shield mark `public/images/halosec-mark.png` (512px, transparent, brand blue `#063b68`). Favicons (`public/favicon.ico`, `public/images/favicon*.{svg,png}`), touch and manifest icons (`apple-touch-icon.png`, `icon-*.png`, `public/site.webmanifest`) are generated from the mark; `favicon.svg` switches to a light tint on dark browser tabs.
+* **Brand marks**: wordmark `public/images/halosec-logo.png`; secondary shield mark `public/images/halosec-mark.png` (512px, transparent, brand blue `#063b68`). Favicons (`public/favicon.ico`, `public/images/favicon*.{svg,png}`), touch and manifest icons (`apple-touch-icon.png`, `icon-*.png`, `public/site.webmanifest`) are generated from the mark; tab icons are the white mark on a navy (`#063b68`) rounded tile so they stay visible on light, grey and dark browser tabs.
 
 ### Typography
 * **Body**: Plus Jakarta Sans 400–800 (`font-sans`)
