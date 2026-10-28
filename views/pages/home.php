@@ -106,6 +106,28 @@ $arrow = '<svg class="h-4 w-4" aria-hidden="true" fill="none" stroke="currentCol
   </div>
 </div>
 
+<!-- Track record. Each value/label can be overridden in Admin → Content blocks (home.stat_1_value, home.stat_1_label, …). -->
+<?php
+$stats = [
+    ['100+', 'websites secured'],
+    ['100+', 'organisations protected from cyber attacks'],
+    ['100s', 'of organisations advised, with IT infrastructure upgraded and managed'],
+    ['50+', 'codebases we actively manage across websites and applications'],
+];
+?>
+<section aria-labelledby="proof" class="wrap pt-20 md:pt-28">
+  <h2 id="proof" class="mb-8 text-[15px] font-bold text-brand-muted">Our track record</h2>
+  <dl class="grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-8 lg:grid-cols-4">
+    <?php foreach ($stats as $i => [$value, $label]) : ?>
+    <?php $n = $i + 1; ?>
+    <div class="flex flex-col gap-3 border-t-2 border-brand-ink pt-5">
+      <dt class="order-2 text-[15px] font-medium leading-snug text-brand-body"><?= $e($contentBlocks['home.stat_' . $n . '_label'] ?? $label) ?></dt>
+      <dd class="order-1 font-display text-5xl font-bold tracking-[-0.04em] md:text-7xl"><?= $i === 0 ? '<span class="marker">' : '' ?><?= $e($contentBlocks['home.stat_' . $n . '_value'] ?? $value) ?><?= $i === 0 ? '</span>' : '' ?></dd>
+    </div>
+    <?php endforeach; ?>
+  </dl>
+</section>
+
 <!-- Three doors -->
 <section aria-labelledby="doors" class="wrap section">
   <h2 id="doors" class="mb-7 text-[15px] font-bold text-brand-muted">Where are you today?</h2>
