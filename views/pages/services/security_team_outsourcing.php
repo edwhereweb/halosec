@@ -51,7 +51,7 @@ $tiers = [
         <span class="text-[13px] font-bold text-brand-neon">Certified engineers</span>
         <h3 class="font-display text-3xl font-bold leading-tight tracking-[-0.03em]">Experts certified by EC-Council, CompTIA, AWS, Azure and Sophos.</h3>
         <ul class="mt-auto flex flex-wrap gap-2 pt-4">
-          <?php foreach (['CEH', 'Security+', 'CySA+', 'AWS / Azure / GCP', 'Sophos Silver Partner'] as $cert) : ?>
+          <?php foreach (['CEH', 'Security+', 'CySA+', 'AWS / Azure / GCP', 'Sophos Authorized Partner'] as $cert) : ?>
           <li class="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold"><?= $e($cert) ?></li>
           <?php endforeach; ?>
         </ul>
