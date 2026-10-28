@@ -15,28 +15,22 @@ Roles:
 | `editor` | Dashboard, submission read/manage, and security |
 | `viewer` | Dashboard, submission read, and security |
 
-If the database is not configured, the legacy environment-configured admin remains available using `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, and `ADMIN_ROLE`. With a database configured, only active accounts with a recognized database role can sign in.
+Admin sign-in requires the database. Only active accounts with a recognized role can sign in, and the role is re-checked on every request, so deactivating or demoting a user takes effect immediately. Login is throttled per client IP (5 failures in 15 minutes). While locked, no password is checked.
 
 ## Hostinger deployment and schema
 
+See [deploy-hostinger.md](deploy-hostinger.md) for the full setup. In short:
+
 1. Back up the database before applying changes.
-2. Import `/database/migrations/001_admin_dashboard.sql` into the application database using Hostinger phpMyAdmin. The DDL uses MySQL/MariaDB syntax and `IF NOT EXISTS`/`INSERT IGNORE` so it can be safely re-applied.
-3. Configure `DB_DSN` (for example, `mysql:host=localhost;dbname=halosec;charset=utf8mb4`), `DB_USERNAME`, and `DB_PASSWORD` in Hostinger's environment configuration. Do not put production secrets in the repository, the web root, or admin-managed settings.
-4. Create or manage administrator accounts:
-   - **Option A (Web Dashboard)**: Log in with the initial admin credentials (`admin` / `admin123`) or credentials defined in `.env`. Navigate to `/admin/users` to add new team members or update existing passwords directly.
-   - **Option B (CLI Helper)**: Generate password hashes or create users via CLI:
-     ```sh
-     # Generate password hash:
-     php bin/admin.php hash "YourSecurePassword123!"
+2. Configure the `DB_*` settings in `.env` (outside the web root, `chmod 600`).
+3. Run `php bin/admin.php migrate`. It applies `database/migrations/*.sql` in order and records them in `schema_migrations`. The deploy workflow runs it automatically. Web requests never change the schema.
+4. Create the first administrator: `php bin/admin.php create <username> '<password>' super_admin` (12+ characters). There is no default account. Accounts that still use the old published `admin123` seed are refused at login until reset.
+5. Each admin turns on two-factor authentication under **My Account & 2FA** (`/admin/account`). Set `ADMIN_REQUIRE_2FA=true` to make it mandatory.
+6. Keep `storage/` writable and outside the public web root. No queue worker is required.
 
-     # Create or reset admin user directly:
-     php bin/admin.php create admin "YourSecurePassword123!" super_admin
-     ```
-   - **Option C (Auto-bootstrap from `.env`)**: Simply set `ADMIN_USERNAME` and `ADMIN_PASSWORD_HASH` in `.env`. HaloSec will automatically seed or sync this account in MySQL on first request.
+Recovery: `php bin/admin.php unblock` (login lockout), `php bin/admin.php 2fa-reset <user>` (lost device), `php bin/admin.php reset <user> '<password>'`.
 
-5. Ensure `storage/` remains writable and outside the public web root. `public/` remains the only web root. No queue worker is required; form writes and admin actions are synchronous.
-
-If DB connection or persistence is temporarily unavailable, form submissions fall back safely to protected storage rather than crashing the website.
+If the database is temporarily unavailable, form submissions fall back to protected file storage instead of failing.
 
 ## Dashboard and operations
 

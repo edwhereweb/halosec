@@ -113,9 +113,9 @@ final class PdoLeadStorageTest extends TestCase
         $this->assertSame('Amina', $submission['data']['name']);
         $this->assertTrue($this->storage->changeStatus($id, 'in_review', null));
         $this->assertTrue($this->storage->addNote($id, 'Contacted the requester.', null));
-        $this->assertSame('in_review', $this->storage->submission($id)['status']);
+        $this->assertSame('in_review', ($this->storage->submission($id)['status'] ?? null));
         $this->assertSame('Contacted the requester.', $this->storage->notes($id)[0]['note']);
-        $this->assertSame(2, (int) $this->pdo->query('SELECT COUNT(*) FROM admin_audit_logs')->fetchColumn());
+        $this->assertSame(2, $this->scalar('SELECT COUNT(*) FROM admin_audit_logs'));
     }
 
     public function testSuspiciousSubmissionCreatesAHighSeverityEvent(): void
@@ -140,7 +140,7 @@ final class PdoLeadStorageTest extends TestCase
 
         $this->assertSame(2, $this->storage->bulkChangeStatus($ids, 'spam', null));
         $this->assertSame(0, $this->storage->bulkChangeStatus($ids, 'unknown', null));
-        $this->assertSame(2, (int) $this->pdo->query("SELECT COUNT(*) FROM form_submissions WHERE status = 'spam'")->fetchColumn());
+        $this->assertSame(2, $this->scalar("SELECT COUNT(*) FROM form_submissions WHERE status = 'spam'"));
     }
 
     public function testSubmissionListAndCountCanFilterByAssignee(): void
@@ -201,5 +201,13 @@ final class PdoLeadStorageTest extends TestCase
         $this->assertCount(2, $users);
         $this->assertSame('editor', $users[0]['role_key']);
         $this->assertTrue($this->storage->updateAdminUser((int) $users[0]['id'], 'viewer', false, 1));
+    }
+
+    private function scalar(string $sql): int
+    {
+        $query = $this->pdo->query($sql);
+        $this->assertNotFalse($query);
+
+        return (int) $query->fetchColumn();
     }
 }

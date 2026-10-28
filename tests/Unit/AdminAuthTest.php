@@ -27,7 +27,7 @@ final class AdminAuthTest extends TestCase
     {
         $session = [];
         $pdo = $this->createDb('admin', 's3cret-pass');
-        $auth = new AdminAuth($session, '', '', 'super_admin', $pdo);
+        $auth = new AdminAuth($session, $pdo);
 
         $this->assertFalse($auth->attempt('admin', 'wrong'));
         $this->assertFalse($auth->attempt('other', 's3cret-pass'));
@@ -39,7 +39,7 @@ final class AdminAuthTest extends TestCase
     public function testUnconfiguredCredentialsNeverAuthenticate(): void
     {
         $session = [];
-        $auth = new AdminAuth($session, '', '');
+        $auth = new AdminAuth($session);
 
         $this->assertFalse($auth->attempt('admin', 'admin123'));
         $this->assertFalse($auth->attempt('', ''));
@@ -50,7 +50,7 @@ final class AdminAuthTest extends TestCase
     {
         $session = [];
         $pdo = $this->createDb('admin', 'pw');
-        $auth = new AdminAuth($session, '', '', 'super_admin', $pdo);
+        $auth = new AdminAuth($session, $pdo);
         $auth->attempt('admin', 'pw');
 
         $this->assertFalse($auth->check(time() + 4000));

@@ -59,7 +59,7 @@ interface AdminSubmissionRepositoryInterface extends LeadStorageInterface, LeadR
 
     public function createAdminUser(string $username, string $password, string $role, ?int $actorId): bool;
 
-    public function updateAdminUser(int $userId, string $role, bool $active, ?int $actorId): bool;
+    public function updateAdminUser(int $userId, string $role, bool $active, ?int $actorId, ?string $password = null): bool;
 
     public function recordFailedLogin(string $ip, string $username): void;
 

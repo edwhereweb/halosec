@@ -27,18 +27,16 @@ by the web server and must not be served over HTTP (`public/` is the only web ro
 
 ## Admin
 
-Without a database, a single legacy admin account can be configured through environment variables (no credentials in the repo):
+Admin accounts live in MySQL. After configuring `DB_*` in `.env`:
 
 ```
-php -r "echo password_hash('your-password', PASSWORD_DEFAULT), PHP_EOL;"   # generate the hash
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD_HASH=<hash from above>
+php bin/admin.php migrate                                   # create/upgrade tables
+php bin/admin.php create yourname 'long-password' super_admin
 ```
-
-If either is unset, admin login is disabled. Quote the hash if your shell/env file treats `$` specially.
 
 - `/admin/login` — sign in (CSRF-protected, generic error messages, session ID regenerated on success,
   5 failed attempts per IP in 15 minutes locks login for the rest of the window; state kept in `storage/auth/`).
+- `/admin/account` — change password and set up two-factor authentication (TOTP). `ADMIN_REQUIRE_2FA=true` makes it mandatory.
 - `/admin` — operations dashboard.
 - `/admin/submissions` — unified frontend submissions inbox (database mode).
 - `/admin/users`, `/admin/settings`, `/admin/security`, and `/admin/audit` — role-protected operations pages.
@@ -46,6 +44,7 @@ If either is unset, admin login is disabled. Quote the hash if your shell/env fi
 - `POST /admin/logout` (CSRF-protected) destroys the session and cookie. Sessions expire after 30 minutes idle.
 
 Every protected admin action re-checks authentication and authorization and responds with `Cache-Control: no-store`.
+Deployment to Hostinger (folder layout, auto-deploy, cron backups): [docs/deploy-hostinger.md](docs/deploy-hostinger.md).
 See [docs/admin-dashboard.md](docs/admin-dashboard.md) and [docs/admin-submissions.md](docs/admin-submissions.md) for MySQL setup, roles, migration, and form wiring.
 
 ## Layout

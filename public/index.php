@@ -30,6 +30,8 @@ use HaloSec\Services\FileLeadStorage;
 use HaloSec\Services\FormValidator;
 use HaloSec\Services\LeadService;
 use HaloSec\Services\PdoLeadStorage;
+use HaloSec\Env;
+use HaloSec\Services\Migrator;
 use HaloSec\View;
 
 // Prevent direct web access to .env files under any circumstance
@@ -39,37 +41,11 @@ if (str_contains(strtolower($requestUri), '.env')) {
     exit('Access denied.');
 }
 
-$envCandidates = [
+// .env lives in the app root or one level above it (outside the web root). Never inside public/.
+Env::load([
     $root . '/.env',
-    __DIR__ . '/.env',
     dirname($root) . '/.env',
-];
-foreach ($envCandidates as $envFile) {
-    if (is_file($envFile)) {
-        $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        if (is_array($lines)) {
-            foreach ($lines as $line) {
-                $line = trim($line);
-                if ($line === '' || str_starts_with($line, '#')) {
-                    continue;
-                }
-                if (str_contains($line, '=')) {
-                    [$key, $value] = explode('=', $line, 2);
-                    $key = trim($key);
-                    $value = trim($value);
-                    if ((str_starts_with($value, '"') && str_ends_with($value, '"'))
-                        || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
-                        $value = substr($value, 1, -1);
-                    }
-                    putenv("{$key}={$value}");
-                    $_ENV[$key] = $value;
-                    $_SERVER[$key] = $value;
-                }
-            }
-        }
-        break;
-    }
-}
+]);
 
 // Production error logging configuration
 $isDev = (getenv('APP_ENV') ?: 'production') === 'development';
@@ -128,6 +104,7 @@ $validator = new FormValidator(
     $audit['options'],
 );
 $adminRepository = null;
+$dbError = null;
 $database = null;
 if ($config['database_dsn'] !== '') {
     try {
@@ -138,124 +115,59 @@ if ($config['database_dsn'] !== '') {
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false],
         );
 
-        // Auto-run database schema migration if tables do not exist yet
-        $tablesExist = false;
-        try {
-            $checkTable = $database->query("SHOW TABLES LIKE 'admin_users'");
-            $tablesExist = (bool) $checkTable->fetch();
-        } catch (Throwable) {
-            $tablesExist = false;
-        }
-
-        if (!$tablesExist) {
-            $migrationFile = $root . '/database/migrations/001_admin_dashboard.sql';
-            if (is_file($migrationFile)) {
-                $sqlContent = (string) file_get_contents($migrationFile);
-                $lines = explode("\n", $sqlContent);
-                $buffer = '';
-                try {
-                    $database->exec('SET FOREIGN_KEY_CHECKS = 0');
-                } catch (Throwable) {}
-                foreach ($lines as $line) {
-                    $trimmed = trim($line);
-                    if ($trimmed === '' || str_starts_with($trimmed, '--')) {
-                        continue;
-                    }
-                    $buffer .= $line . "\n";
-                    if (str_ends_with($trimmed, ';')) {
-                        try {
-                            $database->exec(trim($buffer));
-                        } catch (Throwable $e) {
-                            error_log('Auto-migration statement error: ' . $e->getMessage());
-                        }
-                        $buffer = '';
-                    }
-                }
-                try {
-                    $database->exec('SET FOREIGN_KEY_CHECKS = 1');
-                } catch (Throwable) {}
-            }
-        }
-
         $adminRepository = new PdoLeadStorage($database);
         $leadStorage = $adminRepository;
 
-        // Auto-bootstrap admin user into database if not yet seeded or if .env hash needs to override default seed
-        // Ensure standard roles exist in MySQL
-        try {
-            $database->exec("INSERT IGNORE INTO admin_roles (role_key) VALUES ('super_admin'), ('admin'), ('editor'), ('viewer')");
-        } catch (Throwable) {}
-
-        // Auto-bootstrap admin user into database if not yet seeded or if .env hash needs to override default seed
-        $adminUser = $config['admin_username'] !== '' ? $config['admin_username'] : 'admin';
-        $adminHash = $config['admin_password_hash'] !== '' ? $config['admin_password_hash'] : '$2y$10$hJd71uauJov9KidGrn13neMbzXieB3FEgJltgFYrELk4bJ2hxvJfe';
-
-        $checkStmt = $database->prepare('SELECT id, password_hash FROM admin_users WHERE LOWER(username) = LOWER(:username) AND deleted_at IS NULL');
-        $checkStmt->execute(['username' => $adminUser]);
-        $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
-        if (!is_array($existing)) {
-            $insertUser = $database->prepare('INSERT INTO admin_users (username, password_hash, is_active) VALUES (:username, :hash, 1)');
-            $insertUser->execute([
-                'username' => $adminUser,
-                'hash' => str_starts_with($adminHash, '$') ? $adminHash : password_hash($adminHash, PASSWORD_DEFAULT),
-            ]);
-            $newUserId = (int) $database->lastInsertId();
-            $assignRole = $database->prepare("INSERT IGNORE INTO admin_user_roles (admin_user_id, admin_role_id) SELECT :uid, id FROM admin_roles WHERE role_key = :role");
-            $assignRole->execute([
-                'uid' => $newUserId,
-                'role' => $config['admin_role'] ?: 'super_admin',
-            ]);
-        } elseif ($existing['password_hash'] === '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti'
-            && $adminHash !== '$2y$10$ThpOVvR6hlTif2f21.U9auTelfS5IBT3Dvs6uz3fDzqu2LfM9elti') {
-            $updatePass = $database->prepare('UPDATE admin_users SET password_hash = :hash WHERE id = :id');
-            $updatePass->execute([
-                'hash' => str_starts_with($adminHash, '$') ? $adminHash : password_hash($adminHash, PASSWORD_DEFAULT),
-                'id' => (int) $existing['id'],
-            ]);
-        }
-
-        // Ensure every active admin user has at least one role mapped
-        try {
-            $database->exec("INSERT IGNORE INTO admin_user_roles (admin_user_id, admin_role_id) SELECT u.id, r.id FROM admin_users u JOIN admin_roles r ON r.role_key = 'super_admin' WHERE u.deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM admin_user_roles ur WHERE ur.admin_user_id = u.id)");
-        } catch (Throwable) {}
+        // Schema changes and the first admin account are handled by `php bin/admin.php migrate`
+        // at deploy time, so nothing here writes to the database on a normal page load.
     } catch (Throwable $e) {
-        $dbError = $e->getMessage();
-        error_log('Database connection error: ' . $dbError);
+        error_log('Database connection error: ' . $e->getMessage());
+        // Show connection details only in development; production pages get a generic hint.
+        $dbError = $isDev ? $e->getMessage() : 'Database unavailable. Details are in storage/logs/error.log.';
         $database = null;
         $adminRepository = null;
         $leadStorage = new FileLeadStorage($config['storage_path']);
     }
 } else {
-    $dbError = 'Database DSN or credentials are not configured in your .env file.';
+    $dbError = 'Database is not configured (DB_* settings in .env).';
     $leadStorage = new FileLeadStorage($config['storage_path']);
 }
 $leadService = new LeadService($validator, $leadStorage);
 if ($adminRepository !== null) {
-    $settings = $adminRepository->settings();
-    foreach ([
-        'site.name' => 'name',
-        'site.tagline' => 'tagline',
-        'site.contact_email' => 'contact_email',
-        'site.emergency_phone' => 'emergency_phone',
-    ] as $settingKey => $configKey) {
-        if (isset($settings[$settingKey])) {
-            $config[$configKey] = $settings[$settingKey];
+    try {
+        $settings = $adminRepository->settings();
+        foreach ([
+            'site.name' => 'name',
+            'site.tagline' => 'tagline',
+            'site.contact_email' => 'contact_email',
+            'site.emergency_phone' => 'emergency_phone',
+        ] as $settingKey => $configKey) {
+            if (isset($settings[$settingKey])) {
+                $config[$configKey] = $settings[$settingKey];
+            }
         }
-    }
-    $blocks = [];
-    foreach ($adminRepository->contentBlocks() as $block) {
-        $key = (string) $block['block_key'];
-        if ($key === 'home.emergency_banner_enabled') {
-            $blocks[$key] = (int) $block['is_active'] === 1 ? (string) $block['content'] : '0';
-        } elseif ((int) $block['is_active'] === 1) {
-            $blocks[$key] = (string) $block['content'];
+        $blocks = [];
+        foreach ($adminRepository->contentBlocks() as $block) {
+            $key = (string) $block['block_key'];
+            if ($key === 'home.emergency_banner_enabled') {
+                $blocks[$key] = (int) $block['is_active'] === 1 ? (string) $block['content'] : '0';
+            } elseif ((int) $block['is_active'] === 1) {
+                $blocks[$key] = (string) $block['content'];
+            }
         }
+        $view->share(['config' => $config, 'contentBlocks' => $blocks]);
+    } catch (Throwable $e) {
+        // Usually means migrations have not been run yet: php bin/admin.php migrate
+        error_log('Could not load site settings: ' . $e->getMessage());
     }
-    $view->share(['config' => $config, 'contentBlocks' => $blocks]);
 }
 
 $rawClientIp = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
-if (!empty($_SERVER['HTTP_CF_CONNECTING_IP']) && filter_var($_SERVER['HTTP_CF_CONNECTING_IP'], FILTER_VALIDATE_IP)) {
+// CF-Connecting-IP can be set by anyone. Only trust it when the site really sits behind Cloudflare
+// (TRUST_CLOUDFLARE=true), otherwise attackers could rotate fake IPs to dodge the login lockout.
+if (Env::bool('TRUST_CLOUDFLARE')
+    && !empty($_SERVER['HTTP_CF_CONNECTING_IP'])
+    && filter_var($_SERVER['HTTP_CF_CONNECTING_IP'], FILTER_VALIDATE_IP)) {
     $clientIp = (string) $_SERVER['HTTP_CF_CONNECTING_IP'];
 } else {
     $clientIp = filter_var($rawClientIp, FILTER_VALIDATE_IP) ? $rawClientIp : '127.0.0.1';
@@ -266,13 +178,15 @@ $pages = new PageController($view);
 $forms = new FormController($view, $leadService, $csrf, $services, $_SESSION, $formThrottle, $clientIp);
 $admin = new AdminController(
     $view,
-    new AdminAuth($_SESSION, '', '', $config['admin_role'], $database),
+    new AdminAuth($_SESSION, $database),
     $csrf,
     new LoginThrottle($config['auth_path']),
     $leadStorage,
     $clientIp,
     $adminRepository,
     $dbError,
+    Env::bool('ADMIN_REQUIRE_2FA'),
+    (string) $config['name'],
 );
 
 $post = $_POST;
@@ -316,6 +230,8 @@ $router->add('POST', '/security-report', $form(Lead::TYPE_SECURITY_REPORT, '/sec
 
 foreach (['GET', 'POST'] as $m) {
     $router->add($m, '/admin/login', static fn () => $admin->login($method, $post));
+    $router->add($m, '/admin/login/2fa', static fn () => $admin->loginTwoFactor($method, $post));
+    $router->add($m, '/admin/account', static fn () => $admin->account($method, $post));
 }
 $router->add('GET', '/admin', [$admin, 'dashboard']);
 $router->add('GET', '/admin/leads', static fn () => $admin->leads($_GET));

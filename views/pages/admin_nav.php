@@ -44,6 +44,7 @@ $isCurrent = static fn (array $pages): bool => in_array($activePage, $pages, tru
     <ul class="flex gap-1 lg:block lg:space-y-1">
       <li><a class="<?= $linkClass($activePage === 'audit') ?>" href="/admin/audit" <?= $activePage === 'audit' ? 'aria-current="page"' : '' ?>>Audit Logs</a></li>
       <li><a class="<?= $linkClass($activePage === 'users') ?>" href="/admin/users" <?= $activePage === 'users' ? 'aria-current="page"' : '' ?>>Admin Users / Roles</a></li>
+      <li><a class="<?= $linkClass($activePage === 'account') ?>" href="/admin/account" <?= $activePage === 'account' ? 'aria-current="page"' : '' ?>>My Account &amp; 2FA</a></li>
     </ul>
   </section>
 </div>

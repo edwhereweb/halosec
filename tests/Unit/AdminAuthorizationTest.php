@@ -25,7 +25,7 @@ final class AdminAuthorizationTest extends TestCase
         $pdo->exec('INSERT INTO admin_user_roles VALUES (1, 1)');
 
         $session = [];
-        $auth = new AdminAuth($session, '', '', 'viewer', $pdo);
+        $auth = new AdminAuth($session, $pdo);
         $this->assertTrue($auth->attempt('viewer', 'viewer-password'));
         $csrf = new CsrfManager($session);
         $reader = new class implements LeadReaderInterface {

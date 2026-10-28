@@ -65,7 +65,7 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
     public function counts(): array
     {
         $counts = array_fill_keys(Lead::TYPES, 0);
-        $query = $this->pdo->query('SELECT form_key, COUNT(*) AS total FROM form_submissions GROUP BY form_key');
+        $query = $this->runQuery('SELECT form_key, COUNT(*) AS total FROM form_submissions GROUP BY form_key');
         foreach ($query->fetchAll() as $row) {
             if (isset($counts[$row['form_key']])) {
                 $counts[$row['form_key']] = (int) $row['total'];
@@ -127,8 +127,7 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         ?string $fromDate = null,
         ?string $toDate = null,
         ?string $assigneeId = null,
-    ): int
-    {
+    ): int {
         [$where, $params] = $this->filters($formKey, $status, $fromDate, $toDate, $assigneeId);
         $query = $this->pdo->prepare('SELECT COUNT(*) FROM form_submissions' . $where);
         $query->execute($params);
@@ -237,10 +236,10 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         );
         $query->execute(['today' => $today, 'aging' => gmdate('Y-m-d H:i:s', time() - 86400)]);
         $row = $query->fetch() ?: [];
-        $high = (int) $this->pdo->query(
+        $high = (int) $this->runQuery(
             "SELECT COUNT(*) FROM security_events WHERE severity IN ('high', 'critical') AND event_type <> 'security_report_received'",
         )->fetchColumn();
-        $high += (int) $this->pdo->query(
+        $high += (int) $this->runQuery(
             "SELECT COUNT(*) FROM form_submissions WHERE form_key IN ('emergency', 'security_report') AND status NOT IN ('spam', 'archived')",
         )->fetchColumn();
 
@@ -286,7 +285,7 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
 
     public function auditLogs(int $limit = 50): array
     {
-        $query = $this->pdo->query(
+        $query = $this->runQuery(
             'SELECT actor_user_id, action, entity_type, entity_id, details, created_at FROM admin_audit_logs ORDER BY created_at DESC LIMIT '
             . max(1, min($limit, 100)),
         );
@@ -296,7 +295,7 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
 
     public function settings(): array
     {
-        $query = $this->pdo->query('SELECT setting_key, setting_value FROM site_settings ORDER BY setting_key');
+        $query = $this->runQuery('SELECT setting_key, setting_value FROM site_settings ORDER BY setting_key');
         $settings = [];
         foreach ($query->fetchAll() as $row) {
             $settings[(string) $row['setting_key']] = (string) $row['setting_value'];
@@ -334,7 +333,7 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
 
     public function adminUsers(): array
     {
-        $query = $this->pdo->query(
+        $query = $this->runQuery(
             "SELECT u.id, u.username, u.is_active,
                 (SELECT r.role_key FROM admin_user_roles ur JOIN admin_roles r ON r.id = ur.admin_role_id
                  WHERE ur.admin_user_id = u.id
@@ -496,7 +495,7 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
 
     public function contentBlocks(): array
     {
-        $query = $this->pdo->query(
+        $query = $this->runQuery(
             'SELECT block_key, content, is_active, updated_at FROM content_blocks WHERE deleted_at IS NULL ORDER BY block_key',
         );
 
@@ -564,8 +563,7 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         ?string $fromDate,
         ?string $toDate,
         ?string $assigneeId = null,
-    ): array
-    {
+    ): array {
         $where = [];
         $params = [];
         if ($formKey !== null && in_array($formKey, Lead::TYPES, true)) {
@@ -595,6 +593,17 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         return [$where === [] ? '' : ' WHERE ' . implode(' AND ', $where), $params];
     }
 
+    private function runQuery(string $sql): \PDOStatement
+    {
+        $statement = $this->pdo->query($sql);
+        if ($statement === false) {
+            throw new \RuntimeException('Query failed: ' . $sql);
+        }
+
+        return $statement;
+    }
+
+    /** @phpstan-assert-if-true string $date */
     private function isDate(?string $date): bool
     {
         if ($date === null) {

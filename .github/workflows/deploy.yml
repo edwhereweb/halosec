@@ -1,0 +1,60 @@
+name: Deploy to Hostinger
+
+# Runs after CI passes on main (or manually). Pulls the code on the server over SSH,
+# installs production dependencies and applies database migrations.
+#
+# Repository secrets required (Settings → Secrets and variables → Actions):
+#   HOSTINGER_SSH_HOST   e.g. 123.45.67.89            (hPanel → Advanced → SSH Access)
+#   HOSTINGER_SSH_PORT   usually 65002
+#   HOSTINGER_SSH_USER   e.g. u123456789
+#   HOSTINGER_SSH_KEY    private key whose public half is added in hPanel → SSH Access
+#   HOSTINGER_APP_PATH   e.g. /home/u123456789/domains/halosec.in/app
+#
+# One-time server setup is described in docs/deploy-hostinger.md.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${SSH_PORT:-65002}" "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Pull, install and migrate
+        env:
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          APP_PATH: ${{ secrets.HOSTINGER_APP_PATH }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "${SSH_PORT:-65002}" "$SSH_USER@$SSH_HOST" \
+            "APP_PATH='$APP_PATH' SHA='$SHA' bash -s" <<'REMOTE'
+          set -euo pipefail
+          cd "$APP_PATH"
+          git fetch --quiet origin main
+          git reset --hard "$SHA"
+          composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+          php bin/admin.php migrate
+          echo "Deployed $SHA"
+          REMOTE
