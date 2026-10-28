@@ -44,6 +44,7 @@ Calm, product-led design inspired by Apple and Google (large type, generous whit
 * **Tokens**: `tailwind.config.js` (colors, fonts, shadows, radii, animations)
 * **Components**: `resources/css/app.css` (`@layer components`), compiled into `public/css/app.css` by `npm run build`
 * **Behaviour**: `public/js/site.js` (progressive enhancement only; every page works without JS)
+* **Admin 2FA QR**: `public/js/admin-2fa.js` draws the setup QR on `/admin/account` with the self-hosted `public/js/vendor/qrcode.js` (qrcode-generator 1.4.4, MIT; refresh with `npm run vendor`). The QR holds the TOTP secret, so never use a remote QR service or CDN for it.
 * `views/layout.php` holds no inline `<style>`.
 * **Brand marks**: wordmark `public/images/halosec-logo.png`; secondary shield mark `public/images/halosec-mark.png` (512px, transparent, brand blue `#063b68`). Favicons (`public/favicon.ico`, `public/images/favicon*.{svg,png}`), touch and manifest icons (`apple-touch-icon.png`, `icon-*.png`, `public/site.webmanifest`) are generated from the mark; tab icons are the white mark on a navy (`#063b68`) rounded tile so they stay visible on light, grey and dark browser tabs.
 
