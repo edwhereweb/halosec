@@ -81,6 +81,7 @@ Calm, product-led design inspired by Apple and Google (large type, generous whit
 * `partials/service_subnav`, `partials/enquiry_card` — service page sticky sub-nav and enquiry form (with optional scope chips)
 * `partials/cta_band` — closing blue call-to-action band
 * `partials/field` supports `type => 'chips'` (radio chips) plus `hint`, `placeholder`, `autocomplete`
+* `partials/guide_art` (flat SVG illustrations: topic heroes `compliance`, `endpoint`, `library`, and figures `editions`, `licence`, `rollback`, `pricing`, `support`, `checklist`, `breach`) and `partials/guide_card` (illustrated guide card; the guide's `category` picks its art and tint)
 
 ### Layout conventions
 * **Global**: utility bar (SOC status + Emergency Hotline) → sticky frosted nav with "Under attack?" and "Free audit" → `<main>` → dark footer. On phones a bottom action bar shows "24/7" call + "Get a free audit" (hidden on `/under-attack`).
@@ -117,7 +118,7 @@ Full checklist in `docs/privacy-compliance.md`. The rules for changes:
 * Nothing third-party loads on page view: fonts are self-hosted in `public/fonts` (refresh with `npm run vendor`) and the YouTube video is click-to-load. Never add Google Fonts, analytics, pixels or embeds that load before the visitor opts in.
 * Retention: `php bin/admin.php retention` (daily cron) deletes submissions older than `RETENTION_DAYS`. Access and erasure: submission page → Privacy request (`privacy.manage`, Owner and Admin), or `privacy-export` / `privacy-erase` on the CLI. Security and audit logs are not purged (DPDP Rules keep them for a year) and must never hold form contents.
 * Policy facts (legal name, grievance officer, hosting) come from `.env`; see `.env.example`.
-* Guides (`/guides`, `/guides/{slug}`): metadata in `config/guides.php` (title, `meta_description`, category, dates, main `service`, `related_services`, `summary` takeaways, `faqs`), body HTML in `views/guides/{slug_with_underscores}.php`, styled by `.prose-guide` (with `.step`, `.callout`, `.callout-red`). A guide appears on `/guides`, in the sitemap, as Article + FAQPage data and in the "Guides on this topic" block of its service pages. Keep the facts dated and update `updated` when you change one.
+* Guides (`/guides`, `/guides/{slug}`): metadata in `config/guides.php` (title, `meta_description`, category, dates, main `service`, `related_services`, `summary` takeaways, `faqs`), body HTML in `views/guides/{slug_with_underscores}.php`, styled by `.prose-guide` (with `.step`, `.callout`, `.callout-red`, and `<figure class="guide-figure tone-sky|tone-lime">` wrapping a `partials/guide_art` figure). Optional `author` (`name`, `bio`) and `disclaimer`. Every body `<h2>` needs an `id`: the "On this page" menu is built from them. A guide appears on `/guides`, in the sitemap, as Article + FAQPage data and in the "Guides on this topic" block of its service pages. Keep the facts dated and update `updated` when you change one.
 
 ## Code Style & Security
 

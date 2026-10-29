@@ -77,20 +77,46 @@
   /* Long-form guide text (views/guides/*). Plain HTML inside .prose-guide gets these styles. */
   .prose-guide { @apply text-[17px] leading-[1.75] text-brand-body; }
   .prose-guide > * + * { @apply mt-5; }
-  .prose-guide h2 { @apply mt-14 font-display text-3xl font-bold leading-tight tracking-[-0.03em] text-brand-ink md:text-[40px]; }
+  .prose-guide h2 { @apply mt-16 font-display text-3xl font-bold leading-tight tracking-[-0.03em] text-brand-ink md:text-[40px]; }
+  .prose-guide h2::before { content: ""; @apply mb-4 block h-1.5 w-10 rounded-full bg-brand-cta; }
   .prose-guide h3 { @apply mt-9 text-xl font-extrabold tracking-[-0.01em] text-brand-ink; }
   .prose-guide strong { @apply font-bold text-brand-ink; }
-  .prose-guide a { @apply font-bold text-brand-blue no-underline hover:underline; }
-  .prose-guide ul { @apply list-disc space-y-2 pl-6 marker:text-brand-blue; }
+  .prose-guide a { @apply font-bold text-brand-blue underline decoration-sky-200 decoration-2 underline-offset-4 transition hover:decoration-brand-blue; }
+  .prose-guide ul { @apply space-y-2.5; }
+  .prose-guide ul > li { @apply relative pl-7; }
+  .prose-guide ul > li::before { content: ""; @apply absolute left-1 top-[0.7em] h-2 w-2 rounded-full bg-brand-blue ring-4 ring-sky-100; }
   .prose-guide ol { @apply list-decimal space-y-2 pl-6 marker:font-bold marker:text-brand-ink; }
-  .prose-guide table { @apply w-full border-collapse text-left text-[15px]; }
-  .prose-guide th { @apply border-b-2 border-slate-200 py-3 pr-4 font-bold text-brand-ink; }
-  .prose-guide td { @apply border-b border-slate-200 py-3 pr-4 align-top; }
-  .prose-guide .callout { @apply rounded-3xl bg-brand-mist p-6 sm:p-8; }
-  .prose-guide .callout-red { @apply rounded-3xl bg-red-50 p-6 text-brand-ink sm:p-8; }
-  .prose-guide .step { @apply rounded-3xl border border-slate-200 p-6 sm:p-7; }
-  .prose-guide .step h3 { @apply mt-0 flex items-baseline gap-3; }
-  .prose-guide .step-num { @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-ink font-display text-sm font-bold text-brand-neon; }
+  .prose-guide table { @apply w-full border-separate border-spacing-0 overflow-hidden rounded-3xl border border-slate-200 text-left text-[15px]; }
+  .prose-guide th { @apply bg-brand-mist px-4 py-3.5 font-bold text-brand-ink; }
+  .prose-guide td { @apply border-t border-slate-200 px-4 py-3.5 align-top; }
+  .prose-guide tbody tr { @apply transition-colors hover:bg-sky-50/60; }
+  .prose-guide .callout, .prose-guide .callout-red { @apply relative rounded-3xl p-6 pl-[4.25rem] sm:p-8 sm:pl-20; }
+  .prose-guide .callout { @apply bg-lime-50 ring-1 ring-lime-200; }
+  .prose-guide .callout-red { @apply bg-red-50 text-brand-ink ring-1 ring-red-100; }
+  .prose-guide .callout::before, .prose-guide .callout-red::before { @apply absolute left-5 top-6 inline-flex h-9 w-9 items-center justify-center rounded-full font-display text-base font-bold sm:left-7 sm:top-8; }
+  .prose-guide .callout::before { content: "i"; @apply bg-brand-ink text-brand-neon; }
+  .prose-guide .callout-red::before { content: "!"; @apply bg-brand-red text-white; }
+  .prose-guide .step { @apply relative rounded-3xl bg-brand-mist p-6 pl-[4.75rem] transition duration-300 hover:bg-white hover:shadow-lift hover:ring-1 hover:ring-slate-200 sm:p-7 sm:pl-24; }
+  .prose-guide .step:has(+ .step)::after { content: ""; @apply absolute -bottom-6 left-[2.6rem] top-[4.5rem] w-0.5 bg-[repeating-linear-gradient(to_bottom,#cbd5e1_0_5px,transparent_5px_10px)] sm:left-[3.1rem]; }
+  .prose-guide .step h3 { @apply mt-0; }
+  .prose-guide .step h3 + * { @apply mt-2; }
+  .prose-guide .step-num { @apply absolute left-5 top-6 inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-ink font-display text-base font-bold text-brand-neon ring-4 ring-white sm:left-7 sm:top-7; }
+  .prose-guide .guide-figure { @apply my-10 flex flex-col items-center gap-3 rounded-tile px-6 pb-6 pt-8 sm:px-10; }
+  .prose-guide .guide-figure svg { @apply h-48 w-full max-w-md sm:h-56; }
+  .prose-guide figcaption { @apply text-center text-[14px] font-semibold leading-snug text-brand-body; }
+  @media (max-width: 639px) {
+    .prose-guide table { @apply block overflow-x-auto; }
+  }
+
+  /* Guide cards, topic tints and the "On this page" menu */
+  .guide-card { @apply flex w-full flex-col overflow-hidden rounded-tile border border-slate-200 bg-white text-brand-ink no-underline transition duration-300 hover:-translate-y-1 hover:shadow-lift; }
+  .guide-card-art { @apply flex items-center justify-center overflow-hidden px-8 pt-8 pb-4; }
+  .tone-sky { @apply bg-sky-100; }
+  .tone-lime { @apply bg-lime-100; }
+  .tone-mist { @apply bg-brand-mist; }
+  .toc { @apply flex flex-col gap-0.5 border-l-2 border-slate-200; }
+  .toc-link { @apply -ml-0.5 block border-l-2 border-transparent py-1.5 pl-4 text-[14px] font-semibold leading-snug text-brand-muted no-underline transition hover:text-brand-ink; }
+  .toc-link[aria-current="true"] { @apply border-brand-ink text-brand-ink; }
 }
 
 /* Honeypot: hidden from people, still in the DOM for bots. */
@@ -112,6 +138,10 @@
 @keyframes audit-back { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
 @keyframes audit-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 @keyframes audit-pop { 0% { opacity: 0; transform: translateY(6px) scale(.98); } 100% { opacity: 1; transform: none; } }
+
+/* Scroll reveal: site.js adds .reveal-wait only to [data-reveal] items still below the fold, so nothing hides without JS. */
+.reveal-wait { opacity: 0; transform: translateY(24px); }
+.reveal-in { transition: opacity .7s cubic-bezier(.16, 1, .3, 1), transform .7s cubic-bezier(.16, 1, .3, 1); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
