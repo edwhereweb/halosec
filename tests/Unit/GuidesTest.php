@@ -113,6 +113,21 @@ final class GuidesTest extends TestCase
         $this->assertCount(count($this->guides[self::SLUG]['faqs']), $nodes['FAQPage']['mainEntity']);
     }
 
+    public function testGuideWithNamedAuthorShowsAndMarksUpThatPerson(): void
+    {
+        $html = (new PageController($this->view))->guide('sophos-endpoint-price-india');
+        $this->assertIsString($html);
+        $this->assertStringContainsString('By Manu Francis, ', $html);
+        $this->assertSame(1, preg_match('#<script type="application/ld\+json">(.*?)</script>#s', $html, $m));
+        $data = json_decode($m[1] ?? '', true);
+        $this->assertIsArray($data);
+        $nodes = array_column($data['@graph'], null, '@type');
+
+        $this->assertSame('Person', $nodes['Article']['author']['@type']);
+        $this->assertSame('Manu Francis', $nodes['Article']['author']['name']);
+        $this->assertSame(['@id' => self::BASE . '/#organization'], $nodes['Article']['author']['worksFor']);
+    }
+
     public function testUnknownGuideIsNotFound(): void
     {
         $this->assertNull((new PageController($this->view))->guide('no-such-guide'));
