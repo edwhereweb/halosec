@@ -132,6 +132,7 @@ final class StructuredData
         if ($guide !== null) {
             $published = (string) ($guide['published'] ?? '');
             $mainService = (string) ($guide['service'] ?? '');
+            $author = (array) ($guide['author'] ?? []);
             $graph[] = array_filter([
                 '@type' => 'Article',
                 '@id' => $url . '#article',
@@ -143,7 +144,9 @@ final class StructuredData
                 'articleSection' => (string) ($guide['category'] ?? ''),
                 'inLanguage' => 'en-IN',
                 'image' => $baseUrl . '/images/og-default.png',
-                'author' => ['@id' => $orgId],
+                'author' => isset($author['name'])
+                    ? array_filter(['@type' => 'Person', 'name' => (string) $author['name'], 'description' => (string) ($author['bio'] ?? ''), 'worksFor' => ['@id' => $orgId]], [self::class, 'present'])
+                    : ['@id' => $orgId],
                 'publisher' => ['@id' => $orgId],
                 'isPartOf' => ['@id' => $siteId],
                 'mainEntityOfPage' => ['@id' => $url . '#webpage'],

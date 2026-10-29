@@ -15,6 +15,7 @@ $mainName = is_array($main) ? (string) ($main['nav_label'] ?? $main['title']) : 
 $published = (string) ($guide['published'] ?? '');
 $updated = (string) ($guide['updated'] ?? $published);
 $faqs = (array) ($guide['faqs'] ?? []);
+$author = (array) ($guide['author'] ?? []);
 ?>
 <nav aria-label="Breadcrumb" class="wrap pt-6 text-[13px] font-semibold text-brand-muted">
   <ol class="flex flex-wrap items-center gap-2">
@@ -34,7 +35,7 @@ $faqs = (array) ($guide['faqs'] ?? []);
       <h1 class="display text-[40px] md:text-6xl"><?= $e($guide['title']) ?></h1>
       <p class="lead"><?= $e($guide['lead'] ?? '') ?></p>
       <p class="text-[14px] font-semibold text-brand-muted">
-        By the HaloSec security team ·
+        By <?= $e($author['name'] ?? 'the HaloSec security team') ?><?= !empty($author['bio']) ? ', ' . $e($author['bio']) : '' ?> ·
         <?php if ($updated !== '') : ?>Updated <time datetime="<?= $e($updated) ?>"><?= $e($date($updated)) ?></time> · <?php endif; ?>
         <?= $e($guide['read_minutes'] ?? '') ?> min read
       </p>
@@ -76,7 +77,7 @@ $faqs = (array) ($guide['faqs'] ?? []);
       <?php endif; ?>
 
       <p class="mt-10 text-[14px] leading-relaxed text-brand-muted">
-        This guide is general information, not legal advice. Laws and deadlines change; check the current official text before acting.
+        <?= $e($guide['disclaimer'] ?? 'This guide is general information, not legal advice. Laws and deadlines change; check the current official text before acting.') ?>
         <?php if ($published !== '') : ?>First published <time datetime="<?= $e($published) ?>"><?= $e($date($published)) ?></time>.<?php endif; ?>
       </p>
     </div>
