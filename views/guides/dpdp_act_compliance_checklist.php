@@ -42,37 +42,37 @@
 <p>Work through these in order. The first four steps tell you how big the job is; the rest put the controls in place.</p>
 
 <div class="step">
-  <h3><span class="step-num">1</span>Map the personal data you hold</h3>
+  <h3><span class="step-num">1</span> Map the personal data you hold</h3>
   <p>List every place personal data lives: CRM, accounting software, HR and payroll, email, website forms, shared drives, WhatsApp groups, laptops, backups and paper files that get scanned. For each, note what data it holds, whose it is, why you have it, who can access it and which vendors touch it. You cannot protect, explain or delete data you do not know about.</p>
 </div>
 
 <div class="step">
-  <h3><span class="step-num">2</span>Decide the lawful basis for each use</h3>
+  <h3><span class="step-num">2</span> Decide the lawful basis for each use</h3>
   <p>Under the Act you may process personal data either with <strong>consent</strong> or for certain <strong>legitimate uses</strong>. Legitimate uses include data a person gives you voluntarily for a specific purpose (without objecting), employment purposes, legal obligations and medical emergencies. Everything else, such as marketing to existing customers, needs consent.</p>
 </div>
 
 <div class="step">
-  <h3><span class="step-num">3</span>Rewrite your privacy notice</h3>
+  <h3><span class="step-num">3</span> Rewrite your privacy notice</h3>
   <p>When you ask for consent, you must give a notice that can be understood on its own, without reading anything else. It must list the personal data you collect and the specific purpose for each item, explain how to withdraw consent, how to exercise their rights and how to complain to the Data Protection Board. Plain language matters: a legal wall of text will not meet the standard.</p>
 </div>
 
 <div class="step">
-  <h3><span class="step-num">4</span>Fix how you collect consent</h3>
+  <h3><span class="step-num">4</span> Fix how you collect consent</h3>
   <p>Consent must be free, specific, informed, unconditional and unambiguous, given by a clear action such as ticking an unticked box. Pre-ticked boxes, bundled “agree to everything” checkboxes and consent hidden in terms of service do not count. Withdrawing consent must be as easy as giving it, and you must keep a record that consent was given.</p>
 </div>
 
 <div class="step">
-  <h3><span class="step-num">5</span>Name a contact person and set up grievance handling</h3>
+  <h3><span class="step-num">5</span> Name a contact person and set up grievance handling</h3>
   <p>Publish the business contact details of someone who can answer questions about how you handle personal data. (Only Significant Data Fiduciaries need a formal Data Protection Officer.) Set up a simple way for people to raise complaints, and respond within the period you publish, which must not exceed 90 days.</p>
 </div>
 
 <div class="step">
-  <h3><span class="step-num">6</span>Be ready to honour people’s rights</h3>
+  <h3><span class="step-num">6</span> Be ready to honour people’s rights</h3>
   <p>Data Principals can ask for a summary of the data you hold about them and who you shared it with, ask you to correct, complete or erase it, raise a grievance, and nominate someone to act for them. Decide who handles these requests, how you verify identity and how you find all of a person’s data across your systems. Step 1 makes this possible.</p>
 </div>
 
 <div class="step">
-  <h3><span class="step-num">7</span>Put reasonable security safeguards in place</h3>
+  <h3><span class="step-num">7</span> Put reasonable security safeguards in place</h3>
   <p>This is the obligation with the highest penalty. The Rules list the minimum:</p>
   <ul>
     <li>Encryption, masking, obfuscation or tokenisation of personal data.</li>
@@ -85,12 +85,12 @@
 </div>
 
 <div class="step">
-  <h3><span class="step-num">8</span>Keep logs for at least a year</h3>
+  <h3><span class="step-num">8</span> Keep logs for at least a year</h3>
   <p>The Rules require you to keep logs of personal data processing, and the personal data itself where needed, for at least one year to help detect and investigate breaches. Check that your firewall, email, endpoint and cloud logs are retained that long and are stored where an attacker cannot delete them. A <a href="/services/soc-setup">Security Operations Center</a> or managed monitoring service handles this for you.</p>
 </div>
 
 <div class="step">
-  <h3><span class="step-num">9</span>Write a breach response plan</h3>
+  <h3><span class="step-num">9</span> Write a breach response plan</h3>
   <p>If personal data is breached, you must:</p>
   <ul>
     <li>Tell each affected person <strong>without delay</strong>, in plain language: what happened, the likely consequences, what you are doing about it, what they can do to protect themselves, and who to contact.</li>
@@ -104,17 +104,17 @@
 </div>
 
 <div class="step">
-  <h3><span class="step-num">10</span>Review your vendor contracts</h3>
+  <h3><span class="step-num">10</span> Review your vendor contracts</h3>
   <p>You stay responsible for personal data your processors handle. List every vendor from step 1 and check that each contract requires them to protect the data, use it only on your instructions, tell you quickly about any breach and delete or return the data when the contract ends.</p>
 </div>
 
 <div class="step">
-  <h3><span class="step-num">11</span>Set retention and deletion rules</h3>
+  <h3><span class="step-num">11</span> Set retention and deletion rules</h3>
   <p>Once the purpose is served, or a person withdraws consent, you must erase their data unless another law requires you to keep it (tax, GST and labour records often do). Write down how long you keep each type of data, then actually delete it, including old exports, spreadsheets on laptops and copies in email.</p>
 </div>
 
 <div class="step">
-  <h3><span class="step-num">12</span>Check children’s data and transfers abroad</h3>
+  <h3><span class="step-num">12</span> Check children’s data and transfers abroad</h3>
   <p>If any of your users or customers may be under 18, you need verifiable consent from a parent or guardian, and you must not track, behaviourally monitor or target advertising at children. Transfers of personal data outside India are allowed unless the government restricts a particular country, so keep a list of where your cloud and SaaS providers store data.</p>
 </div>
 

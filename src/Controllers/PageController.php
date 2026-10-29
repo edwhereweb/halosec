@@ -25,17 +25,17 @@ final class PageController
     public function about(): string
     {
         return $this->view->render('pages/about', [
-            'title' => 'About HaloSec & Our Founders',
+            'title' => 'About Us: Founders, Vision & Values',
             'path' => '/about',
             'description' => 'Why HaloSec exists: honest, expert and accessible cybersecurity for growing businesses. '
-                . 'Read our founders note, vision and values.',
+                . 'Read our founders’ note, vision, values and accredited partnerships.',
         ]);
     }
 
     public function services(): string
     {
         return $this->view->render('pages/services', [
-            'title' => 'Cybersecurity Services',
+            'title' => 'Cybersecurity Services for Growing Businesses',
             'path' => '/services',
             'description' => 'Endpoint security, DLP, network security, penetration testing, SOC setup, vulnerability '
                 . 'assessments, security audits and outsourced security teams from HaloSec.',
@@ -47,8 +47,8 @@ final class PageController
         return $this->view->render('pages/guides', [
             'title' => 'Cybersecurity Guides for Growing Businesses',
             'path' => '/guides',
-            'description' => 'Plain-language cybersecurity guides for Indian businesses: DPDP Act compliance, ransomware '
-                . 'response, endpoint security, VAPT and running a SOC.',
+            'description' => 'Plain-language cybersecurity and compliance guides for Indian businesses with 5 to 500 people, '
+                . 'starting with a step-by-step DPDP Act compliance checklist.',
         ]);
     }
 

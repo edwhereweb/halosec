@@ -10,7 +10,7 @@ $tiles = ['tile-white border border-slate-200', 'tile-sky', 'tile-lime', 'tile-m
 ?>
 <?= $this->include('partials/page_header', [
     'eyebrow' => 'Security guides',
-    'heading' => 'Security, explained plainly.',
+    'heading' => 'Cybersecurity guides, explained plainly.',
     'lead' => 'Practical guides for Indian businesses with 5 to 500 people. No jargon, no fear-selling: what the rules say, what attackers do, and what to do about it.',
 ]) ?>
 

@@ -17,6 +17,7 @@
     <div class="flex flex-[2_1_480px] flex-col gap-6 text-lg leading-relaxed text-brand-body">
       <p class="text-2xl font-semibold leading-snug text-brand-ink">HaloSec was founded on a simple belief: every business, large or small, deserves security that surrounds it quietly and constantly, like a halo, without slowing people down.</p>
       <p><strong class="text-brand-ink">Our vision</strong> is a world where growing organisations can innovate confidently because their people, data and infrastructure are protected by honest, expert and accessible security.</p>
+      <p>Today that means <a class="link" href="/services/endpoint-security">endpoint security</a>, <a class="link" href="/services/security-testing">penetration testing</a>, <a class="link" href="/services/soc-setup">SOC setup</a> and <a class="link" href="/services/security-team-outsourcing">part-time security experts</a> sized for growing businesses. <a class="link" href="/services">See all our cybersecurity services</a>.</p>
       <p class="font-semibold text-brand-ink">— The HaloSec Founders</p>
     </div>
   </div>

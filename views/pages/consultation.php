@@ -1,4 +1,4 @@
-<?= $this->include('partials/page_header', ['eyebrow' => 'Talk to an expert', 'heading' => 'Book a consultation', 'lead' => 'Tell us what you’re trying to protect and a HaloSec specialist will connect with you.']) ?>
+<?= $this->include('partials/page_header', ['eyebrow' => 'Talk to an expert', 'heading' => 'Book a cybersecurity consultation', 'lead' => 'Tell us what you’re trying to protect and a HaloSec specialist will connect with you.']) ?>
 <section class="section bg-brand-mist">
   <div class="wrap flex flex-wrap gap-14">
     <div class="flex flex-[1_1_320px] flex-col gap-8">
@@ -15,6 +15,7 @@
         </li>
         <?php endforeach; ?>
       </ol>
+      <p class="text-[15px] text-brand-body">Prefer to look around first? Take the <a class="link" href="/free-audit">free cybersecurity audit</a>, browse our <a class="link" href="/services">cybersecurity services</a> or read our <a class="link" href="/guides">security guides</a>.</p>
     </div>
     <div class="card-form min-w-0 flex-[1_1_480px]">
       <div class="mb-6 flex flex-col gap-2">

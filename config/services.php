@@ -27,6 +27,7 @@ return [
     'dlp-implementation' => [
         'related' => ['endpoint-security', 'security-audits', 'network-security'],
         'nav_label' => 'Data Loss Prevention',
+        'seo_title' => 'DLP Implementation Services: Data Loss Prevention',
         'meta_description' => 'Data Loss Prevention implementation: discover and classify sensitive data, then enforce DLP policies across endpoints, email, USB, web and cloud.',
         'title' => 'DLP Implementation (Data Loss Prevention)',
         'short' => 'Discover, classify and protect sensitive data before it leaves your organisation.',
@@ -77,7 +78,8 @@ return [
     'digital-vulnerability-assessments' => [
         'related' => ['security-testing', 'security-audits', 'endpoint-security'],
         'nav_label' => 'Vulnerability Assessments',
-        'meta_description' => 'Digital vulnerability assessments that rank your exposure with a P-risk score, with executive and technical reports showing what to fix first.',
+        'seo_title' => 'Vulnerability Assessment Services & P-Risk Scoring',
+        'meta_description' => 'Vulnerability assessment services that rank your digital exposure with a P-risk score, plus executive and technical reports showing what to fix first.',
         'title' => 'Digital Vulnerability Assessments',
         'short' => 'P-risk score based assessments that rank exposure and show where to act first.',
         'icon' => 'P-R',
@@ -89,7 +91,7 @@ return [
         'related' => ['digital-vulnerability-assessments', 'security-testing', 'dlp-implementation'],
         'nav_label' => 'Security Audits',
         'seo_title' => 'Security Audits & Domain Vulnerability Research',
-        'meta_description' => 'Independent security audits plus research into your domains, DNS and email for leaked credentials, spoofing risks and misconfigurations.',
+        'meta_description' => 'Independent cybersecurity audits against recognised frameworks, plus domain, DNS and email checks for leaked credentials, spoofing and misconfigurations.',
         'title' => 'Security Audits & Client Domain Vulnerability Research',
         'short' => 'Independent audits and research into your domains for leaks, spoofing and weak points.',
         'icon' => 'AUD',
