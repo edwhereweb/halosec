@@ -117,7 +117,7 @@ final class GuidesTest extends TestCase
     {
         $html = (new PageController($this->view))->guide('sophos-endpoint-price-india');
         $this->assertIsString($html);
-        $this->assertStringContainsString('By Manu Francis, ', $html);
+        $this->assertStringContainsString('By <strong class="text-brand-ink">Manu Francis</strong>, ', $html);
         $this->assertSame(1, preg_match('#<script type="application/ld\+json">(.*?)</script>#s', $html, $m));
         $data = json_decode($m[1] ?? '', true);
         $this->assertIsArray($data);

@@ -20,15 +20,9 @@ if ($items === []) {
       <h2 id="guides-heading" class="h-section">Guides on this topic.</h2>
       <a class="link text-[15px]" href="/guides">All security guides →</a>
     </div>
-    <ul class="grid gap-4 md:grid-cols-2">
+    <ul class="grid gap-5 md:grid-cols-2">
       <?php foreach ($items as $guideSlug => $g) : ?>
-      <li>
-        <a class="tile tile-hover tile-white h-full border border-slate-200" href="/guides/<?= $e($guideSlug) ?>">
-          <span class="text-[13px] font-semibold text-brand-muted"><?= $e($g['category'] ?? 'Guide') ?> · <?= $e($g['read_minutes'] ?? '') ?> min read</span>
-          <span class="tile-title text-xl"><?= $e($g['title']) ?></span>
-          <span class="tile-text"><?= $e($g['lead'] ?? '') ?></span>
-        </a>
-      </li>
+      <li class="flex" data-reveal><?= $this->include('partials/guide_card', ['slug' => $guideSlug, 'g' => $g]) ?></li>
       <?php endforeach; ?>
     </ul>
   </div>

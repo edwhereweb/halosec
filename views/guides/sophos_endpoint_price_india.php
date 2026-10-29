@@ -32,6 +32,11 @@
 
 <h2 id="editions">Which Sophos edition does your business need?</h2>
 
+<figure class="guide-figure tone-sky">
+  <?= $this->include('partials/guide_art', ['name' => 'editions']) ?>
+  <figcaption>Each Sophos edition builds on the one below it.</figcaption>
+</figure>
+
 <h3>Sophos Endpoint</h3>
 <p>The standard choice for most companies with 5 to a few hundred computers and no full-time security team. It covers malware and ransomware protection, ransomware rollback, exploit protection, device and web control and data loss prevention rules, all managed from one dashboard.</p>
 
@@ -70,10 +75,20 @@
   <li><strong>A lighter agent.</strong> Sophos says the 2025 Windows agent uses about 40% less memory than before.</li>
 </ul>
 
+<figure class="guide-figure tone-lime">
+  <?= $this->include('partials/guide_art', ['name' => 'rollback']) ?>
+  <figcaption>Ransomware rollback stops the encryption and puts the affected files back.</figcaption>
+</figure>
+
 <h3>Why not just use antivirus?</h3>
 <p>This is the question we hear most. Antivirus gives you threat protection on one computer, and each copy works on its own. Nobody sees the whole company, policies are set PC by PC, and nothing stops a pen drive walking out with your client files. Managed endpoint security puts every device under one set of rules and one view. If you are weighing it up, our <a href="/services/endpoint-security">endpoint security service</a> page explains how we run it.</p>
 
 <h2 id="licensing">How Sophos licensing works</h2>
+
+<figure class="guide-figure tone-sky">
+  <?= $this->include('partials/guide_art', ['name' => 'licence']) ?>
+  <figcaption>One user licence covers that person’s computers. Servers are licensed separately.</figcaption>
+</figure>
 
 <ul>
   <li><strong>Per user, per year.</strong> You license the number of people, not devices. Sophos’s <a href="https://www.sophos.com/en-us/legal/license-entitlement-and-usage-policy" rel="noopener">licensing policy</a> lets each user protect “a reasonable number of computers”, so someone with a desktop and a laptop needs one licence.</li>
@@ -101,6 +116,11 @@
 </table>
 
 <p>GST at <strong>18%</strong> is added to all of these, with a GST invoice.</p>
+
+<figure class="guide-figure tone-lime">
+  <?= $this->include('partials/guide_art', ['name' => 'pricing']) ?>
+  <figcaption>The more users you license, the lower the price per user.</figcaption>
+</figure>
 
 <h3>What moves the price</h3>
 <ul>
@@ -131,6 +151,11 @@
   <li><strong>A real person when something goes wrong.</strong> When clients have had an attack or an urgent problem, we have gone on site and helped directly, often at no extra cost.</li>
   <li><strong>Renewal reminders</strong> before your licences expire, so protection never lapses.</li>
 </ul>
+
+<figure class="guide-figure tone-sky">
+  <?= $this->include('partials/guide_art', ['name' => 'support']) ?>
+  <figcaption>An office in Kochi, on-site support across Kerala, remote support anywhere in India.</figcaption>
+</figure>
 <p>Whoever you buy from, check that they appear in Sophos’s partner locator on sophos.com, and that the licence is issued to your company.</p>
 
 <h2 id="how-buying-works">How buying works, step by step</h2>
