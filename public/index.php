@@ -253,7 +253,7 @@ foreach (['GET', 'POST'] as $m) {
     $router->add($m, '/contact', $form(
         Lead::TYPE_CONTACT,
         '/contact',
-        'Contact HaloSec Cybersecurity',
+        'Contact Us: Cybersecurity Enquiries',
         'pages/contact',
         'Contact HaloSec about cybersecurity services, partnerships or general enquiries. Email us, call our hotline or send a message and we will reply promptly.',
     ));

@@ -27,7 +27,7 @@ $tileColors = ['tile-white', 'tile-sky', 'tile-white', 'tile-lime', 'tile-white'
 <section id="included" class="section bg-brand-mist">
   <div class="wrap flex flex-col gap-12">
     <div class="flex max-w-3xl flex-col gap-4">
-      <h2 class="h-section">What’s included.</h2>
+      <h2 class="h-section">What’s included<span class="sr-only"> in <?= $e($name) ?></span>.</h2>
       <p class="lead"><?= $e($service['intro']) ?></p>
     </div>
     <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

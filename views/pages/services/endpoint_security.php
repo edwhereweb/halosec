@@ -110,7 +110,7 @@ $e = static fn (mixed $v): string => HaloSec\View::e($v);
 <section class="section bg-brand-mist">
   <div class="wrap flex flex-wrap gap-14">
     <div id="faq" class="flex flex-[1_1_380px] flex-col">
-      <h2 class="mb-6 font-display text-4xl font-bold tracking-[-0.03em]">Questions</h2>
+      <h2 class="mb-6 font-display text-4xl font-bold tracking-[-0.03em]">Questions<span class="sr-only"> about endpoint security</span></h2>
       <?php foreach ($service['faqs'] ?? [] as $i => [$q, $a]) : ?>
       <details class="group border-b border-slate-300 py-5"<?= $i === 0 ? ' open' : '' ?>>
         <summary class="flex items-center justify-between gap-4 text-lg font-bold">

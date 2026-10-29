@@ -18,6 +18,7 @@ $phone = (string) ($config['emergency_phone'] ?? '+917356543520');
         <span class="text-[13px] font-bold text-lime-800">Free</span>
         <span class="text-xl font-extrabold">Check how exposed you are →</span>
       </a>
+      <p class="text-[15px] text-brand-body">Looking for something specific? Browse our <a class="link" href="/services">cybersecurity services</a> or <a class="link" href="/consultation">book a consultation</a> with a security architect.</p>
     </div>
     <div class="card-form min-w-0 flex-[2_1_480px]">
       <div class="mb-6 flex flex-col gap-2">
