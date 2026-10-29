@@ -9,6 +9,7 @@ namespace HaloSec\Seo;
  *
  * Every page gets Organization, WebSite, ProfessionalService and a WebPage node. Inner pages add a
  * BreadcrumbList; service pages add a Service node and, when the service has FAQs, an FAQPage.
+ * Guide pages add an Article node and, when the guide has FAQs, an FAQPage.
  * Address, social profiles and area served only appear once they are set in the environment.
  */
 final class StructuredData
@@ -17,6 +18,7 @@ final class StructuredData
      * @param array<string, mixed>                $config   config/app.php
      * @param array<string, array<string, mixed>> $services config/services.php
      * @param array<string, mixed>|null           $service  the current service, on /services/{slug}
+     * @param array<string, mixed>|null           $guide    the current guide (config/guides.php), on /guides/{slug}
      *
      * @return array<string, mixed>
      */
@@ -28,6 +30,7 @@ final class StructuredData
         array $config,
         array $services,
         ?array $service = null,
+        ?array $guide = null,
     ): array {
         $orgId = $baseUrl . '/#organization';
         $siteId = $baseUrl . '/#website';
@@ -109,7 +112,7 @@ final class StructuredData
             '@type' => match ($path) {
                 '/about' => 'AboutPage',
                 '/contact' => 'ContactPage',
-                '/services' => 'CollectionPage',
+                '/services', '/guides' => 'CollectionPage',
                 default => 'WebPage',
             },
             '@id' => $url . '#webpage',
@@ -123,7 +126,34 @@ final class StructuredData
         $graph[] = $page;
 
         if ($path !== '/') {
-            $graph[] = self::breadcrumbs($baseUrl, $path, $url, $pageName, $service);
+            $graph[] = self::breadcrumbs($baseUrl, $path, $url, $pageName, $service, $guide);
+        }
+
+        if ($guide !== null) {
+            $published = (string) ($guide['published'] ?? '');
+            $mainService = (string) ($guide['service'] ?? '');
+            $graph[] = array_filter([
+                '@type' => 'Article',
+                '@id' => $url . '#article',
+                'headline' => (string) ($guide['title'] ?? $pageName),
+                'description' => $description,
+                'url' => $url,
+                'datePublished' => $published,
+                'dateModified' => (string) ($guide['updated'] ?? $published),
+                'articleSection' => (string) ($guide['category'] ?? ''),
+                'inLanguage' => 'en-IN',
+                'image' => $baseUrl . '/images/og-default.png',
+                'author' => ['@id' => $orgId],
+                'publisher' => ['@id' => $orgId],
+                'isPartOf' => ['@id' => $siteId],
+                'mainEntityOfPage' => ['@id' => $url . '#webpage'],
+                'about' => isset($services[$mainService]) ? ['@id' => $baseUrl . '/services/' . $mainService . '#service'] : null,
+            ], [self::class, 'present']);
+
+            $faqPage = self::faqPage($url, (array) ($guide['faqs'] ?? []));
+            if ($faqPage !== null) {
+                $graph[] = $faqPage;
+            }
         }
 
         if ($service !== null) {
@@ -139,18 +169,9 @@ final class StructuredData
                 'mainEntityOfPage' => ['@id' => $url . '#webpage'],
             ], [self::class, 'present']);
 
-            $faqs = [];
-            foreach ((array) ($service['faqs'] ?? []) as $faq) {
-                if (is_array($faq) && isset($faq[0], $faq[1])) {
-                    $faqs[] = [
-                        '@type' => 'Question',
-                        'name' => (string) $faq[0],
-                        'acceptedAnswer' => ['@type' => 'Answer', 'text' => (string) $faq[1]],
-                    ];
-                }
-            }
-            if ($faqs !== []) {
-                $graph[] = ['@type' => 'FAQPage', '@id' => $url . '#faq', 'url' => $url, 'mainEntity' => $faqs];
+            $faqPage = self::faqPage($url, (array) ($service['faqs'] ?? []));
+            if ($faqPage !== null) {
+                $graph[] = $faqPage;
             }
         }
 
@@ -172,16 +193,43 @@ final class StructuredData
     }
 
     /**
+     * Builds an FAQPage node from [question, answer] pairs, or null when there are none.
+     *
+     * @param array<mixed> $pairs
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function faqPage(string $url, array $pairs): ?array
+    {
+        $faqs = [];
+        foreach ($pairs as $faq) {
+            if (is_array($faq) && isset($faq[0], $faq[1])) {
+                $faqs[] = [
+                    '@type' => 'Question',
+                    'name' => (string) $faq[0],
+                    'acceptedAnswer' => ['@type' => 'Answer', 'text' => (string) $faq[1]],
+                ];
+            }
+        }
+
+        return $faqs === [] ? null : ['@type' => 'FAQPage', '@id' => $url . '#faq', 'url' => $url, 'mainEntity' => $faqs];
+    }
+
+    /**
      * @param array<string, mixed>|null $service
+     * @param array<string, mixed>|null $guide
      *
      * @return array<string, mixed>
      */
-    private static function breadcrumbs(string $baseUrl, string $path, string $url, string $pageName, ?array $service): array
+    private static function breadcrumbs(string $baseUrl, string $path, string $url, string $pageName, ?array $service, ?array $guide = null): array
     {
         $trail = [['Home', $baseUrl . '/']];
         if ($service !== null) {
             $trail[] = ['Services', $baseUrl . '/services'];
             $trail[] = [(string) ($service['nav_label'] ?? $service['title'] ?? $pageName), $url];
+        } elseif ($guide !== null) {
+            $trail[] = ['Guides', $baseUrl . '/guides'];
+            $trail[] = [(string) ($guide['title'] ?? $pageName), $url];
         } else {
             $trail[] = [$pageName, $url];
         }

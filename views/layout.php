@@ -9,8 +9,9 @@ $showEmergencyBanner = ($contentBlocks['home.emergency_banner_enabled'] ?? '1') 
 $baseUrl = rtrim((string) (getenv('APP_URL') ?: (isset($_SERVER['HTTP_HOST']) ? ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']) : 'https://halosec.in')), '/');
 // Pages without a path (404, 500) get no canonical tag.
 $canonicalUrl = $path === '' ? '' : $baseUrl . $path;
-// Nav highlighting: /services/foo still highlights "Services".
-$navPath = str_starts_with($path, '/services') ? '/services' : $path;
+// Nav highlighting: /services/foo still highlights "Services", /guides/foo highlights "Guides".
+$navPath = str_starts_with($path, '/services') ? '/services' : (str_starts_with($path, '/guides') ? '/guides' : $path);
+$isGuide = str_starts_with($path, '/guides/') && isset($guide) && is_array($guide);
 $noindex = ($noindex ?? false) || $path === '' || ($isAdmin ?? false) || str_starts_with($path, '/admin');
 
 $siteName = $config['name'] ?? 'HaloSec';
@@ -43,7 +44,11 @@ $jsVersion = is_file($jsFile) ? (string) filemtime($jsFile) : '1';
 <?php endif; ?>
 
 <!-- Open Graph / Facebook / LinkedIn -->
-<meta property="og:type" content="website">
+<meta property="og:type" content="<?= $isGuide ? 'article' : 'website' ?>">
+<?php if ($isGuide && !empty($guide['published'])) : ?>
+<meta property="article:published_time" content="<?= $e($guide['published']) ?>">
+<meta property="article:modified_time" content="<?= $e($guide['updated'] ?? $guide['published']) ?>">
+<?php endif; ?>
 <meta property="og:site_name" content="<?= $e($siteName) ?>">
 <meta property="og:title" content="<?= $e($pageTitle) ?>">
 <meta property="og:description" content="<?= $e($metaDesc) ?>">
@@ -79,6 +84,7 @@ $jsVersion = is_file($jsFile) ? (string) filemtime($jsFile) : '1';
     is_array($config ?? null) ? $config : [],
     $services,
     isset($service) && is_array($service) && str_starts_with($path, '/services/') ? $service : null,
+    $isGuide ? $guide : null,
 )) ?>
 
 </script>
@@ -100,6 +106,7 @@ $jsVersion = is_file($jsFile) ? (string) filemtime($jsFile) : '1';
 $phone = (string) ($config['emergency_phone'] ?? '+917356543520');
 $navItems = [
     '/services' => 'Services',
+    '/guides' => 'Guides',
     '/free-audit' => 'Free audit',
     '/consultation' => 'Consultation',
     '/about' => 'About',
@@ -197,6 +204,7 @@ $navItems = [
       <div class="flex flex-col gap-2.5 text-sm">
         <p class="mb-1 font-bold text-white">Company</p>
         <a class="text-slate-300 no-underline hover:text-white" href="/about">About &amp; Founders</a>
+        <a class="text-slate-300 no-underline hover:text-white" href="/guides">Security guides</a>
         <a class="text-slate-300 no-underline hover:text-white" href="/free-audit">Free cybersecurity audit</a>
         <a class="text-slate-300 no-underline hover:text-white" href="/consultation">Book a consultation</a>
         <a class="text-slate-300 no-underline hover:text-white" href="/contact">Contact</a>
