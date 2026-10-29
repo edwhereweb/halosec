@@ -42,6 +42,48 @@ final class PageController
         ]);
     }
 
+    public function guides(): string
+    {
+        return $this->view->render('pages/guides', [
+            'title' => 'Cybersecurity Guides for Growing Businesses',
+            'path' => '/guides',
+            'description' => 'Plain-language cybersecurity guides for Indian businesses: DPDP Act compliance, ransomware '
+                . 'response, endpoint security, VAPT and running a SOC.',
+        ]);
+    }
+
+    /**
+     * Returns null for an unknown slug, which the router turns into a 404.
+     */
+    public function guide(string $slug): ?string
+    {
+        $guides = $this->guideList();
+        $template = 'guides/' . str_replace('-', '_', $slug);
+        if (!isset($guides[$slug]) || !is_file(dirname(__DIR__, 2) . '/views/' . $template . '.php')) {
+            return null;
+        }
+        $guide = $guides[$slug];
+
+        return $this->view->render('pages/guide', [
+            'title' => (string) ($guide['seo_title'] ?? $guide['title']),
+            'path' => '/guides/' . $slug,
+            'description' => (string) $guide['meta_description'],
+            'slug' => $slug,
+            'guide' => $guide,
+            'bodyTemplate' => $template,
+        ]);
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function guideList(): array
+    {
+        $guides = $this->view->shared('guides');
+
+        return is_array($guides) ? $guides : [];
+    }
+
     /**
      * Stays noindexed until config 'privacy_ready' is true (the page still has placeholders to fill in).
      */

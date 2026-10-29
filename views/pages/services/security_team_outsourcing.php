@@ -182,4 +182,5 @@ $tiers = [
   </div>
 </section>
 
+<?= $this->include('partials/related_guides', ['slug' => $slug, 'guides' => $guides ?? []]) ?>
 <?= $this->include('partials/related_services', ['services' => $services, 'related' => $service['related'] ?? []]) ?>

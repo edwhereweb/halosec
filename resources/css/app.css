@@ -67,6 +67,24 @@
   .opt-danger { @apply has-[:checked]:border-brand-red has-[:checked]:bg-brand-red; }
   .opt-yes { @apply has-[:checked]:border-emerald-700 has-[:checked]:bg-emerald-700; }
   .opt-no { @apply has-[:checked]:border-brand-red has-[:checked]:bg-brand-red; }
+
+  /* Long-form guide text (views/guides/*). Plain HTML inside .prose-guide gets these styles. */
+  .prose-guide { @apply text-[17px] leading-[1.75] text-brand-body; }
+  .prose-guide > * + * { @apply mt-5; }
+  .prose-guide h2 { @apply mt-14 font-display text-3xl font-bold leading-tight tracking-[-0.03em] text-brand-ink md:text-[40px]; }
+  .prose-guide h3 { @apply mt-9 text-xl font-extrabold tracking-[-0.01em] text-brand-ink; }
+  .prose-guide strong { @apply font-bold text-brand-ink; }
+  .prose-guide a { @apply font-bold text-brand-blue no-underline hover:underline; }
+  .prose-guide ul { @apply list-disc space-y-2 pl-6 marker:text-brand-blue; }
+  .prose-guide ol { @apply list-decimal space-y-2 pl-6 marker:font-bold marker:text-brand-ink; }
+  .prose-guide table { @apply w-full border-collapse text-left text-[15px]; }
+  .prose-guide th { @apply border-b-2 border-slate-200 py-3 pr-4 font-bold text-brand-ink; }
+  .prose-guide td { @apply border-b border-slate-200 py-3 pr-4 align-top; }
+  .prose-guide .callout { @apply rounded-3xl bg-brand-mist p-6 sm:p-8; }
+  .prose-guide .callout-red { @apply rounded-3xl bg-red-50 p-6 text-brand-ink sm:p-8; }
+  .prose-guide .step { @apply rounded-3xl border border-slate-200 p-6 sm:p-7; }
+  .prose-guide .step h3 { @apply mt-0 flex items-baseline gap-3; }
+  .prose-guide .step-num { @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-ink font-display text-sm font-bold text-brand-neon; }
 }
 
 /* Honeypot: hidden from people, still in the DOM for bots. */

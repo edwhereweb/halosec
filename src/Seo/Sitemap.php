@@ -13,8 +13,9 @@ final class Sitemap
 {
     /**
      * @param array<string, array<string, mixed>> $services
+     * @param array<string, array<string, mixed>> $guides   config/guides.php; a guide is listed only once its body view exists
      */
-    public static function xml(string $baseUrl, string $root, array $services, bool $includePrivacy = false): string
+    public static function xml(string $baseUrl, string $root, array $services, bool $includePrivacy = false, array $guides = []): string
     {
         $layout = [$root . '/views/layout.php'];
         $pages = [
@@ -31,7 +32,14 @@ final class Sitemap
             '/under-attack' => ['views/pages/emergency.php'],
             '/about' => ['views/pages/about.php'],
             '/contact' => ['views/pages/contact.php'],
+            '/guides' => ['views/pages/guides.php', 'config/guides.php'],
         ];
+        foreach (array_keys($guides) as $slug) {
+            $body = 'views/guides/' . str_replace('-', '_', $slug) . '.php';
+            if (is_file($root . '/' . $body)) {
+                $pages['/guides/' . $slug] = [$body, 'views/pages/guide.php', 'config/guides.php'];
+            }
+        }
         if ($includePrivacy) {
             $pages['/privacy'] = ['views/pages/privacy.php'];
         }

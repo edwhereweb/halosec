@@ -72,4 +72,5 @@ $tileColors = ['tile-white', 'tile-sky', 'tile-white', 'tile-lime', 'tile-white'
   </div>
 </section>
 
+<?= $this->include('partials/related_guides', ['slug' => $slug, 'guides' => $guides ?? []]) ?>
 <?= $this->include('partials/related_services', ['services' => $services, 'related' => $service['related'] ?? []]) ?>

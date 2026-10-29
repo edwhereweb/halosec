@@ -86,6 +86,7 @@ $config = require $root . '/config/app.php';
 HaloSec\Admin\Ui::setTimezone((string) ($config['admin_timezone'] ?? 'Asia/Kolkata'));
 $services = require $root . '/config/services.php';
 $audit = require $root . '/config/audit.php';
+$guides = require $root . '/config/guides.php';
 
 $csrf = new CsrfManager($_SESSION);
 $view = new View($root . '/views');
@@ -93,6 +94,7 @@ $view->share([
     'config' => $config,
     'services' => $services,
     'audit' => $audit,
+    'guides' => $guides,
     'csrfToken' => $csrf->token(),
     'honeypot' => LeadService::HONEYPOT,
 ]);
@@ -215,13 +217,15 @@ $router = new Router();
 $router->add('GET', '/', [$pages, 'home']);
 $router->add('GET', '/about', [$pages, 'about']);
 $router->add('GET', '/services', [$pages, 'services']);
+$router->add('GET', '/guides', [$pages, 'guides']);
+$router->add('GET', '/guides/{slug}', [$pages, 'guide']);
 $router->add('GET', '/robots.txt', static function (): string {
     header('Content-Type: text/plain; charset=utf-8');
     return (string) file_get_contents(__DIR__ . '/robots.txt');
 });
-$router->add('GET', '/sitemap.xml', static function () use ($config, $services, $root): string {
+$router->add('GET', '/sitemap.xml', static function () use ($config, $services, $guides, $root): string {
     header('Content-Type: application/xml; charset=utf-8');
-    return Sitemap::xml(rtrim((string) $config['app_url'], '/'), $root, $services, (bool) $config['privacy_ready']);
+    return Sitemap::xml(rtrim((string) $config['app_url'], '/'), $root, $services, (bool) $config['privacy_ready'], $guides);
 });
 $router->add('GET', '/privacy', static fn () => $pages->privacy((bool) $config['privacy_ready']));
 foreach (['GET', 'POST'] as $m) {
