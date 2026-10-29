@@ -32,12 +32,39 @@
     });
   });
 
-  // Founder video chapters seek the embedded YouTube player.
+  // Founder video: click-to-load, so YouTube is only contacted after the visitor presses play.
+  // Without JS the placeholder is a plain link to the video on YouTube.
+  function loadFounderVideo(startSeconds) {
+    var existing = document.getElementById('founder-video-iframe');
+    if (existing) return existing;
+    var link = document.getElementById('founder-video');
+    var id = link ? link.getAttribute('data-video-id') : '';
+    if (!link || !/^[a-zA-Z0-9_-]{11}$/.test(id || '')) return null;
+    var iframe = document.createElement('iframe');
+    iframe.id = 'founder-video-iframe';
+    iframe.className = 'absolute inset-0 h-full w-full';
+    iframe.title = 'Founder security audit briefing';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?enablejsapi=1&rel=0&modestbranding=1&autoplay=1'
+      + (startSeconds ? '&start=' + startSeconds : '');
+    link.replaceWith(iframe);
+    return null; // freshly created: it starts at startSeconds on its own
+  }
+  var videoLink = document.getElementById('founder-video');
+  if (videoLink) {
+    videoLink.addEventListener('click', function (event) {
+      event.preventDefault();
+      loadFounderVideo(0);
+    });
+  }
+
+  // Founder video chapters seek the embedded YouTube player (loading it first if needed).
   document.querySelectorAll('[data-seek]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var iframe = document.getElementById('founder-video-iframe');
-      if (!iframe || !iframe.contentWindow) return;
       var seconds = parseInt(btn.getAttribute('data-seek'), 10) || 0;
+      var iframe = loadFounderVideo(seconds);
+      if (!iframe || !iframe.contentWindow) return;
       iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [seconds, true] }), '*');
       iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
     });

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use HaloSec\Env;
 use HaloSec\Security\AdminAuth;
+use HaloSec\Services\FileLeadStorage;
 use HaloSec\Services\Migrator;
 use HaloSec\Services\PdoLeadStorage;
 
@@ -202,6 +203,50 @@ switch ($action) {
         echo "Pruned {$removed} old file(s).\n";
         break;
 
+    case 'retention':
+        // Permanently deletes submissions older than RETENTION_DAYS (default 730). Run daily from cron.
+        // Covers the database and the fallback files in storage/leads (used while the database is down).
+        $days = (int) $config['privacy']['retention_days'];
+        $cutoff = gmdate('Y-m-d H:i:s', time() - $days * 86400);
+        $files = new FileLeadStorage($config['storage_path']);
+        $erased = $files->eraseBefore($cutoff);
+        if ($config['database_dsn'] !== '') {
+            $erased += (new PdoLeadStorage($connect()))->eraseSubmissionsBefore($cutoff);
+        }
+        echo "Deleted {$erased} submission(s) received before {$cutoff} UTC ({$days}-day retention).\n";
+        break;
+
+    case 'privacy-export':
+    case 'privacy-erase':
+        $email = trim($argv[2] ?? '');
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            $fail("Usage: php bin/admin.php {$action} <email>" . ($action === 'privacy-erase' ? ' [--yes]' : ''));
+        }
+        $files = new FileLeadStorage($config['storage_path']);
+        $storage = $config['database_dsn'] !== '' ? new PdoLeadStorage($connect()) : null;
+        if ($action === 'privacy-export') {
+            echo json_encode([
+                'exported_utc' => gmdate('c'),
+                'submissions' => array_merge($storage?->exportForEmail($email) ?? [], array_map(
+                    static fn (array $lead): array => ['reference' => $lead['id'], 'received_utc' => $lead['created_at'], 'data' => $lead['data']],
+                    $files->forEmail($email),
+                )),
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
+            break;
+        }
+        $ids = $storage?->submissionIdsForEmail($email) ?? [];
+        $found = count($ids) + count($files->forEmail($email));
+        if ($found === 0) {
+            echo "No submissions found for that email.\n";
+            break;
+        }
+        if (!in_array('--yes', $argv, true)) {
+            $fail("{$found} submission(s) found. Re-run with --yes to delete them permanently.");
+        }
+        $erased = ($storage?->eraseSubmissions($ids, null, 'request') ?? 0) + $files->eraseEmail($email);
+        echo "Permanently deleted {$erased} submission(s).\n";
+        break;
+
     case 'unblock':
     case 'clear-throttle':
         $count = 0;
@@ -230,6 +275,11 @@ switch ($action) {
         Maintenance (cron)
           php bin/admin.php backup                          Gzipped SQL dump to storage/backups, then prune
           php bin/admin.php prune                           Delete old backups and expired lockout files
+          php bin/admin.php retention                       Delete submissions older than RETENTION_DAYS (default 730)
+
+        Privacy requests (GDPR / DPDP)
+          php bin/admin.php privacy-export <email>          Print everything held for an email as JSON
+          php bin/admin.php privacy-erase <email> --yes     Permanently delete everything held for an email
 
         TXT;
         break;

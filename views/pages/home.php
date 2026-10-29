@@ -255,14 +255,19 @@ $stats = [
       <h2 id="video" class="font-display text-3xl font-bold leading-[1.05] tracking-[-0.03em] md:text-[46px]">How hackers get into businesses, and why antivirus isn’t enough.</h2>
       <div class="relative aspect-video overflow-hidden rounded-[20px] bg-slate-800">
         <?php if ($videoId !== '') : ?>
-        <iframe
-          id="founder-video-iframe"
-          class="absolute inset-0 h-full w-full"
-          src="https://www.youtube-nocookie.com/embed/<?= $e($videoId) ?>?enablejsapi=1&rel=0&modestbranding=1"
-          title="Founder security audit briefing"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen>
-        </iframe>
+        <?php /* Click-to-load: nothing is requested from YouTube until the visitor chooses to play. */ ?>
+        <a
+          id="founder-video"
+          data-video-id="<?= $e($videoId) ?>"
+          href="https://www.youtube.com/watch?v=<?= $e($videoId) ?>"
+          target="_blank" rel="noopener"
+          class="group absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center text-white no-underline">
+          <span class="inline-flex h-[76px] w-[76px] items-center justify-center rounded-full bg-white text-brand-ink transition group-hover:scale-105">
+            <svg class="ml-1 h-7 w-7" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+          <span class="text-base font-bold">Play the founder’s briefing</span>
+          <span class="max-w-sm text-xs text-slate-400">Plays from YouTube. YouTube may set cookies once you press play.</span>
+        </a>
         <?php else : ?>
         <div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
           <span class="inline-flex h-[76px] w-[76px] items-center justify-center rounded-full bg-white text-brand-ink">

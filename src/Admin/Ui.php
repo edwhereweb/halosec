@@ -49,12 +49,15 @@ final class Ui
         'notes' => 'Notes',
         'score' => 'Security score',
         'answers' => 'Audit answers',
+        'privacy_notice' => 'Privacy notice shown',
     ];
 
     private const ACTION_LABELS = [
         'submission.status_changed' => 'changed status',
         'submission.assigned' => 'changed assignee',
         'submission.note_added' => 'added a note',
+        'submission.erased' => 'permanently deleted a submission',
+        'privacy.exported' => 'exported a person’s data',
         'site_setting.updated' => 'updated a site setting',
         'admin_user.created' => 'created a team member',
         'admin_user.updated' => 'updated a team member',

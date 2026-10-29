@@ -28,6 +28,7 @@ $phone = (string) ($config['emergency_phone'] ?? '+917356543520');
       <?= $this->include('partials/form_open', ['formAction' => $formAction]) ?>
         <?= $this->include('partials/contact_fields', ['old' => $old, 'errors' => $errors, 'showCompany' => false]) ?>
         <?= $this->include('partials/field', ['name' => 'message', 'label' => 'Message', 'type' => 'textarea', 'required' => true, 'old' => $old, 'errors' => $errors]) ?>
+        <?= $this->include('partials/privacy_notice') ?>
       <?= $this->include('partials/submit', ['btnLabel' => 'Send message']) ?>
     </div>
   </div>

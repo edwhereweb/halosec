@@ -201,6 +201,34 @@ $statusButtons = ['new' => 'New', 'in_review' => 'In progress', 'resolved' => 'D
           </li>
         </ol>
       </section>
+
+      <?php if (!empty($canPrivacy)) : ?>
+      <?php $others = max(0, (int) ($personSubmissions ?? 0)); ?>
+      <section class="rounded-2xl border border-slate-200 bg-white p-5" aria-labelledby="priv">
+        <h2 id="priv" class="text-sm font-bold text-slate-900">Privacy request</h2>
+        <p class="mt-1 text-sm text-slate-600">If this person asks for a copy of their data or asks us to delete it (GDPR / DPDP), use these. <?= $others > 1 ? 'We hold ' . $e($others) . ' requests from this email.' : '' ?></p>
+        <form method="post" action="/admin/submissions/<?= $e($id) ?>/privacy-export" class="mt-3">
+          <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
+          <button type="submit" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Download their data (JSON)</button>
+        </form>
+        <details class="mt-3 rounded-lg border border-red-200">
+          <summary class="cursor-pointer px-3 py-2 text-sm font-semibold text-red-700">Delete permanently…</summary>
+          <form method="post" action="/admin/submissions/<?= $e($id) ?>/erase" class="flex flex-col gap-2 border-t border-red-100 p-3">
+            <input type="hidden" name="_csrf" value="<?= $e($csrfToken) ?>">
+            <?php if ($others > 1) : ?>
+            <label class="flex items-start gap-2 text-sm text-slate-700"><input type="radio" name="scope" value="person" checked class="mt-0.5"> All <?= $e($others) ?> requests from this email</label>
+            <label class="flex items-start gap-2 text-sm text-slate-700"><input type="radio" name="scope" value="one" class="mt-0.5"> Only this request</label>
+            <?php else : ?>
+            <input type="hidden" name="scope" value="person">
+            <?php endif; ?>
+            <p class="text-xs text-slate-500">The request, its fields and team notes are removed for good. This cannot be undone.</p>
+            <label for="erase_confirm" class="text-xs font-semibold text-slate-700">Type DELETE to confirm</label>
+            <input id="erase_confirm" name="confirm" required pattern="DELETE" autocomplete="off" class="h-9 rounded-lg border-slate-200 text-sm">
+            <button type="submit" data-confirm="Permanently delete this person’s data? This cannot be undone." class="rounded-lg bg-red-700 px-3 py-2 text-sm font-semibold text-white hover:bg-red-800">Delete permanently</button>
+          </form>
+        </details>
+      </section>
+      <?php endif; ?>
     </aside>
   </div>
 </div>

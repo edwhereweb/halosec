@@ -11,9 +11,13 @@ final class LeadService
 {
     public const HONEYPOT = 'contact_fax';
 
+    /** Field that records which privacy notice the person saw when they submitted. */
+    public const NOTICE_FIELD = 'privacy_notice';
+
     public function __construct(
         private FormValidator $validator,
         private LeadStorageInterface $storage,
+        private string $noticeVersion = '',
     ) {
     }
 
@@ -38,7 +42,11 @@ final class LeadService
             return ['status' => 'invalid', 'result' => $result];
         }
 
-        $lead = new Lead($type, $result->data, gmdate('c'));
+        $data = $result->data;
+        if ($this->noticeVersion !== '') {
+            $data[self::NOTICE_FIELD] = $this->noticeVersion;
+        }
+        $lead = new Lead($type, $data, gmdate('c'));
 
         return ['status' => $this->storage->save($lead) ? 'ok' : 'failed', 'result' => $result];
     }

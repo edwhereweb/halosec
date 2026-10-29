@@ -54,6 +54,7 @@ $phone = (string) ($config['emergency_phone'] ?? '+917356543520');
       <?= $this->include('partials/field', ['name' => 'attack_type', 'label' => 'What’s happening?', 'type' => 'chips', 'chipClass' => 'opt-danger', 'required' => true, 'options' => $config['attack_types'], 'old' => $old, 'errors' => $errors]) ?>
       <?= $this->include('partials/contact_fields', ['old' => $old, 'errors' => $errors, 'phoneRequired' => true]) ?>
       <?= $this->include('partials/field', ['name' => 'message', 'label' => 'What do you see?', 'hint' => 'A sentence or two is enough.', 'type' => 'textarea', 'required' => true, 'old' => $old, 'errors' => $errors]) ?>
+      <?= $this->include('partials/privacy_notice', ['kind' => 'emergency']) ?>
     <?= $this->include('partials/submit', ['btnLabel' => 'Send to incident command', 'btnClass' => 'btn-danger']) ?>
   </div>
 </section>

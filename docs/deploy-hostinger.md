@@ -69,6 +69,9 @@ There is no default account. If `migrate` warns that some accounts use the old `
 | Every 15 minutes | `cd /home/u123456789/domains/halosec.in/public_html && /usr/bin/php bin/admin.php migrate >> storage/logs/migrate.log 2>&1` |
 | Daily 02:30 | `/usr/bin/php /home/u123456789/domains/halosec.in/public_html/bin/admin.php backup` |
 | Hourly | `/usr/bin/php /home/u123456789/domains/halosec.in/public_html/bin/admin.php prune` |
+| Daily 03:00 | `/usr/bin/php /home/u123456789/domains/halosec.in/public_html/bin/admin.php retention` |
+
+`retention` permanently deletes submissions older than `RETENTION_DAYS` (default 730), as promised in the privacy policy. See `docs/privacy-compliance.md`.
 
 The `migrate` cron is a safety net. When nothing is pending it does nothing, and it applies new migrations within 15 minutes of a deploy. `backup` writes a gzipped SQL dump to `storage/backups/` and keeps `BACKUP_KEEP_DAYS` days (default 14). Download one now and then, so a copy exists off the server.
 

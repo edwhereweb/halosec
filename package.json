@@ -5,9 +5,11 @@
   "scripts": {
     "build": "tailwindcss -c tailwind.config.js -i resources/css/app.css -o public/css/app.css --minify",
     "watch": "tailwindcss -c tailwind.config.js -i resources/css/app.css -o public/css/app.css --watch",
-    "vendor": "node -e \"require('fs').copyFileSync('node_modules/qrcode-generator/qrcode.js','public/js/vendor/qrcode.js')\""
+    "vendor": "node -e \"const fs=require('fs');fs.copyFileSync('node_modules/qrcode-generator/qrcode.js','public/js/vendor/qrcode.js');fs.mkdirSync('public/fonts',{recursive:true});for(const f of ['plus-jakarta-sans','space-grotesk'])for(const s of ['latin','latin-ext'])fs.copyFileSync('node_modules/@fontsource-variable/'+f+'/files/'+f+'-'+s+'-wght-normal.woff2','public/fonts/'+f+'-'+s+'.woff2')\""
   },
   "devDependencies": {
+    "@fontsource-variable/plus-jakarta-sans": "5.3.0",
+    "@fontsource-variable/space-grotesk": "5.3.0",
     "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/forms": "0.5.10",
     "qrcode-generator": "1.4.4",

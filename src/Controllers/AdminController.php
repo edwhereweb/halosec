@@ -409,6 +409,7 @@ final class AdminController
             'pages' => $pages,
             'canManage' => RolePolicy::allows($this->auth->role(), 'submissions.manage'),
             'saved' => is_string($query['saved'] ?? null) ? $query['saved'] : null,
+            'erased' => is_string($query['erased'] ?? null) && ctype_digit($query['erased']) ? (int) $query['erased'] : null,
         ]);
     }
 
@@ -437,6 +438,10 @@ final class AdminController
             'me' => $this->auth->userId(),
             'canManage' => RolePolicy::allows($this->auth->role(), 'submissions.manage'),
             'canAssign' => RolePolicy::allows($this->auth->role(), 'submissions.assign'),
+            'canPrivacy' => RolePolicy::allows($this->auth->role(), 'privacy.manage'),
+            'personSubmissions' => is_string($record['data']['email'] ?? null)
+                ? count($repository->submissionIdsForEmail($record['data']['email']))
+                : 0,
             'flashMessage' => match ($saved) {
                 'status' => 'Status updated.',
                 'assigned' => 'Assignment updated.',
@@ -511,6 +516,76 @@ final class AdminController
         }
 
         return $this->redirect('/admin/submissions/' . $id . '?saved=note');
+    }
+
+    /**
+     * Access / portability request: everything we hold for this submission's email, as JSON.
+     *
+     * @param array<string, mixed> $post
+     */
+    public function exportPersonData(string $id, array $post): string|int
+    {
+        if (($denied = $this->guard('privacy.manage')) !== null) {
+            return $denied;
+        }
+        if (!$this->validCsrf($post)) {
+            return 'Invalid request';
+        }
+        $record = $this->repository !== null && ctype_digit($id) ? $this->repository->submission((int) $id) : null;
+        if ($record === null || $this->repository === null) {
+            return 404;
+        }
+        $email = is_string($record['data']['email'] ?? null) ? $record['data']['email'] : '';
+        $records = $email !== ''
+            ? $this->repository->exportForEmail($email, $this->auth->userId())
+            : [[
+                'reference' => $record['id'],
+                'form' => Ui::formLabel($record['form_key']),
+                'received_utc' => $record['created_at'],
+                'data' => $record['data'],
+            ]];
+        $json = json_encode([
+            'exported_utc' => gmdate('c'),
+            'controller' => (string) ($this->config()['privacy']['legal_name'] ?? '') ?: (string) ($this->config()['name'] ?? 'HaloSec'),
+            'contact' => (string) ($this->config()['privacy']['email'] ?? ''),
+            'submissions' => $records,
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="halosec-personal-data-' . $id . '-' . gmdate('Y-m-d') . '.json"');
+        header('X-Content-Type-Options: nosniff');
+
+        return $json === false ? '{}' : $json;
+    }
+
+    /**
+     * Erasure request: permanently deletes this submission, or every submission from the same email.
+     *
+     * @param array<string, mixed> $post
+     */
+    public function erasePersonData(string $id, array $post): string|int
+    {
+        if (($denied = $this->guard('privacy.manage')) !== null) {
+            return $denied;
+        }
+        if (!$this->validCsrf($post)) {
+            return 'Invalid request';
+        }
+        $record = $this->repository !== null && ctype_digit($id) ? $this->repository->submission((int) $id) : null;
+        if ($record === null || $this->repository === null) {
+            return 404;
+        }
+        if (($post['confirm'] ?? '') !== 'DELETE') {
+            http_response_code(422);
+
+            return 'Type DELETE to confirm. Nothing was deleted.';
+        }
+        $email = is_string($record['data']['email'] ?? null) ? $record['data']['email'] : '';
+        $ids = ($post['scope'] ?? '') === 'person' && $email !== ''
+            ? $this->repository->submissionIdsForEmail($email)
+            : [(int) $id];
+        $erased = $this->repository->eraseSubmissions($ids, $this->auth->userId(), 'request');
+
+        return $this->redirect('/admin/submissions?erased=' . $erased);
     }
 
     /** @param array<string, mixed> $post */

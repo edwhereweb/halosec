@@ -23,6 +23,42 @@ final class AdminLayoutTest extends TestCase
         $this->assertStringContainsString('Emergency Hotline', $html);
     }
 
+    public function testSubmissionPageOffersPrivacyExportAndEraseOnlyWithPermission(): void
+    {
+        $view = new View(__DIR__ . '/../../views');
+        $render = static fn (bool $canPrivacy): string => $view->render('pages/admin_submission', [
+            'title' => 'Asha Nair',
+            'path' => '',
+            'submission' => [
+                'id' => 'contact-7', 'submission_id' => 7, 'form_key' => 'contact', 'type' => 'contact',
+                'created_at' => gmdate('Y-m-d H:i:s'), 'status' => 'new', 'assigned_admin_user_id' => null,
+                'data' => ['name' => 'Asha Nair', 'email' => 'asha@example.com', 'message' => 'Hi', 'privacy_notice' => '2026-10-29'],
+            ],
+            'timeline' => [],
+            'neighbours' => ['older' => null, 'newer' => null],
+            'users' => [],
+            'me' => 1,
+            'canManage' => true,
+            'canAssign' => true,
+            'canPrivacy' => $canPrivacy,
+            'personSubmissions' => 3,
+            'flashMessage' => null,
+            'services' => [],
+            'auditQuestions' => [],
+            'auditOptions' => [],
+            'csrfToken' => 'test-token',
+            'config' => ['name' => 'HaloSec'],
+            'nav' => ['active' => 'inbox', 'counts' => null, 'can' => [], 'username' => 'anjali', 'role' => 'admin', 'hasTwoFactor' => true],
+        ]);
+
+        $html = $render(true);
+        $this->assertStringContainsString('action="/admin/submissions/7/privacy-export"', $html);
+        $this->assertStringContainsString('action="/admin/submissions/7/erase"', $html);
+        $this->assertStringContainsString('All 3 requests from this email', $html);
+        $this->assertStringContainsString('Privacy notice shown', $html);
+        $this->assertStringNotContainsString('/erase"', $render(false));
+    }
+
     public function testAdminInboxUsesTheWorkspaceShellAndOperationalNavigation(): void
     {
         $view = new View(__DIR__ . '/../../views');

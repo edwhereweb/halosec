@@ -42,6 +42,30 @@ interface AdminSubmissionRepositoryInterface extends LeadStorageInterface, LeadR
 
     public function addNote(int $submissionId, string $note, ?int $actorId): bool;
 
+    /**
+     * Every submission whose email field matches (case-insensitive).
+     *
+     * @return list<int>
+     */
+    public function submissionIdsForEmail(string $email): array;
+
+    /**
+     * A person's data in a portable shape, for access / portability requests.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function exportForEmail(string $email, ?int $actorId = null): array;
+
+    /**
+     * Permanently deletes submissions with their fields and notes. Returns how many were removed.
+     *
+     * @param list<int> $submissionIds
+     */
+    public function eraseSubmissions(array $submissionIds, ?int $actorId, string $reason): int;
+
+    /** Permanently deletes every submission received before the cutoff (retention). */
+    public function eraseSubmissionsBefore(string $cutoffUtc, ?int $actorId = null): int;
+
     /** @return array<string, int> */
     public function dashboardStats(): array;
 

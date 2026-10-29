@@ -10,8 +10,8 @@ final class RolePolicy
 
     /** @var array<string, list<string>> */
     private const PERMISSIONS = [
-        'super_admin' => ['dashboard', 'submissions.read', 'submissions.manage', 'submissions.assign', 'settings.manage', 'security.read', 'audit.read', 'users.manage'],
-        'admin' => ['dashboard', 'submissions.read', 'submissions.manage', 'submissions.assign', 'settings.manage', 'security.read', 'audit.read'],
+        'super_admin' => ['dashboard', 'submissions.read', 'submissions.manage', 'submissions.assign', 'privacy.manage', 'settings.manage', 'security.read', 'audit.read', 'users.manage'],
+        'admin' => ['dashboard', 'submissions.read', 'submissions.manage', 'submissions.assign', 'privacy.manage', 'settings.manage', 'security.read', 'audit.read'],
         'editor' => ['dashboard', 'submissions.read', 'submissions.manage', 'security.read'],
         'viewer' => ['dashboard', 'submissions.read', 'security.read'],
     ];

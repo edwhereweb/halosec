@@ -140,7 +140,7 @@ if ($config['database_dsn'] !== '') {
     $dbError = 'Database is not configured (DB_* settings in .env).';
     $leadStorage = new FileLeadStorage($config['storage_path']);
 }
-$leadService = new LeadService($validator, $leadStorage);
+$leadService = new LeadService($validator, $leadStorage, (string) $config['privacy']['notice_version']);
 if ($adminRepository !== null) {
     try {
         $settings = $adminRepository->settings();
@@ -288,6 +288,8 @@ $router->add('GET', '/admin/submissions/{id}', static fn (string $id) => $admin-
 $router->add('POST', '/admin/submissions/{id}/status', static fn (string $id) => $admin->changeSubmissionStatus($id, $post));
 $router->add('POST', '/admin/submissions/{id}/assignment', static fn (string $id) => $admin->assignSubmission($id, $post));
 $router->add('POST', '/admin/submissions/{id}/notes', static fn (string $id) => $admin->addSubmissionNote($id, $post));
+$router->add('POST', '/admin/submissions/{id}/privacy-export', static fn (string $id) => $admin->exportPersonData($id, $post));
+$router->add('POST', '/admin/submissions/{id}/erase', static fn (string $id) => $admin->erasePersonData($id, $post));
 $router->add('GET', '/admin/security', static fn () => $admin->security($_GET));
 $router->add('GET', '/admin/audit', [$admin, 'audit']);
 $router->add('POST', '/admin/users/{id}', static fn (string $id) => $admin->updateUser($id, $post));

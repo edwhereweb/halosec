@@ -203,6 +203,49 @@ final class PdoLeadStorageTest extends TestCase
         $this->assertTrue($this->storage->updateAdminUser((int) $users[0]['id'], 'viewer', false, 1));
     }
 
+    public function testExportAndEraseEverythingForAnEmail(): void
+    {
+        $this->storage->save(new Lead(Lead::TYPE_CONTACT, ['email' => 'Person@Example.com', 'message' => '<script>x</script>'], gmdate('c')));
+        $this->storage->save(new Lead(Lead::TYPE_AUDIT, ['email' => 'person@example.com', 'name' => 'Person'], gmdate('c')));
+        $this->storage->save(new Lead(Lead::TYPE_CONTACT, ['email' => 'other@example.com'], gmdate('c')));
+        $ids = $this->storage->submissionIdsForEmail('PERSON@example.com');
+        $this->storage->addNote($ids[0], 'Called them.', null);
+
+        $this->assertCount(2, $ids);
+        $export = $this->storage->exportForEmail('person@example.com', 7);
+        $this->assertCount(2, $export);
+        $this->assertSame('Called them.', $export[0]['notes'][0]['note']);
+
+        $this->assertSame(2, $this->storage->eraseSubmissions($ids, 7, 'request'));
+        $this->assertSame([], $this->storage->submissionIdsForEmail('person@example.com'));
+        $this->assertSame(1, $this->scalar('SELECT COUNT(*) FROM form_submissions'));
+        $this->assertSame(0, $this->scalar("SELECT COUNT(*) FROM form_submission_fields WHERE field_value LIKE '%person@%'"));
+        $this->assertSame(0, $this->scalar('SELECT COUNT(*) FROM admin_submission_notes'));
+        // The security event survives, unlinked from the erased submission.
+        $this->assertSame(1, $this->scalar('SELECT COUNT(*) FROM security_events WHERE related_submission_id IS NULL'));
+        $this->assertSame(2, $this->scalar("SELECT COUNT(*) FROM admin_audit_logs WHERE action = 'submission.erased'"));
+        $this->assertSame(0, $this->scalar("SELECT COUNT(*) FROM admin_audit_logs WHERE details LIKE '%person@%'"));
+    }
+
+    public function testRetentionErasesOnlyOldSubmissions(): void
+    {
+        $this->storage->save(new Lead(Lead::TYPE_CONTACT, ['email' => 'old@example.com'], '2023-01-01T00:00:00+00:00'));
+        $this->storage->save(new Lead(Lead::TYPE_CONTACT, ['email' => 'new@example.com'], gmdate('c')));
+
+        $this->assertSame(1, $this->storage->eraseSubmissionsBefore(gmdate('Y-m-d H:i:s', time() - 730 * 86400)));
+        $this->assertSame([], $this->storage->submissionIdsForEmail('old@example.com'));
+        $this->assertCount(1, $this->storage->submissionIdsForEmail('new@example.com'));
+    }
+
+    public function testEmailLookupIgnoresInvalidInput(): void
+    {
+        $this->storage->save(new Lead(Lead::TYPE_CONTACT, ['email' => 'a@example.com'], gmdate('c')));
+
+        $this->assertSame([], $this->storage->submissionIdsForEmail(''));
+        $this->assertSame([], $this->storage->submissionIdsForEmail('%'));
+        $this->assertSame(0, $this->storage->eraseSubmissions([], null, 'request'));
+    }
+
     private function scalar(string $sql): int
     {
         $query = $this->pdo->query($sql);
