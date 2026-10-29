@@ -1,6 +1,6 @@
 <?php
 /**
- * Accredited partner logos: Zoho Partner, Sophos Authorized Partner, Sophos Endpoint & XDR Partner.
+ * Accredited partner logos: Zoho Partner, Sophos Authorized Partner, Sophos Endpoint & XDR Partner, Hostinger Partner.
  * Logo files live in public/images/partners/<slug>.webp|svg|png (sized: wide logos 120px tall,
  * the square Sophos badge 320px). A text badge is shown for any logo file that is missing.
  * Optional: $variant ('inline' | 'cards'), $tone ('light' | 'dark').
@@ -14,6 +14,7 @@ $partners = [
     ['slug' => 'zoho-partner', 'name' => 'Zoho', 'label' => 'Zoho Partner', 'w' => 404, 'h' => 120, 'inline' => 'h-9', 'card' => 'h-14'],
     ['slug' => 'sophos-authorized-partner', 'name' => 'Sophos', 'label' => 'Sophos Authorized Partner', 'w' => 548, 'h' => 120, 'inline' => 'h-9', 'card' => 'h-14'],
     ['slug' => 'sophos-endpoint-xdr-partner', 'name' => 'Sophos', 'label' => 'Sophos Endpoint & XDR Partner', 'w' => 320, 'h' => 320, 'inline' => 'h-14', 'card' => 'h-24'],
+    ['slug' => 'hostinger-partner', 'name' => 'Hostinger', 'label' => 'Hostinger Partner', 'w' => 320, 'h' => 120, 'inline' => 'h-11', 'card' => 'h-16'],
 ];
 foreach ($partners as $i => $p) {
     $partners[$i]['src'] = null;
@@ -28,7 +29,7 @@ $nameClass = $tone === 'dark' ? 'text-white' : 'text-brand-ink';
 $labelClass = $tone === 'dark' ? 'text-slate-300' : 'text-brand-muted';
 ?>
 <?php if ($variant === 'cards') : ?>
-<ul class="mx-auto grid w-full max-w-4xl gap-4 sm:grid-cols-3" aria-label="Accredited partnerships">
+<ul class="mx-auto grid w-full max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Accredited partnerships">
   <?php foreach ($partners as $p) : ?>
   <li class="flex flex-col items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white px-6 py-6 text-center transition hover:border-sky-300">
     <span class="flex h-24 items-center justify-center">
