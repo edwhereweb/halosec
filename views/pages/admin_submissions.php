@@ -44,6 +44,9 @@ $returnUrl = $url([]);
     </a>
   </div>
 
+  <?php if (isset($erased) && is_int($erased)) : ?>
+  <p role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900"><?= $e($erased) ?> <?= $erased === 1 ? 'request' : 'requests' ?> permanently deleted. Copies in database backups disappear automatically within <?= $e((int) (getenv('BACKUP_KEEP_DAYS') ?: 14)) ?> days.</p>
+  <?php endif; ?>
   <?php if (is_string($saved) && ctype_digit($saved)) : ?>
   <p role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900"><?= $e($saved) ?> <?= $saved === '1' ? 'request' : 'requests' ?> updated.</p>
   <?php endif; ?>

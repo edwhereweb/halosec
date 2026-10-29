@@ -4,7 +4,7 @@
     <?= $this->include('partials/flash', ['flash' => $flash]) ?>
     <?= $this->include('partials/form_open', ['formAction' => $formAction]) ?>
       <?= $this->include('partials/field', ['name' => 'email', 'label' => 'Email address', 'type' => 'email', 'required' => true, 'autocomplete' => 'email', 'old' => $old, 'errors' => $errors]) ?>
-      <p class="text-[13px] text-brand-muted">You can unsubscribe at any time.</p>
+      <?= $this->include('partials/privacy_notice', ['kind' => 'newsletter']) ?>
     <?= $this->include('partials/submit', ['btnLabel' => 'Subscribe']) ?>
   </div>
 </section>

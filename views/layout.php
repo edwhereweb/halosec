@@ -90,9 +90,7 @@ $jsVersion = is_file($jsFile) ? (string) filemtime($jsFile) : '1';
 </script>
 <?php endif; ?>
 
-<link href="https://fonts.googleapis.com" rel="preconnect">
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/app.css?v=<?= $e($cssVersion) ?>">
 
 </head>

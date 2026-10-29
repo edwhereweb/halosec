@@ -27,6 +27,23 @@ final class FileLeadStorageTest extends TestCase
         }
     }
 
+    public function testErasesByEmailAndByAge(): void
+    {
+        $storage = new FileLeadStorage($this->dir);
+        $storage->save(new Lead(Lead::TYPE_CONTACT, ['email' => 'Ann@example.com'], gmdate('c')));
+        $storage->save(new Lead(Lead::TYPE_AUDIT, ['email' => 'ann@example.com'], gmdate('c')));
+        $storage->save(new Lead(Lead::TYPE_CONTACT, ['email' => 'old@example.com'], '2023-01-01T00:00:00+00:00'));
+        $storage->save(new Lead(Lead::TYPE_CONTACT, ['email' => 'bob@example.com'], gmdate('c')));
+
+        $this->assertCount(2, $storage->forEmail('ANN@example.com'));
+        $this->assertSame(2, $storage->eraseEmail('ann@example.com'));
+        $this->assertSame([], $storage->forEmail('ann@example.com'));
+        $this->assertSame(1, $storage->eraseBefore(gmdate('Y-m-d H:i:s', time() - 86400)));
+        $remaining = $storage->all();
+        $this->assertCount(1, $remaining);
+        $this->assertSame('bob@example.com', $remaining[0]['data']['email']);
+    }
+
     public function testAppendsJsonLines(): void
     {
         $storage = new FileLeadStorage($this->dir);

@@ -35,6 +35,15 @@ final class LeadServiceTest extends TestCase
         $this->assertSame('contact', $storage->leads[0]->type);
     }
 
+    public function testRecordsWhichPrivacyNoticeWasShown(): void
+    {
+        $storage = new ArrayLeadStorage();
+        $service = new LeadService(new FormValidator([], [], [], [], [], []), $storage, '2026-10-29');
+
+        $this->assertSame('ok', $service->submit(Lead::TYPE_CONTACT, $this->valid())['status']);
+        $this->assertSame('2026-10-29', $storage->leads[0]->data[LeadService::NOTICE_FIELD]);
+    }
+
     public function testInvalidIsNotStored(): void
     {
         $storage = new ArrayLeadStorage();

@@ -226,6 +226,100 @@ final class PdoLeadStorage implements AdminSubmissionRepositoryInterface
         return true;
     }
 
+    public function submissionIdsForEmail(string $email): array
+    {
+        $email = trim($email);
+        if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            return [];
+        }
+        // Field values are stored JSON-encoded, so compare against the encoded form.
+        $encoded = json_encode(mb_strtolower($email), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $query = $this->pdo->prepare(
+            "SELECT DISTINCT submission_id FROM form_submission_fields
+             WHERE field_key = 'email' AND LOWER(field_value) = :email ORDER BY submission_id",
+        );
+        $query->execute(['email' => $encoded]);
+
+        return array_map('intval', $query->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    public function exportForEmail(string $email, ?int $actorId = null): array
+    {
+        $records = [];
+        $ids = $this->submissionIdsForEmail($email);
+        foreach ($ids as $id) {
+            $record = $this->submission($id);
+            if ($record === null) {
+                continue;
+            }
+            $records[] = [
+                'reference' => $record['id'],
+                'form' => Ui::formLabel($record['form_key']),
+                'received_utc' => $record['created_at'],
+                'status' => Ui::statusLabel($record['status']),
+                'data' => $record['data'],
+                'notes' => array_map(
+                    static fn (array $n): array => ['note' => (string) $n['note'], 'created_utc' => (string) $n['created_at']],
+                    $this->notes($id),
+                ),
+            ];
+        }
+        if ($ids !== []) {
+            $this->audit($actorId, 'privacy.exported', 'form_submission', $ids[0], ['submissions' => count($records)]);
+        }
+
+        return $records;
+    }
+
+    public function eraseSubmissions(array $submissionIds, ?int $actorId, string $reason): int
+    {
+        $ids = array_values(array_unique(array_filter($submissionIds, static fn (int $id): bool => $id > 0)));
+        if ($ids === []) {
+            return 0;
+        }
+        $erased = 0;
+        try {
+            $this->pdo->beginTransaction();
+            $unlinkEvents = $this->pdo->prepare('UPDATE security_events SET related_submission_id = NULL WHERE related_submission_id = :id');
+            $deleteNotes = $this->pdo->prepare('DELETE FROM admin_submission_notes WHERE submission_id = :id');
+            $deleteFields = $this->pdo->prepare('DELETE FROM form_submission_fields WHERE submission_id = :id');
+            $deleteSubmission = $this->pdo->prepare('DELETE FROM form_submissions WHERE id = :id');
+            foreach ($ids as $id) {
+                $unlinkEvents->execute(['id' => $id]);
+                $deleteNotes->execute(['id' => $id]);
+                $deleteFields->execute(['id' => $id]);
+                $deleteSubmission->execute(['id' => $id]);
+                if ($deleteSubmission->rowCount() > 0) {
+                    $erased++;
+                    // The log keeps only the reference and reason, never the erased personal data.
+                    $this->audit($actorId, 'submission.erased', 'form_submission', $id, ['reason' => $reason]);
+                }
+            }
+            $this->pdo->commit();
+        } catch (Throwable $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw $e;
+        }
+
+        return $erased;
+    }
+
+    public function eraseSubmissionsBefore(string $cutoffUtc, ?int $actorId = null): int
+    {
+        $query = $this->pdo->prepare('SELECT id FROM form_submissions WHERE submitted_at < :cutoff ORDER BY id');
+        $query->execute(['cutoff' => $this->timestamp($cutoffUtc)]);
+        $ids = array_map('intval', $query->fetchAll(PDO::FETCH_COLUMN));
+
+        $erased = 0;
+        foreach (array_chunk($ids, 200) as $chunk) {
+            $erased += $this->eraseSubmissions($chunk, $actorId, 'retention');
+        }
+
+        return $erased;
+    }
+
     public function dashboardStats(): array
     {
         $today = gmdate('Y-m-d 00:00:00');

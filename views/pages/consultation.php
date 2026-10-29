@@ -27,6 +27,7 @@
         <?= $this->include('partials/contact_fields', ['old' => $old, 'errors' => $errors]) ?>
         <?= $this->include('partials/field', ['name' => 'preferred_time', 'label' => 'Preferred date / time', 'placeholder' => 'e.g. Tuesday afternoon', 'old' => $old, 'errors' => $errors]) ?>
         <?= $this->include('partials/field', ['name' => 'message', 'label' => 'Anything else we should know?', 'type' => 'textarea', 'old' => $old, 'errors' => $errors]) ?>
+        <?= $this->include('partials/privacy_notice') ?>
       <?= $this->include('partials/submit', ['btnLabel' => 'Request consultation']) ?>
     </div>
   </div>

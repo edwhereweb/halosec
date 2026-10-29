@@ -25,6 +25,19 @@ return [
     // Flip to true once views/pages/privacy.php has been completed and reviewed.
     // Until then /privacy is noindexed and not linked from the footer or sitemap.
     'privacy_ready' => false,
+    // Privacy (GDPR / DPDP). Empty values show as [TO COMPLETE] on the draft policy.
+    'privacy' => [
+        // Change this date whenever the wording of the form notice or the policy changes.
+        // It is saved with every submission as a record of what the person was shown.
+        'notice_version' => '2026-10-29',
+        'legal_name' => (string) (getenv('BUSINESS_LEGAL_NAME') ?: ''),
+        'email' => (string) (getenv('PRIVACY_EMAIL') ?: getenv('CONTACT_EMAIL') ?: 'hello@halosec.in'),
+        'officer_name' => (string) (getenv('GRIEVANCE_OFFICER_NAME') ?: ''),
+        'officer_phone' => (string) (getenv('GRIEVANCE_OFFICER_PHONE') ?: ''),
+        'hosting' => (string) (getenv('HOSTING_PROVIDER') ?: ''),
+        // Submissions older than this are permanently deleted by `php bin/admin.php retention`.
+        'retention_days' => max(30, (int) (getenv('RETENTION_DAYS') ?: 730)),
+    ],
     'storage_path' => dirname(__DIR__) . '/storage/leads',
     'auth_path' => dirname(__DIR__) . '/storage/auth',
     'logs_path' => dirname(__DIR__) . '/storage/logs',

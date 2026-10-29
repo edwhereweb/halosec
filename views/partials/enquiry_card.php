@@ -35,6 +35,7 @@ $notes = $notes ?? [];
         'old' => $old,
         'errors' => $errors,
     ]) ?>
+    <?= $this->include('partials/privacy_notice') ?>
   <?= $this->include('partials/submit', ['btnLabel' => $btnLabel ?? 'Send enquiry']) ?>
   <?php if ($notes !== []) : ?>
   <ul class="mt-6 flex flex-col gap-2 border-t border-slate-100 pt-5 text-[13px] font-medium text-brand-muted">

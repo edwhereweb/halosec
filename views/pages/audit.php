@@ -183,6 +183,7 @@ foreach ($details as $d) {
             <?= $this->include('partials/field', ['name' => 'notes', 'label' => 'Anything else we should know?', 'type' => 'textarea', 'old' => $old, 'errors' => $errors]) ?>
           </div>
         </details>
+        <?= $this->include('partials/privacy_notice', ['kind' => 'audit']) ?>
         <div class="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
           <button type="button" data-audit-to-results class="btn hidden text-brand-blue hover:bg-brand-mist [.is-quiz_&]:inline-flex">← Back to my score</button>
           <button type="submit" class="btn btn-lg btn-cta sm:min-w-[260px]">

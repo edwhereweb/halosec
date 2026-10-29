@@ -81,6 +81,86 @@ final class FileLeadStorage implements LeadStorageInterface, LeadReaderInterface
     }
 
     /**
+     * Fallback-file leads whose email matches (case-insensitive), for access requests.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function forEmail(string $email): array
+    {
+        $email = mb_strtolower(trim($email));
+
+        return array_values(array_filter(
+            $this->all(),
+            static fn (array $lead): bool => $email !== '' && is_string($lead['data']['email'] ?? null)
+                && mb_strtolower(trim($lead['data']['email'])) === $email,
+        ));
+    }
+
+    /** Permanently removes leads from this email (erasure request). */
+    public function eraseEmail(string $email): int
+    {
+        $email = mb_strtolower(trim($email));
+        if ($email === '') {
+            return 0;
+        }
+
+        return $this->eraseWhere(static fn (array $row): bool => is_string($row['data']['email'] ?? null)
+            && mb_strtolower(trim($row['data']['email'])) === $email);
+    }
+
+    /** Permanently removes leads received before the cutoff (retention). */
+    public function eraseBefore(string $cutoffUtc): int
+    {
+        $cutoff = strtotime($cutoffUtc . (str_contains($cutoffUtc, 'T') ? '' : ' UTC'));
+        if ($cutoff === false) {
+            return 0;
+        }
+
+        return $this->eraseWhere(static function (array $row) use ($cutoff): bool {
+            $at = strtotime((string) ($row['created_at'] ?? ''));
+
+            return $at !== false && $at < $cutoff;
+        });
+    }
+
+    /**
+     * Rewrites each file without the matching lines, under an exclusive lock.
+     *
+     * @param callable(array<string, mixed>): bool $shouldErase
+     */
+    private function eraseWhere(callable $shouldErase): int
+    {
+        $erased = 0;
+        foreach (Lead::TYPES as $type) {
+            $path = rtrim($this->directory, '/\\') . '/' . $type . '.jsonl';
+            if (!is_file($path)) {
+                continue;
+            }
+            $handle = @fopen($path, 'r+b');
+            if ($handle === false || !flock($handle, LOCK_EX)) {
+                continue;
+            }
+            $keep = [];
+            while (($line = fgets($handle)) !== false) {
+                $row = json_decode(rtrim($line, "\r\n"), true);
+                if (is_array($row) && $shouldErase($row)) {
+                    $erased++;
+                    continue;
+                }
+                $keep[] = $line;
+            }
+            ftruncate($handle, 0);
+            rewind($handle);
+            fwrite($handle, implode('', $keep));
+            fflush($handle);
+            flock($handle, LOCK_UN);
+            fclose($handle);
+        }
+
+        return $erased;
+    }
+
+    /**
      * @return list<array{id: string, type: string, created_at: string, data: array<string, mixed>}>
      */
     private function read(string $type): array
