@@ -191,7 +191,7 @@ $navItems = [
           <?= $this->include('partials/brand_logo', ['variant' => 'dark', 'size' => 'md']) ?>
         </a>
         <p class="text-sm leading-relaxed">We are Securious: curious about security, so you can fearlessly scale your business.</p>
-        <p class="text-[13px] font-semibold text-slate-400">Zoho Partner · Sophos Authorized Partner · Sophos Endpoint &amp; XDR Partner</p>
+        <p class="text-[13px] font-semibold text-slate-400">Zoho Partner · Sophos Authorized Partner · Sophos Endpoint &amp; XDR Partner · Hostinger Partner</p>
       </div>
       <div class="flex flex-col gap-2.5 text-sm">
         <p class="mb-1 font-bold text-white">Services</p>

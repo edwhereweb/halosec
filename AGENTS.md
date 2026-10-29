@@ -77,7 +77,7 @@ Calm, product-led design inspired by Apple and Google (large type, generous whit
 ### Partials
 * `partials/halo` — animated rings behind heroes (`tone`: light / blue / dark)
 * `partials/page_header` — inner-page hero
-* `partials/partners` — Zoho / Sophos badges; drop official logos into `public/images/partners/` as `zoho-partner`, `sophos-authorized-partner` and `sophos-endpoint-xdr-partner` (`.webp`, `.svg` or `.png`); a text badge shows for any missing file
+* `partials/partners` — Zoho / Sophos badges; drop official logos into `public/images/partners/` as `zoho-partner`, `sophos-authorized-partner`, `sophos-endpoint-xdr-partner` and `hostinger-partner` (`.webp`, `.svg` or `.png`); a text badge shows for any missing file
 * `partials/service_subnav`, `partials/enquiry_card` — service page sticky sub-nav and enquiry form (with optional scope chips)
 * `partials/cta_band` — closing blue call-to-action band
 * `partials/field` supports `type => 'chips'` (radio chips) plus `hint`, `placeholder`, `autocomplete`
