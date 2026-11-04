@@ -22,6 +22,7 @@ use HaloSec\Controllers\FormController;
 use HaloSec\Controllers\PageController;
 use HaloSec\Models\Lead;
 use HaloSec\Router;
+use HaloSec\Seo\LlmsTxt;
 use HaloSec\Seo\Sitemap;
 use HaloSec\Security\AdminAuth;
 use HaloSec\Security\CsrfManager;
@@ -214,7 +215,20 @@ $form = static fn (string $type, string $route, string $title, string $tpl, stri
     => static fn () => $forms->handle($type, $route, $title, $tpl, $method, $post, null, $description, $noindex);
 
 $router = new Router();
-$router->add('GET', '/', [$pages, 'home']);
+$llms = static fn (): string => LlmsTxt::markdown(rtrim((string) $config['app_url'], '/'), $config, $services, $guides);
+$router->add('GET', '/', static function () use ($pages, $llms): string {
+    // Agents that ask for Markdown get the llms.txt summary instead of the HTML page.
+    header('Vary: Accept');
+    if (str_contains(strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? '')), 'text/markdown')) {
+        header('Content-Type: text/markdown; charset=utf-8');
+        return $llms();
+    }
+    return $pages->home();
+});
+$router->add('GET', '/llms.txt', static function () use ($llms): string {
+    header('Content-Type: text/plain; charset=utf-8');
+    return $llms();
+});
 $router->add('GET', '/about', [$pages, 'about']);
 $router->add('GET', '/services', [$pages, 'services']);
 $router->add('GET', '/guides', [$pages, 'guides']);
