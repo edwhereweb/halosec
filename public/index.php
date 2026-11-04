@@ -219,6 +219,7 @@ $llms = static fn (): string => LlmsTxt::markdown(rtrim((string) $config['app_ur
 $router->add('GET', '/', static function () use ($pages, $llms): string {
     // Agents that ask for Markdown get the llms.txt summary instead of the HTML page.
     header('Vary: Accept');
+    header('Link: </llms.txt>; rel="describedby"; type="text/plain", </>; rel="alternate"; type="text/markdown"');
     if (str_contains(strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? '')), 'text/markdown')) {
         header('Content-Type: text/markdown; charset=utf-8');
         return $llms();

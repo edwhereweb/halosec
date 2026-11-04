@@ -147,6 +147,21 @@
     });
   }
 
+  // WebMCP: a read-only tool so in-browser agents can read the site summary (the homepage's Markdown version, same as /llms.txt).
+  if (navigator.modelContext && typeof navigator.modelContext.registerTool === 'function') {
+    try {
+      navigator.modelContext.registerTool({
+        name: 'get_halosec_overview',
+        description: 'Get a Markdown summary of HaloSec: its cybersecurity services, guides, contact details and key pages.',
+        inputSchema: { type: 'object', properties: {} },
+        execute: function () {
+          return fetch('/', { headers: { Accept: 'text/markdown' } }).then(function (r) { return r.text(); })
+            .then(function (text) { return { content: [{ type: 'text', text: text }] }; });
+        }
+      });
+    } catch (e) { /* an agent API change must never break the page */ }
+  }
+
   // Close the mobile menu when a link inside it is chosen or the user clicks elsewhere.
   var menu = document.querySelector('[data-mobile-menu]');
   if (menu) {

@@ -50,6 +50,7 @@ final class StructuredData
             'slogan' => (string) ($config['tagline'] ?? ''),
             'description' => 'Cybersecurity services for growing businesses: 24/7 SOC monitoring, endpoint and network security, penetration testing and security audits.',
             'email' => $email,
+            'telephone' => $phone,
             'address' => $address,
             'sameAs' => $sameAs,
             'contactPoint' => $phone === '' ? null : [
