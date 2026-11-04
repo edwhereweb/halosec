@@ -41,6 +41,11 @@
 
 <p>Work through these in order. The first four steps tell you how big the job is; the rest put the controls in place.</p>
 
+<figure class="guide-figure tone-lime">
+  <?= $this->include('partials/guide_art', ['name' => 'checklist']) ?>
+  <figcaption>Twelve steps, worked through in order. The first four size the job.</figcaption>
+</figure>
+
 <div class="step">
   <h3><span class="step-num">1</span> Map the personal data you hold</h3>
   <p>List every place personal data lives: CRM, accounting software, HR and payroll, email, website forms, shared drives, WhatsApp groups, laptops, backups and paper files that get scanned. For each, note what data it holds, whose it is, why you have it, who can access it and which vendors touch it. You cannot protect, explain or delete data you do not know about.</p>
@@ -98,6 +103,11 @@
   </ul>
   <p>Decide now who leads, who calls the lawyer, who drafts the notices and how you reach customers. Keep the plan, and your <a href="/under-attack">incident response contact</a>, somewhere you can reach if your own systems are down.</p>
 </div>
+
+<figure class="guide-figure tone-sky">
+  <?= $this->include('partials/guide_art', ['name' => 'breach']) ?>
+  <figcaption>A detailed breach report must reach the Data Protection Board within 72 hours.</figcaption>
+</figure>
 
 <div class="callout-red" id="cert-in">
   <p><strong>Do not forget CERT-In.</strong> Under CERT-In’s 2022 directions, many cyber incidents, including data breaches, ransomware and compromise of servers or email, must be reported to CERT-In within <strong>6 hours</strong> of noticing them. A single incident can require reports to both CERT-In and the Data Protection Board, on different clocks.</p>
